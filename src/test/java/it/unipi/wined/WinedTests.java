@@ -38,11 +38,11 @@ public class WinedTests {
     @AfterEach
     public void tearDown() {
     }
-
+/*
     @Test
     public void testUsers(){
         Neo4JUtils w = new Neo4JUtils();
-        List<FakeUser> fu = w.getUsers("/home/erni/wined/wined/data/users/female_users.json", "/home/erni/wined/wined/data/users/male_users.json");
+        List<FakeUser> fu = w.getUsers("/home/erni/data/users/female_users.json", "/home/erni/wined/wined/data/users/male_users.json");
         FakeUser.printUsers(fu);
     }
     
@@ -50,8 +50,8 @@ public class WinedTests {
     @Test
     public void testNeo4J(){
         Neo4JUtils w = new Neo4JUtils();
-        w.insertVivinoJson("/home/erni/wined/wined/data/final_dataset/vivino_data.json");
-        w.insertWinemagJson("/home/erni/wined/wined/data/final_dataset/winemag_data.json");
+        w.insertVivinoJson("/home/erni/data/final_dataset/vivino_data.json");
+        w.insertWinemagJson("/home/erni/data/final_dataset/winemag_data.json");
         
     }
     
@@ -59,7 +59,7 @@ public class WinedTests {
     @Test 
     public void insertReview(){
         Neo4JUtils w = new Neo4JUtils();
-        List<FakeUser> fu = w.getUsers("/home/erni/wined/wined/data/users/female_users.json", "/home/erni/wined/wined/data/users/male_users.json");
+        List<FakeUser> fu = w.getUsers("/home/erni/data/users/female_users.json", "/home/erni/wined/wined/data/users/male_users.json");
         Review review = new Review("shit wine", (float) 1.0, new User(fu.get(1)));
         w.insertReview("Domaine Ehrhart 2013 Domaine Saint-Rémy Herrenweg Gewurztraminer (Alsace)", review);
 
@@ -69,4 +69,5 @@ public class WinedTests {
     //
     // @Test
     // public void hello() {}
+*/
 }

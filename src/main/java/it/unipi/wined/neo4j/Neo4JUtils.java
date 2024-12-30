@@ -35,13 +35,15 @@ import org.neo4j.driver.QueryConfig;
  * @author erni
  */
 public class Neo4JUtils {
-        
+    
+    public static String connectionIp = "192.168.1.10";
+    
     public static Driver establishConnection(String uri, String user, String password) {
         return GraphDatabase.driver(uri, AuthTokens.basic(user, password));
     }
 
     public static void insertVivinoJson(String filepath) {
-        Driver driver = establishConnection("neo4j://192.168.1.104:7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         Gson gson = new Gson();
         try {
             FileReader reader = new FileReader(filepath);
@@ -65,7 +67,7 @@ public class Neo4JUtils {
     }
 
     public static void insertWinemagJson(String filepath) {
-        Driver driver = establishConnection("neo4j://192.168.1.104:7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         Gson gson = new Gson();
         try {
             FileReader reader = new FileReader(filepath);
@@ -104,7 +106,7 @@ public class Neo4JUtils {
     }
     
     public static void insertReview(String wine ,Review review){
-        Driver driver = establishConnection("neo4j://192.168.1.104:7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         User user = review.user;
         driver.executableQuery("""
                                MATCH (a:wine {name: $wineName})
