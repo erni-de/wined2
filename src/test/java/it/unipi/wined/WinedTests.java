@@ -38,7 +38,7 @@ public class WinedTests {
     @AfterEach
     public void tearDown() {
     }
-/*
+
     @Test
     public void testUsers(){
         Neo4JUtils w = new Neo4JUtils();
@@ -69,5 +69,5 @@ public class WinedTests {
     //
     // @Test
     // public void hello() {}
-*/
+
 }
