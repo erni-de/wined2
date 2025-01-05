@@ -1,38 +1,66 @@
 import requests
 import json
 
-#Creo 50000 utenti da collegare ai vini di winemag
+#Funzione per generare utenti in batch
+def generate_users_in_batches(total_users, gender, batch_size=1000):
+    api_url = "https://fakerapi.it/api/v2/persons"
+    users = []
 
-#25000 DONNE
-api_request_female = "https://fakerapi.it/api/v2/persons?_quantity=25000&_gender=female&_birthday_start=1960-01-01"
+    # Calcola il numero totale di batch necessari
+    num_batches = (total_users // batch_size) + (1 if total_users % batch_size > 0 else 0)
 
-#25000 UOMINI
-api_request_male = "https://fakerapi.it/api/v2/persons?_quantity=25000&_gender=male&_birthday_start=1960-01-01"
+    for batch in range(num_batches):
+        #Calcola il numero di utenti da generare in questo batch
+        current_batch_size = min(batch_size, total_users - len(users))
+        print(f"Generazione batch {batch + 1}/{num_batches} per il genere {gender} ({current_batch_size} utenti)...")
 
-response_female = requests.get(api_request_female)
-response_male = requests.get(api_request_male)
+        # Richiesta all'API
+        response = requests.get(api_url, params={
+            "_quantity": current_batch_size,
+            "_gender": gender,
+            "_birthday_start": "1960-01-01",
+        })
 
-#Se 200 è andato tutto ok nell'HTTP
-if response_female.status_code == 200 and response_male.status_code == 200:
-    
-    # Converto in JSON e aggiungo i campi del nickname e password
-    data_female = response_female.json()
-    data_male = response_male.json()
+        # Verifica della risposta
+        if response.status_code == 200:
+            data = response.json()
+            users.extend(data["data"])
+        else:
+            print(f"Errore durante il batch {batch + 1}: {response.status_code}")
+            break
 
-    users_fem = data_female['data']
-    users_male = data_male['data']
+    return users
 
-    for user in users_fem:
-        user['nickname'] = user['firstname'] + "_" + user['lastname']
-        user['password'] = user['firstname'] + user['birthday'].split('-')[0]
+#Funzione principale per generare utenti
+def main():
+    #Numero totale di utenti da generare per genere
+    total_users_per_gender = 25000
 
-    for user in users_male:
-        user['nickname'] = user['firstname'] + "_" + user['lastname']
-        user['password'] = user['firstname'] + user['birthday'].split('-')[0]
+    #Genera utenti femmine
+    print("Generazione utenti femmine...")
+    female_users = generate_users_in_batches(total_users_per_gender, "female")
 
-    #Salvataggio dei dati in un file JSON
-    with open('male_users.json', 'w') as json_file:
-        json.dump(data_male, json_file, indent=4)
+    #Genera utenti maschi
+    print("Generazione utenti maschi...")
+    male_users = generate_users_in_batches(total_users_per_gender, "male")
 
-    with open('female_users.json', 'w') as json_file:
-        json.dump(data_female, json_file, indent=4)
+    #Combina gli utenti maschi e femmine
+    all_users = female_users + male_users
+
+    #Aggiunge nickname e password
+    print("Aggiunta di nickname e password...")
+    for user in all_users:
+        user["nickname"] = f"{user['firstname']}_{user['lastname']}"
+        user["password"] = f"{user['firstname']}{user['birthday'].split('-')[0]}"
+
+    #Salva tutti gli utenti in un unico file JSON
+    output_file = "../data/users/users_generated.json"
+    with open(output_file, "w", encoding="utf-8") as file:
+        json.dump(all_users, file, indent=4, ensure_ascii=False)
+
+    print(f"Generazione completata! Utenti totali generati: {len(all_users)}")
+    print(f"File salvato in: {output_file}")
+
+#Avvia la generazione
+if __name__ == "__main__":
+    main()

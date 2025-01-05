@@ -13,7 +13,10 @@ def get_arguments():
     parser.add_argument('-start_page', help='Identificatore pagina di partenza', type=int, default=1)
     return parser.parse_args()
 
-#Funzione per fare scraping del prezzo e dell'alcol HTML
+# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
+# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
+# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
+# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
 def get_html_data(wine_url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -25,6 +28,7 @@ def get_html_data(wine_url):
     response = requests.get(wine_url, headers=headers)
     price = None
     alcohol_percentage = None
+    description = None
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -34,28 +38,40 @@ def get_html_data(wine_url):
         if price_span:
             price = price_span.get_text(strip=True)
 
+        #Estrazione della percentuale alcolica e della descrizione
         try:
-            #Con la find normale non funzionava, ho più tag con la stessa classe quindi ho provato la findall
             facts = soup.find_all('td', class_='wineFacts__fact--3BAsi')
+
+            #Percentuale alcolica: primo elemento con "%":
             for fact in facts:
-                #Il simbolo % è presente in ogni gradazione e mi permette di individuarlo
-                if "%" in fact.get_text():
-                    alcohol_percentage = fact.get_text(strip=True)
+                text = fact.get_text(strip=True)
+                if "%" in text:
+                    alcohol_percentage = text
                     break
+
+            #Controllo sul numero di elementi
+            if len(facts) == 7:
+                description = facts[-1].get_text(strip=True)
+            else:
+                description = None
+
         except Exception as e:
-            print(f"Errore durante il parsing della percentuale alcolica: {e}")
+            print(f"Errore durante il parsing della percentuale alcolica o della descrizione: {e} (link: {wine_url})")
 
     return {
         'price': price,
-        'alcohol_percentage': alcohol_percentage
+        'alcohol_percentage': alcohol_percentage,
+        'description': description
     }
+
+
 
 if __name__ == '__main__':
     args = get_arguments()
     output_dir = args.output_file
     start_page = args.start_page
 
-    #Assicuriamoci che la cartella esista
+    # Assicuriamoci che la cartella esista
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -66,7 +82,7 @@ if __name__ == '__main__':
         "min_rating": 1.0
     }
 
-    #Ottenere il numero totale di vini
+    # Ottenere il numero totale di vini
     res = r.get('explore/explore?', params=payload)
     n_matches = res.json()['explore_vintage']['records_matched']
     print(f'Numero totale di vini ottenuti: {n_matches}')
@@ -81,32 +97,26 @@ if __name__ == '__main__':
 
         for match in matches:
             wine = match['vintage']['wine']
-            
+
             try:
                 # Provo a cercare il prezzo nella risposta dell'API
                 price_info = match['vintage'].get('price', None)
 
-                # Anche se ho già il prezzo, provo a fare uno scraping HTML per la percentuale alcolica
+                # Scraping HTML per ulteriori dettagli
                 wine_html_url = f"https://www.vivino.com/w/{wine['id']}"
                 html_data = get_html_data(wine_html_url)
 
                 if price_info:
                     wine['price'] = price_info
                 else:
-                    # Se non c'è prezzo dall'API, uso quello HTML
-                    if html_data['price']:
-                        wine['price'] = html_data['price']
-                    else:
-                        # Se non trovo neanche quello HTML, sollevo errore ma continuo senza interrompere il programma
-                        raise KeyError("Prezzo non disponibile per il vino.")
+                    wine['price'] = html_data['price']
 
-                # Se presente, aggiungo la percentuale alcolica, altrimenti proseguo senza bloccare il programma
-                if html_data['alcohol_percentage']:
-                    wine['alcohol_percentage'] = html_data['alcohol_percentage']
-                else:
-                    wine['alcohol_percentage'] = None  #Nessun valore disponibile
+                wine['alcohol_percentage'] = html_data.get('alcohol_percentage', None)
+                wine['description'] = html_data.get('description', None)
+                wine['country'] = 'Italy'
 
-                print(f'Scraping data from wine: {wine["name"]}, price: {wine["price"]}, alcol: {wine.get("alcohol_percentage", "N/A")}, link: https://www.vivino.com/w/{wine["id"]}')
+                print(f"Scraping data: {wine['name']}, country: {wine['country']}, price: {wine['price']}, alcol: {wine.get('alcohol_percentage', 'N/A')}, description: {wine.get('description', 'N/A')} (link: {wine_html_url})")
+
                 data['wines'].append(wine)
 
                 # Richiesta delle caratteristiche organolettiche
@@ -121,21 +131,18 @@ if __name__ == '__main__':
                     res_review = r.get(f'wines/{wine["id"]}/reviews', params={"page": page_reviews})
                     reviews_data = res_review.json()
                     current_reviews = reviews_data.get('reviews', [])
-                    print("Recensioni prese")
-
+                    
                     if not current_reviews or page_reviews > 15:
                         break
                     all_reviews.extend(current_reviews)
                     page_reviews += 1
-                    print("Sto scaricando la recensione numero " + str(page_reviews))
 
                 data['wines'][-1]['reviews'] = all_reviews
 
             except KeyError as e:
-                # Gestione dell'errore: se non c'è prezzo o qualche altro problema con i dati, continuiamo con il prossimo vino
                 print(f'Errore: {e}. Saltando il vino {wine["name"]}.')
 
         # Salvataggio dei dati della pagina
-        filename = os.path.join(output_dir, "data_" + str(i) + ".json")
+        filename = os.path.join(output_dir, f"data_{i}.json")
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False)

@@ -27,6 +27,9 @@ def filter_wine_data(input_directory, output_directory):
                     "name": wine.get("name"),
                     "type_id": wine.get("type_id"),
                     "price": wine.get("price"),
+                    "alcohol_percentage": wine.get("alcohol_percentage"),
+                    "description": wine.get("description"),
+                    "country": wine.get("country"),
 
                     #Region of the production of the wine
                     "region": {
