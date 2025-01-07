@@ -49,7 +49,6 @@ public class Wine {
     // =====================
     // TASTE (oggetto annidato solo di Vivino)
     // =====================
-
     private Double acidity;
     private Double fizziness;
     private Double intensity;
@@ -58,11 +57,10 @@ public class Wine {
     private Integer user_structure_count;
 
     private List<Flavor> flavorList; // "Array dei flavor quindi dei sapori che sente la gente"
-
+    
     // =====================
     // STYLE (oggetto annidato, tipico di Vivino)
     // =====================
-
     private Integer body;
     private String body_description;
     private List<Food> foodList;    // "food" array
@@ -73,10 +71,10 @@ public class Wine {
     // =====================
     
     //Ho pensato questi casi per i costruttori non so se ne serviranno altri
-    
-    //MANCA SICURAMENTE IL COSTRUTTORE COMPLETO QUELLO CON TUTTI I VALORI
+
+    //Questo è il costruttore che richiamo con this(); per evitare di inizializzare
+    //Ogni volta nel codice
     public Wine() {
-        //Inizializziamo eventuali liste per evitare NullPointerException
         this.flavorList = new ArrayList<>();
         this.foodList = new ArrayList<>();
     }
@@ -102,6 +100,55 @@ public class Wine {
         this.price = price;
     }
     
+    //COSTRUTTORE COMPLETO
+    //(Da decidere poi come si gestisce in questo caso il tipo dell'attributo a seconda dei valori
+    //(Che mancano)
+    public Wine(String id, String name, Int price, String variety, String region, String description, 
+            String country, String alcohol_percentage, String provenance, String points, String taster_name,
+            String province, String winery_id, String winery_name, Double acidity, Double fizziness, Double intensity,
+            Double sweetness, Dobule tannin, Integer user_structure_count, List<Flavor> flavorList, Integer body,
+            String body_description, List<Food> foodList){
+    
+        //Verifico se le liste sono NULL nel caso
+        //Creo la lista vuota sennò fa casino con NULL Pointer
+        if (flavorList == null){
+            this.flavorList = new ArrayList<>();  
+        }else{
+            this.flavorList = flavorList;
+        }
+        
+        if (foodList == null){
+            this.foodList = new ArrayList<>();
+        }else{
+            this.foodList = foodList;
+        }
+        
+        //Converto l'id a string per evitare confusioni (potrebbe arrivare integer)
+        //Se il vino è di vivino non si sa come lo mette l'utente (in generale mongo da Integer)
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.variety = variety;
+        this.region = region;
+        this.description = description;
+        this.country = country;
+        this.alcohol_percentage = alcohol_percentage;
+        this.provenance = provenance;
+        this.points = points;
+        this.taster_name = taster_name;
+        this.province = province;
+        this.winery_id = winery_id;
+        this.winery_name = winery_name;
+        this.acidity = acidity;
+        this.fizziness = fizziness;
+        this.intensity = intensity;
+        this.sweetness = sweetness;
+        this.tannin = tannin;
+        this.user_structure_count = user_structure_count;
+        this.body = body;
+        this.body_description = body_description;
+    }
+    
     // =====================
     // GETTER & SETTER
     // =====================
@@ -111,9 +158,10 @@ public class Wine {
     }
 
     /**
-     * Se da Vivino arriva un intero (es. 1153863), Jackson proverà ad assegnarlo a "id".
-     * Per unificare, lo trasformiamo in String con "String.valueOf(...)".
-     * Unifichiamo perché l'id di winemag è un'alfa-numerico
+     * Se da MongoDB arriva un vino di Vivino, allora arriverà
+     * un intero (es. 1153863), Jackson proverà ad assegnarlo a "id".
+     * Per unificare, lo trasformo in String con "String.valueOf(...)".
+     * Unifichiamo perché l'id di winemag è un'alfa-numerico (Python non dava integer)
      */
     
     public void setId(Object idObj) {
