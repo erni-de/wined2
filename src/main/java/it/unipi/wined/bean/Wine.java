@@ -103,10 +103,10 @@ public class Wine {
     //COSTRUTTORE COMPLETO
     //(Da decidere poi come si gestisce in questo caso il tipo dell'attributo a seconda dei valori
     //(Che mancano)
-    public Wine(String id, String name, Int price, String variety, String region, String description, 
+    public Wine(String id, String name, int price, String variety, String region, String description, 
             String country, String alcohol_percentage, String provenance, String points, String taster_name,
             String province, String winery_id, String winery_name, Double acidity, Double fizziness, Double intensity,
-            Double sweetness, Dobule tannin, Integer user_structure_count, List<Flavor> flavorList, Integer body,
+            Double sweetness, double tannin, Integer user_structure_count, List<Flavor> flavorList, Integer body,
             String body_description, List<Food> foodList){
     
         //Verifico se le liste sono NULL nel caso
