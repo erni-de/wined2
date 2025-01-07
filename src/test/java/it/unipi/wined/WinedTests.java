@@ -4,6 +4,7 @@
  */
 package it.unipi.wined;
 
+import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.FakeUser;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import java.util.List;

@@ -6,8 +6,8 @@ package it.unipi.wined.neo4j.interaction;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import it.unipi.wined.Review;
-import it.unipi.wined.User;
+import it.unipi.wined.bean.Review;
+import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.VivinoWine;
 import it.unipi.wined.json.objects.VivinoWrapper;
 import it.unipi.wined.json.objects.WinemagWine;

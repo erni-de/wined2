@@ -4,7 +4,7 @@
  */
 package it.unipi.wined.json.objects;
 
-import it.unipi.wined.User;
+import it.unipi.wined.bean.User;
 import java.io.Serializable;
 import java.util.List;
 

@@ -4,7 +4,7 @@
  */
 package it.unipi.wined.spring;
 
-import it.unipi.wined.User;
+import it.unipi.wined.bean.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
