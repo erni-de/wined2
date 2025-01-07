@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author erni
  */
 @Controller
-@RequestMapping(path = "/actions/")
-public class ServerInterface {
+@RequestMapping(path = "/access/")
+public class Access {
     
     public static User currentUser;
     
@@ -26,6 +26,8 @@ public class ServerInterface {
         //that user's node in neo4j aswell.
         //user needs to pass a list of serialized strings for the registering
         // like FIRST_NAME, LAST_NAME, ADDRESS, Username, and a password
+        
+        //User level (i.e. REGULAR, PREMIUM, ADMIN) will be also set
         
         //N.B. THIS WILL JUST REGISTER THE USER, WHO NEEDS TO REAUTHENTICATE
         //AGAIN TO ACTULLY LOGIN.

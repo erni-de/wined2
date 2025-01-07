@@ -39,29 +39,14 @@ public class WinedTests {
     public void tearDown() {
     }
 
-    @Test
-    public void testUsers(){
-        Neo4JUtils w = new Neo4JUtils();
-        List<FakeUser> fu = w.getUsers("/home/erni/data/users/female_users.json", "/home/erni/wined/wined/data/users/male_users.json");
-        FakeUser.printUsers(fu);
-    }
     
-    
-    @Test
-    public void testNeo4J(){
-        Neo4JUtils w = new Neo4JUtils();
-        w.insertVivinoJson("/home/erni/data/final_dataset/vivino_data.json");
-        w.insertWinemagJson("/home/erni/data/final_dataset/winemag_data.json");
-        
-    }
     
     
     @Test 
     public void insertReview(){
-        Neo4JUtils w = new Neo4JUtils();
-        List<FakeUser> fu = w.getUsers("/home/erni/data/users/female_users.json", "/home/erni/wined/wined/data/users/male_users.json");
-        Review review = new Review("shit wine", (float) 1.0, new User(fu.get(1)));
-        w.insertReview("Domaine Ehrhart 2013 Domaine Saint-Rémy Herrenweg Gewurztraminer (Alsace)", review);
+        User user = new User("erni", "delia");
+        user.setLevel(User.level.ADMIN);
+        System.out.println(user.toString());
 
     }
     // TODO add test methods here.

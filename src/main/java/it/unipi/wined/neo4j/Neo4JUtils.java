@@ -41,52 +41,6 @@ public class Neo4JUtils {
     public static Driver establishConnection(String uri, String user, String password) {
         return GraphDatabase.driver(uri, AuthTokens.basic(user, password));
     }
-
-    public static void insertVivinoJson(String filepath) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
-        Gson gson = new Gson();
-        try {
-            FileReader reader = new FileReader(filepath);
-            Type userListType = new TypeToken<List<VivinoWrapper>>() {
-            }.getType();
-            List<VivinoWrapper> overall = gson.fromJson(reader, userListType);
-            VivinoWrapper wines = overall.get(0);
-            List<VivinoWine> wine = wines.getWines();
-            for (VivinoWine v : wine) {
-                v.id = WinemagWine.id_count;
-                WinemagWine.id_count++;
-                driver.executableQuery("CREATE (:wine {id: $id, name: $name})").
-                        withParameters(Map.of("id", v.id, "name", v.name)).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                        execute();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-    }
-
-    public static void insertWinemagJson(String filepath) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
-        Gson gson = new Gson();
-        try {
-            FileReader reader = new FileReader(filepath);
-            Type userListType = new TypeToken<List<WinemagWine>>() {
-            }.getType();
-            List<WinemagWine> wines = gson.fromJson(reader, userListType);
-            for (WinemagWine v : wines) {
-                v.id = WinemagWine.id_count;
-                WinemagWine.id_count++;
-                driver.executableQuery("CREATE (:wine {id: $id, name: $name})").
-                        withParameters(Map.of("id", v.id, "name", v.title)).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                        execute();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-    }
     
     public static List<FakeUser> getUsers(String filepath){
         Gson gson = new Gson();
@@ -105,34 +59,4 @@ public class Neo4JUtils {
         return Stream.concat(getUsers(filepath1).stream(), getUsers(filepath2).stream()).toList();
     }
     
-    public static void insertReview(String wine ,Review review){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
-        User user = review.user; //this user should be the one making the review
-        driver.executableQuery("""
-                               MATCH (a:wine {name: $wineName})
-                               CREATE (b:review {id: $reviewId, text: $reviewCorpus, rating: $reviewRating})
-                               CREATE (c:user {id: $userId, firstname: $userFirstname, lastname: $userLastname})
-                               CREATE (a)-[:REVIEWED]->(b)
-                               CREATE (b)-[:WRITTEN_BY]->(c)
-                               """).
-                        withParameters(Map.of("wineName", wine, "reviewId", review.id, "reviewCorpus", review.Text, "reviewRating", review.rating, "userId", user.id, "userFirstname", user.firstname, "userLastname", user.lastname)).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                        execute();
-    }
-    
-    public static void followUser(User self, User target_user){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
-        driver.executableQuery("""
-                               MATCH (a:user {id: $selfUser})
-                               MATCH (b:user {id: $targetUser})
-                               CREATE (a)-[:FOLLOWS]->(b)
-                               """).
-                            withParameters(Map.of("selfUser", self.id, "targetUser", target_user.id)).
-                            withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                            execute();
-    }
-    
-    
-    
-
 }

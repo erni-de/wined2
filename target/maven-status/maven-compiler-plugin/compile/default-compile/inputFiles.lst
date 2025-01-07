@@ -12,4 +12,8 @@
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/VivinoWrapper.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/WinemagWine.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/Neo4JUtils.java
-/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/ServerInterface.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/interaction/GraphActions.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Access.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Actions.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/AdminActions.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/PrivilegeActions.java
