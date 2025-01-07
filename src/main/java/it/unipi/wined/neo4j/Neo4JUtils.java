@@ -107,7 +107,7 @@ public class Neo4JUtils {
     
     public static void insertReview(String wine ,Review review){
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
-        User user = review.user;
+        User user = review.user; //this user should be the one making the review
         driver.executableQuery("""
                                MATCH (a:wine {name: $wineName})
                                CREATE (b:review {id: $reviewId, text: $reviewCorpus, rating: $reviewRating})
@@ -120,6 +120,17 @@ public class Neo4JUtils {
                         execute();
     }
     
+    public static void followUser(User self, User target_user){
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        driver.executableQuery("""
+                               MATCH (a:user {id: $selfUser})
+                               MATCH (b:user {id: $targetUser})
+                               CREATE (a)-[:FOLLOWS]->(b)
+                               """).
+                            withParameters(Map.of("selfUser", self.id, "targetUser", target_user.id)).
+                            withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                            execute();
+    }
     
     
     
