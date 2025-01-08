@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
-
     
     private String firstname;   
     private String lastname;    
@@ -17,8 +16,7 @@ public class User {
     private String password;    
 
     private Level user_level;   // "user_level"
-
-   
+    
     public enum Level {
         REGULAR, PREMIUM, ADMIN
     }
