@@ -52,14 +52,6 @@ public class WinedTests {
     
     @Test 
     public void insertReview(){
-        User user = new User("erni", "delia");
-        user.setLevel(User.level.ADMIN);
-        Gson gson = new Gson();
-        String json = gson.toJson(user);
-        System.out.println(json);
-        
-        User user2 = gson.fromJson(json, User.class);
-        System.out.println(Arrays.toString(user2.getPrivileges()));
 
     }
     // TODO add test methods here.

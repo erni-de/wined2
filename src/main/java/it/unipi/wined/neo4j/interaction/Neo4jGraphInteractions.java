@@ -107,7 +107,7 @@ public class Neo4jGraphInteractions {
         driver.executableQuery("""
                                CREATE(a:user {id: $userId, username: $userName}) 
                                """).
-                            withParameters(Map.of("userId", userToAdd.id, "userName", userToAdd.username)).
+                            withParameters(Map.of("userId", userToAdd.id, "userName", userToAdd.getNickname())).
                             withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                             execute();
     }

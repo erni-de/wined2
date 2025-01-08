@@ -34,7 +34,7 @@ public class Access {
             return "1";//if user already exists
         } else {
             return "0";//if user doesn't exist
-        } 
+        }
     }
 
     /* 
@@ -64,11 +64,16 @@ public class Access {
     @PostMapping(path = "/login")
     public @ResponseBody
     String login(@RequestBody String jsonLoginRequest) {
-        Gson gson = new Gson();
-        LoginRequest lr = gson.fromJson(jsonLoginRequest, LoginRequest.class);
-        //if user found on mongo
-        //User retUser = new User(12, User.level.ADMIN, "jacksonnn", "jack", "jackson");
-        return gson.toJson(new User(1, User.level.REGULAR, lr.username, "e", "e"));
+        try {
+            Gson gson = new Gson();
+            LoginRequest lr = gson.fromJson(jsonLoginRequest, LoginRequest.class);
+            //if user found on mongo
+            //User retUser = new User(12, User.level.ADMIN, "jacksonnn", "jack", "jackson");
+            return "0";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "1";
+        }
         //else
         //return "User not found";
     }
