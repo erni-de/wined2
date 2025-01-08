@@ -4,9 +4,13 @@
  */
 package it.unipi.wined;
 
+import com.google.gson.Gson;
+import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.FakeUser;
 import it.unipi.wined.neo4j.Neo4JUtils;
+import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -40,14 +44,22 @@ public class WinedTests {
     public void tearDown() {
     }
 
-    
-    
+
+    @Test
+    public void testes(){
+        Neo4jGraphInteractions.insertReview("Domaine Ehrhart 2013 Domaine Saint-Rémy Herrenweg Gewurztraminer (Alsace)", new Review("5", "nice","dicoa"), "ernak");
+    }
     
     @Test 
     public void insertReview(){
         User user = new User("erni", "delia");
         user.setLevel(User.level.ADMIN);
-        System.out.println(user.toString());
+        Gson gson = new Gson();
+        String json = gson.toJson(user);
+        System.out.println(json);
+        
+        User user2 = gson.fromJson(json, User.class);
+        System.out.println(Arrays.toString(user2.getPrivileges()));
 
     }
     // TODO add test methods here.

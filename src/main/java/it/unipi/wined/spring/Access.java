@@ -4,9 +4,14 @@
  */
 package it.unipi.wined.spring;
 
+import com.google.gson.Gson;
 import it.unipi.wined.bean.User;
+import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
+import it.unipi.wined.spring.utils.LoginRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -17,33 +22,55 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping(path = "/access/")
 public class Access {
-    
+
     public static User currentUser;
-    
-    @PostMapping(path = "/register")
-    public @ResponseBody String registerUser(){
-        //mathod that interacts with MongoDb to register a new user and add
-        //that user's node in neo4j aswell.
-        //user needs to pass a list of serialized strings for the registering
-        // like FIRST_NAME, LAST_NAME, ADDRESS, Username, and a password
-        
-        //User level (i.e. REGULAR, PREMIUM, ADMIN) will be also set
-        
-        //N.B. THIS WILL JUST REGISTER THE USER, WHO NEEDS TO REAUTHENTICATE
-        //AGAIN TO ACTULLY LOGIN.
-        
-        //We also need to add here whether or not the user is trying to
-        //subscribe as a premium user.
-        return "pass";
+
+    @PostMapping(path = "/check-username")
+    public @ResponseBody
+    String checkUsername(@RequestBody String jsonUsername) {
+        Gson gson = new Gson();
+        String username = gson.fromJson(jsonUsername, String.class);
+        if (Neo4jGraphInteractions.checkIfUserExists(username)) {
+            return "1";//if user already exists
+        } else {
+            return "0";//if user doesn't exist
+        } 
     }
-    
+
+    /* 
+     */
     @PostMapping(path = "/register")
-    public @ResponseBody String login(){
-        //mathod that interacts with MongoDb to retrieve the user that
-        //matches a given username-password pair.
-        //user needs to pass a list of serialized strings for the username
-        //and a password
-        return "pass";
+    public @ResponseBody
+    String registerUser(@RequestBody String register_data) {
+        Gson gson = new Gson();
+        User registering_user = gson.fromJson(register_data, User.class);
+        System.out.println(registering_user.toString());
+        try {
+            Neo4jGraphInteractions.addUserNode(registering_user);
+            //some mongodb query to load new registering user into db
+            return "0";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "1";
+        }
     }
-    
+
+    /*
+    Takes as input a json serialized LoginRequest object (see it.unipi.wined.spring.utils)
+    From data (username - password pair) from LoginRequest, it matches a registered
+    user on MongoDB databas and returns a json serialization of that user back to the client
+    If no matching registered user is found an error message is returned
+     */
+    @PostMapping(path = "/login")
+    public @ResponseBody
+    String login(@RequestBody String jsonLoginRequest) {
+        Gson gson = new Gson();
+        LoginRequest lr = gson.fromJson(jsonLoginRequest, LoginRequest.class);
+        //if user found on mongo
+        //User retUser = new User(12, User.level.ADMIN, "jacksonnn", "jack", "jackson");
+        return gson.toJson(new User(1, User.level.REGULAR, lr.username, "e", "e"));
+        //else
+        //return "User not found";
+    }
+
 }

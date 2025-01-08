@@ -1,6 +1,6 @@
-/home/erni/wined2/wined2/src/main/java/it/unipi/wined/Review.java
-/home/erni/wined2/wined2/src/main/java/it/unipi/wined/User.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/WinedApplication.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/Review.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/User.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/Wine.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/FakeAddress.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/FakeUser.java
@@ -12,8 +12,9 @@
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/VivinoWrapper.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/WinemagWine.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/Neo4JUtils.java
-/home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/interaction/GraphActions.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/interaction/Neo4jGraphInteractions.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Access.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Actions.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/AdminActions.java
-/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/PrivilegeActions.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/PremiumActions.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/utils/LoginRequest.java

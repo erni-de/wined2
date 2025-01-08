@@ -13,6 +13,10 @@ import java.util.Arrays;
  */
 public class User {
 
+    public User(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     public enum level {
         REGULAR, PREMIUM, ADMIN
     };
@@ -22,22 +26,22 @@ public class User {
 
     public long id;
     private level user_level;
-    public static long id_count;
+    public String username;
     public String firstname;
     public String lastname;
 
+    public User(long id, level user_level, String username, String firstname, String lastname) {
+        this.id = id;
+        this.user_level = user_level;
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+    }
+
+    
     public User(String firstname, String lastname) {
         this.firstname = firstname;
         this.lastname = lastname;
-        id = id_count;
-        id_count++;
-    }
-
-    public User(FakeUser fu) {
-        this.firstname = fu.firstname;
-        this.lastname = fu.lastname;
-        id = id_count;
-        id_count++;
     }
 
     public void setLevel(level l) {

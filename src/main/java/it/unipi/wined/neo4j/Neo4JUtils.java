@@ -36,7 +36,7 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
     
-    public static String connectionIp = "192.168.1.10";
+    public static String connectionIp = "192.168.244.146";
     
     public static Driver establishConnection(String uri, String user, String password) {
         return GraphDatabase.driver(uri, AuthTokens.basic(user, password));

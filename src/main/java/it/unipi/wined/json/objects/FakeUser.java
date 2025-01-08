@@ -23,11 +23,6 @@ public class FakeUser implements Serializable{
     public String website;
     public String nickname;
     public String password;
-
-    public FakeUser() {
-        id = User.id_count;
-        User.id_count++;
-    }
     
     
     

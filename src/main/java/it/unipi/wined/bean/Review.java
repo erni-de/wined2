@@ -14,22 +14,14 @@ import it.unipi.wined.json.objects.VivinoReview;
 public class Review {
     public long id;
     public static long id_count;
-    public String Text;
-    public float rating;
+    public String title;
+    public String body;
+    public String rating;
     public User user;
 
-    public Review(String Text, float rating, User user) {
-        this.Text = Text;
+    public Review(String rating, String title, String body) {
+        this.title = title;
+        this.body = body;
         this.rating = rating;
-        this.user = user;
-        id = id_count;
-        id_count++;
-    }
-    
-    public Review(VivinoReview vr, User user){
-        this.Text = vr.text;
-        this.rating = vr.rating;
-        id = id_count;
-        id_count++;
     }
 }
