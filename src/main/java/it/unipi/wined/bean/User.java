@@ -1,72 +1,174 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package it.unipi.wined.bean;
 
-import it.unipi.wined.json.objects.FakeUser;
-import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-/**
- *
- * @author erni
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
-    public enum level {
+    
+    private String firstname;   
+    private String lastname;    
+    private String email;       
+    private String phone;         
+    private String birthday;    
+    private String gender;      
+    private String address;     
+    private String nickname;    
+    private String password;    
+
+    private Level user_level;   // "user_level"
+
+   
+    public enum Level {
         REGULAR, PREMIUM, ADMIN
-    };
-    //Admin have admin, premium and regular user privileges
-    //Premium have premium and regular user privileges
-    //Regular have just regular user privileges
+    }
 
-    public long id;
-    private level user_level;
-    public static long id_count;
-    public String firstname;
-    public String lastname;
+    // =====================
+    // COSTRUTTORI
+    // =====================
 
-    public User(String firstname, String lastname) {
+    //Il costruttore vuoto lo richiede il down di Jackson se non c'è fa casino
+    public User() {
+    }
+
+    //Costruttore completo
+    public User(String firstname,
+                String lastname,
+                String email,
+                long phone,
+                String birthday,
+                String gender,
+                String address,
+                String nickname,
+                String password,
+                Level user_level) {
+
         this.firstname = firstname;
         this.lastname = lastname;
-        id = id_count;
-        id_count++;
+        this.email = email;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.gender = gender;
+        this.address = address;
+        this.nickname = nickname;
+        this.password = password;
+        this.user_level = user_level;
     }
 
-    public User(FakeUser fu) {
-        this.firstname = fu.firstname;
-        this.lastname = fu.lastname;
-        id = id_count;
-        id_count++;
+    // =====================
+    // GETTER & SETTER
+    // =====================
+    
+    public String getFirstname() {
+        return firstname;
     }
 
-    public void setLevel(level l) {
-        user_level = l;
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
     }
 
-    public level setLevel() {
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Level getUser_level() {
         return user_level;
+    }
+
+    public void setUser_level(Level user_level) {
+        this.user_level = user_level;
     }
 
     public boolean[] getPrivileges() {
         if (user_level == null) {
+            // Se l'utente non ha un livello impostato
             return new boolean[]{false, false, false};
-        } else {
-            switch (user_level) {
-                case REGULAR:
-                    return new boolean[]{true, false, false};
-                case PREMIUM:
-                    return new boolean[]{true, true, false};
-                case ADMIN:
-                    return new boolean[]{true, true, true};
-            }
-            return new boolean[]{false, false, false};
+        }
+        switch (user_level) {
+            case REGULAR:
+                return new boolean[]{true, false, false};
+            case PREMIUM:
+                return new boolean[]{true, true, false};
+            case ADMIN:
+                return new boolean[]{true, true, true};
+            default:
+                return new boolean[]{false, false, false};
         }
     }
 
     @Override
     public String toString() {
-        return "User{" + "id=" + id + ", user_level=" + user_level + ", firstname=" + firstname + ", lastname=" + lastname + ", " + Arrays.toString(getPrivileges()) + "}";
+        return "User{" +
+                "firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", phone=" + phone +
+                ", birthday='" + birthday + '\'' +
+                ", gender='" + gender + '\'' +
+                ", address='" + address + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", password='" + password + '\'' +
+                ", user_level=" + user_level +
+                '}';
     }
-
 }

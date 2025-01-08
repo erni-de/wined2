@@ -164,6 +164,7 @@ public class Wine {
      * Unifichiamo perché l'id di winemag è un'alfa-numerico (Python non dava integer)
      */
     
+    //Se si salva come in string in partenza potrebbe dare del casino
     public void setId(Object idObj) {
         if (idObj != null) {
             this.id = String.valueOf(idObj);
@@ -515,7 +516,8 @@ public class Wine {
         }
     }
 
-    //Ridefinisco toString() per stampare
+    //Ridefinisco toString() per stampare il vino che c'interessa
+    //In questo caso poi sarà un ritorno JSON all'API
     @Override
     public String toString() {
         return "Wine{" +
