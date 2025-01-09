@@ -19,12 +19,12 @@ public class OrderList {
     
     private String wine_id;
     private String wine_name;
-    private int price;
+    private double price;
     private int wine_number;
     
     //Costruttore principale ne abbiamo solo uno in questo caso
     //(Non quello vuoto per Jackson qui non si usa)
-    private OrderList(String wine_id, String wine_name, int price, int wine_number){
+    private OrderList(String wine_id, String wine_name, double price, int wine_number){
         this.wine_id = wine_id;
         this.wine_name = wine_name;
         this.price = price;
@@ -34,38 +34,38 @@ public class OrderList {
     //---------------
     //GETTER METHODS
     //---------------
-    public getWine_id(){
+    public String getWine_id(){
         return wine_id;
     }
     
-    public getWine_name(){
+    public String getWine_name(){
         return wine_name;
     }
     
-    public getPrice(){
+    public double getPrice(){
         return price;
     }
     
-    public getWineNumber(){
+    public int getWineNumber(){
         return wine_number;
     }
     
     //---------------
     //SETTER METHODS
     //--------------- 
-    public setWine_id(String wine_id){
+    public void setWine_id(String wine_id){
         this.wine_id = wine_id;
     }
     
-    public setWine_name(String wine_name){
+    public void setWine_name(String wine_name){
         this.wine_name = wine_name;
     }
     
-    public setPrice(int price){
+    public void setPrice(double price){
         this.price = price;
     }
     
-    public setWineNumber(int wine_number){
+    public void setWineNumber(int wine_number){
         this.wine_number = wine_number;
     }
     
