@@ -4,13 +4,16 @@ it/unipi/wined/spring/AdminActions.class
 it/unipi/wined/bean/Review.class
 it/unipi/wined/bean/User$1.class
 it/unipi/wined/spring/PremiumActions.class
+it/unipi/wined/bean/Order.class
 it/unipi/wined/neo4j/interaction/Neo4jGraphInteractions$1.class
+it/unipi/wined/bean/User$Level.class
 it/unipi/wined/neo4j/interaction/Neo4jGraphInteractions.class
 it/unipi/wined/spring/utils/LoginRequest.class
+it/unipi/wined/neo4j/Statistics.class
 it/unipi/wined/bean/User.class
 it/unipi/wined/bean/Wine$Food.class
 it/unipi/wined/bean/Wine$FlavorStats.class
-it/unipi/wined/bean/User$level.class
 it/unipi/wined/bean/Wine$Flavor.class
 it/unipi/wined/spring/Access.class
+it/unipi/wined/bean/OrderList.class
 it/unipi/wined/neo4j/interaction/Neo4jGraphInteractions$2.class

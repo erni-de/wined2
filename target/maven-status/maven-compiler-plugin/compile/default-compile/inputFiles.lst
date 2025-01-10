@@ -1,4 +1,6 @@
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/WinedApplication.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/Order.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/OrderList.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/Review.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/User.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/bean/Wine.java
@@ -12,6 +14,7 @@
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/VivinoWrapper.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/json/objects/WinemagWine.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/Neo4JUtils.java
+/home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/Statistics.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/interaction/Neo4jGraphInteractions.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Access.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Actions.java

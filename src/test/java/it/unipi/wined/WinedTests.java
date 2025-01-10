@@ -10,6 +10,7 @@ import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.FakeUser;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
+import it.unipi.wined.spring.Actions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -47,7 +48,10 @@ public class WinedTests {
 
     @Test
     public void testes(){
-        Neo4jGraphInteractions.insertReview("Domaine Ehrhart 2013 Domaine Saint-Rémy Herrenweg Gewurztraminer (Alsace)", new Review("5", "nice","dicoa"), "ernak");
+        Gson gson = new Gson();
+        String username = "The Williamsburg Winery 2014 Four Barrel Cuvée Red (Virginia)";
+        System.out.println(username);
+        Neo4jGraphInteractions.recomputeRating(username);    
     }
     
     @Test 

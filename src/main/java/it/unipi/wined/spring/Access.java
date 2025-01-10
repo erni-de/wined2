@@ -69,7 +69,7 @@ public class Access {
             LoginRequest lr = gson.fromJson(jsonLoginRequest, LoginRequest.class);
             //if user found on mongo
             //User retUser = new User(12, User.level.ADMIN, "jacksonnn", "jack", "jackson");
-            return "0";
+            return lr.username;
         } catch (Exception e) {
             e.printStackTrace();
             return "1";
