@@ -4,7 +4,7 @@
  */
 //package it.unipi.wined;
 
-/*
+
 import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.FakeUser;
 import it.unipi.wined.neo4j.Neo4JUtils;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-*/
+
 /**
  *
  * @author erni
@@ -24,7 +24,7 @@ public class WinedTests {
     
     public WinedTests() {
     }
-   /* 
+    
     @BeforeAll
     public static void setUpClass() {
     }
@@ -40,8 +40,8 @@ public class WinedTests {
     @AfterEach
     public void tearDown() {
     }
-    */
-/*
+    
+    /*
     @Test 
     public void insertReview(){
         User user = new User("erni", "delia");
@@ -49,7 +49,7 @@ public class WinedTests {
         System.out.println(user.toString());
 
     }
-  */  
+   */
     @Test
     public void dioboia(){
         System.out.println("Ciao");
