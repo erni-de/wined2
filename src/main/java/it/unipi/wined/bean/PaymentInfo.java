@@ -37,7 +37,7 @@ public class PaymentInfo {
         return CVV;
     }
     
-    public String expirationDate(){
+    public String getExpirationDate(){
         return expirationDate;
     }
     
@@ -61,6 +61,5 @@ public class PaymentInfo {
                ", CVV=" + CVV +
                ", expirationDate='" + expirationDate + '\'' +
                '}';
-    }
-    
+    }   
 }
