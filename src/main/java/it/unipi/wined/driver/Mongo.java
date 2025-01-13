@@ -155,12 +155,12 @@ public class Mongo {
     }
     
     //Login User in MongoDB
-     public static boolean loginUser(User user) {
+     public static boolean loginUser(String nickname, String password) {
          
         openConnection("Users");
         
         try {
-            Document userDoc = collection.find(eq("nickname", user.getNickname())).first();
+            Document userDoc = collection.find(eq("nickname", nickname)).first();
             
             if (userDoc == null) {
                 System.out.println("Login fallito: nickname non trovato");
@@ -170,13 +170,13 @@ public class Mongo {
             
             String storedPassword = userDoc.getString("password");
             
-            if (!storedPassword.equals(user.getPassword())) {
+            if (!storedPassword.equals(password)) {
                 System.out.println("Login fallito: password errata");
                 closeConnection();
                 return false;
             }
             
-            System.out.println("Login avvenuto con successo per nickname: " + user.getNickname());
+            System.out.println("Login avvenuto con successo per nickname: " + nickname);
             closeConnection();
             return true;
             

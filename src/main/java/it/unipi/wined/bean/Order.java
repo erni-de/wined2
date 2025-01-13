@@ -90,8 +90,8 @@ public class Order {
         this.id_order = id_order;
     }
     
-    public void setOrderElements(ArrayList<OrderList>orderList){
-        this.orderList.add(orderList);
+    public void setOrderElements(OrderList orderlist){
+        this.orderList.add(orderlist);
     }
     
     public void setConfirmationDate(String confirmation_date){

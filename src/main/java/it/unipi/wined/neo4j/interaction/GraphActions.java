@@ -26,11 +26,13 @@ import org.neo4j.driver.QueryConfig;
  *
  * @author erni
  */
+
+/*
 public class GraphActions {
     
-    /*
-    Insert new vivino-json like wine node into neo4j graph istance
-    */
+    
+    //Insert new vivino-json like wine node into neo4j graph istance
+    
     public static void insertVivinoJson(String filepath) {
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         Gson gson = new Gson();
@@ -55,9 +57,9 @@ public class GraphActions {
 
     }
     
-    /*
-    Insert new winemag-json like wine node into neo4j graph istance
-    */
+    
+    //Insert new winemag-json like wine node into neo4j graph istance
+    
     public static void insertWinemagJson(String filepath) {
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         Gson gson = new Gson();
@@ -79,9 +81,8 @@ public class GraphActions {
         }
     }
     
-    /*
-    Inserts review to a specific wine, from the current user
-    */
+    
+    //Inserts review to a specific wine, from the current user
     public static void insertReview(String wine ,Review review){
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         User user = review.user; //this user should be the one making the review
@@ -97,10 +98,7 @@ public class GraphActions {
                         execute();
     }
     
-    
-    /*
-    Inserts new user into graph (called when registering)
-    */
+    //Inserts new user into graph (called when registering)
     public static void addUserNode(){
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         driver.executableQuery("""
@@ -111,10 +109,8 @@ public class GraphActions {
                             execute();
     }
     
-    /*
-    Create a follow relationship from the current user to a selected (target)
-    user.
-    */
+    //Create a follow relationship from the current user to a selected (target)
+    //user.
     public static void followUser(User target_user){
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         driver.executableQuery("""
@@ -127,3 +123,4 @@ public class GraphActions {
                             execute();
     }
 }
+*/
