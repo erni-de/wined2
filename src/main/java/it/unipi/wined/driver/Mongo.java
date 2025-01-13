@@ -11,11 +11,22 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCursor;
+import static com.mongodb.client.model.Filters.eq;
+
+//Import delle classi del nostro progetto
+import it.unipi.wined.bean.Order;
+import it.unipi.wined.config.Driver_Config;
 import it.unipi.wined.bean.User;
 import org.bson.Document;
 
-//Import degli altri metodi usati nel progetto
-import it.unipi.wined.config.*;
+//Import di Jackson
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+//Import di Java
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -77,18 +88,23 @@ public class Mongo {
     
     //+--------------------CRUD OPERATIONS INTO THE USER ---------------------+
 
-    /**
-     *
-     * @param user
-     * @return
-     */
-
     public static boolean addUser(User user){
         
         openConnection("Users");
         
         try{
           
+            //Verifico che non esista un utente con quel nickname già inserito
+            Document ext_User = collection.find(eq("nickname", user.getNickname())).first();
+            
+            //Utente già presente fallisco nel login
+            if (ext_User != null){
+                System.out.println("Un utente è già registrato con questo nickname,"
+                        + "scegline un'altro");
+                closeConnection();
+                return false;
+            }
+            
             //Defining BSON new document to populate
             Document doc = new Document();
             
@@ -117,6 +133,14 @@ public class Mongo {
                 paymentDoc.append("expire_date", user.getPayment().getExpirationDate());
                 doc.append("payment", paymentDoc);
             }
+            
+            //Inserisco l'array vuoto degli ordini (all'inizio l'utente non ne ha)
+            doc.append("orders", new ArrayList<Document>());
+            
+            //Inserisco nel DB
+            collection.insertOne(doc);
+            
+            System.out.println("L'utente è stato aggiunto correttamente !");
         
         }catch(Exception e){
             
@@ -128,5 +152,39 @@ public class Mongo {
         //Ok new user added
         closeConnection();
         return true;
+    }
+    
+    //Login User in MongoDB
+     public static boolean loginUser(User user) {
+         
+        openConnection("Users");
+        
+        try {
+            Document userDoc = collection.find(eq("nickname", user.getNickname())).first();
+            
+            if (userDoc == null) {
+                System.out.println("Login fallito: nickname non trovato");
+                closeConnection();
+                return false;
+            }
+            
+            String storedPassword = userDoc.getString("password");
+            
+            if (!storedPassword.equals(user.getPassword())) {
+                System.out.println("Login fallito: password errata");
+                closeConnection();
+                return false;
+            }
+            
+            System.out.println("Login avvenuto con successo per nickname: " + user.getNickname());
+            closeConnection();
+            return true;
+            
+        } catch (Exception e) {
+            System.out.println("Errore generale durante il login");
+            e.printStackTrace();
+            closeConnection();
+            return false;
+        }
     }
 }
