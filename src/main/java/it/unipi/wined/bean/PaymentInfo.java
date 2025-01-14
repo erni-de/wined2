@@ -1,27 +1,25 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package it.unipi.wined.bean;
 
-/**
- *
- * @author nicol
- */
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+//Ho dovuto usare le proprietà di Jackson per rimappare i nomi, poiché sono diversi
+//Dal JSON rispetto a quelli che ho nella classe
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PaymentInfo {
     
-    private String cardNumber;
-    private int CVV;
-    private String expirationDate;
-    
-    //----------CONSTRUCTORS---------
+    @JsonProperty("card_number")
+    private String cardNumber;  
 
-    //Costruttore vuoto a volte se non lo metto si bugga
-    public PaymentInfo(){
-        
-    }
+    @JsonProperty("CVV")
+    private int CVV;            
     
+    @JsonProperty("expire_date")
+    private String expirationDate; 
+    
+    //----------COSTRUTTORI---------
+    public PaymentInfo(){ }
+
     public PaymentInfo(String cardNumber, int CVV, String expirationDate){
        this.cardNumber = cardNumber;
        this.CVV = CVV;
@@ -32,34 +30,34 @@ public class PaymentInfo {
     public String getCardNumber(){
         return cardNumber;
     }
-    
+
     public int getCVV(){
         return CVV;
     }
-    
+
     public String getExpirationDate(){
         return expirationDate;
     }
-    
+
     //----------SET METHODS----------
     public void setCardNumber(String cardNumber){
         this.cardNumber = cardNumber;
     }
-    
+
     public void setCVV(int CVV){
         this.CVV = CVV;
     }
-    
+
     public void setExpirationDate(String expirationDate){
         this.expirationDate = expirationDate;
     }
-    
+
     @Override
     public String toString() {
-        return "CreditCard{" +
+        return "PaymentInfo{" +
                "cardNumber='" + cardNumber + '\'' +
                ", CVV=" + CVV +
                ", expirationDate='" + expirationDate + '\'' +
                '}';
-    }   
+    }
 }

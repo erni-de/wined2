@@ -12,17 +12,22 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.*;
+import org.bson.conversions.Bson;
+import com.mongodb.client.model.Updates;
 import static com.mongodb.client.model.Filters.eq;
 
 //Import delle classi del nostro progetto
 import it.unipi.wined.bean.Order;
 import it.unipi.wined.config.Driver_Config;
 import it.unipi.wined.bean.User;
+import it.unipi.wined.bean.PaymentInfo;
 import org.bson.Document;
 
 //Import di Jackson
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 //Import di Java
 import java.util.ArrayList;
@@ -80,13 +85,13 @@ public class Mongo {
     }
     
     
-    //+--------------------OPERATIONS INTO THE USER COLLECTION---------------------+
+    //+--------------------OPERATIONS INTO THE USER COLLECTION-----------------+
     
     
     
     
     
-    //+--------------------CRUD OPERATIONS INTO THE USER ---------------------+
+    //+----------------------CRUD OPERATIONS INTO THE USER --------------------+
 
     public static boolean addUser(User user){
         
@@ -154,6 +159,152 @@ public class Mongo {
         return true;
     }
     
+    public static User RetrieveUser(String nickname){
+        
+        openConnection("Users");
+        
+        ObjectMapper deserialize = new ObjectMapper();
+        deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+                
+        try{
+            //Ho un solo risultato, mantengo unicità con il nickname 
+            //assicurandonemene solo uno
+            Document result = collection.find(eq("nickname",nickname)).first();
+            
+            User result_user = deserialize.readValue(result.toJson(), User.class);
+            closeConnection();
+            return result_user;
+            
+        }catch(Exception e){
+            System.out.println("Errore improvviso nella lettura dal database");
+            e.printStackTrace();
+            closeConnection();
+            return null;
+            
+        }
+    }
+    
+    public static boolean deleteUser(String nickname){
+        
+        openConnection("Users");
+        
+        try{
+            collection.deleteOne(Filters.eq("nickname", nickname));
+            System.out.println("Utente " + nickname + " eliminato correttamente !");
+            closeConnection();
+            return true;
+        
+        }catch(Exception e){
+            System.out.println("Errore nell'eliminare l'utente");
+            e.printStackTrace();
+            closeConnection();
+            return false;
+        }
+    }
+    
+   public static boolean updateUser(String nickname, String field, String value){
+    
+    openConnection("Users");
+
+    //Caso phone casto a long
+    if (field.equals("phone")) {
+        
+        long phoneValue = Long.parseLong(value);
+        
+        try {
+            
+            Bson update = Updates.set(field, phoneValue);
+            collection.updateOne(eq("nickname", nickname), update);
+            System.out.println("User aggiornato correttamente (phone)!");
+            closeConnection();
+            return true;
+            
+        } catch (Exception e) {
+            
+            System.out.println("Errore nell'aggiornamento dell'user (phone)");
+            e.printStackTrace();
+            closeConnection();
+            return false;
+        }
+    }
+
+    //Caso user_level casto l'enum
+    if (field.equals("user_level")) {
+        
+        User.Level levelValue = User.Level.valueOf(value.toUpperCase());
+        try {
+           
+            Bson update = Updates.set(field, levelValue.toString());
+            collection.updateOne(eq("nickname", nickname), update);
+            System.out.println("User aggiornato correttamente (user_level)!");
+            closeConnection();
+            return true;
+            
+        } catch (Exception e) {
+            System.out.println("Errore nell'aggiornamento dell'user (user_level)");
+            e.printStackTrace();
+            closeConnection();
+            return false;
+        }
+    }
+
+    // Caso default (string)
+    // (oppure se in futuro avrai date, boolean, ecc. gestisci di conseguenza)
+    try {
+        Bson update = Updates.set(field, value);
+        collection.updateOne(eq("nickname", nickname), update);
+        System.out.println("User aggiornato correttamente (string)!");
+        closeConnection();
+        return true;
+    } catch (Exception e) {
+        System.out.println("Errore nell'aggiornamento dell'user (string)");
+        e.printStackTrace();
+        closeConnection();
+        return false;
+    }
+}
+    public static PaymentInfo getPaymentFromUsername(String nickname){
+        openConnection("Users");
+        
+        ObjectMapper deserialize = new ObjectMapper();
+        deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        try{
+            Document doc = collection.find(eq("nickname", nickname)).first();
+            
+            if (doc == null){
+                System.out.println("Nessun utente memorizzato che abbia quel"
+                        + "nickname");
+                closeConnection();
+                return null;
+            }
+            
+            System.out.println("Retrieve del pagamento per l'utente " + nickname + " effettuato con successo !");
+            
+            String json = doc.toJson();
+            JsonNode rootNode = deserialize.readTree(json);
+            JsonNode paymentNode = rootNode.get("payment");
+            
+            if(paymentNode == null){
+                System.out.println("L'utente non ha un metodo di pagamento memorizzato");
+                closeConnection();
+                return null;
+            }
+            
+            PaymentInfo paymentinfo = deserialize.treeToValue(paymentNode, PaymentInfo.class);
+            
+            closeConnection();
+            
+            return paymentinfo;
+            
+        }catch(Exception e){
+            System.out.println("Errore nell'ottenere il metodo di pagamento");
+            e.printStackTrace();
+            closeConnection();
+            return null;
+        }
+    }
+
     //Login User in MongoDB
      public static boolean loginUser(String nickname, String password) {
          

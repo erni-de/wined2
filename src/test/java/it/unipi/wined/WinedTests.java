@@ -54,6 +54,8 @@ public class WinedTests {
 
     }
    */
+    
+    //OK FUNZIONANTE
     @Test
     public void Insert_New_User_MongoDB(){
         
@@ -66,12 +68,70 @@ public class WinedTests {
         Mongo.addUser(prova);
     }
     
+    //OK FUNZIONANTE
     @Test
     public void Login_User_MongoDB(){
         String nickname = "Elody_Bashirian";
         String password = "Elody2024";
         
         Mongo.loginUser(nickname, password);
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void Retrieve_User_MongoDB(){
+        User user = Mongo.RetrieveUser("Eryn_Bradtke");
+        System.out.println(user);
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void Delete_User_MongoDB(){
+        boolean result = Mongo.deleteUser("Lulu_Medhurst");
+        if(result){
+            System.out.println("Cancellazione avvenuta con successo");
+        }else{
+            System.out.println("C'è stato un problema");
+        }
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void Update_User_MongoDB(){
+        boolean result = Mongo.updateUser("Zena_Marvin", "gender", "Donald Trump");
+        
+        if(result){
+            System.out.println("OK UPDATE");
+        }else{
+            System.out.println("NO UPDATE");
+
+        }
+        
+        //CASI SPECIALI
+        result = Mongo.updateUser("Laila_Beer", "phone", "333333333333");
+
+           if(result){
+            System.out.println("OK UPDATE");
+        }else{
+            System.out.println("NO UPDATE");
+
+        }
+           
+        result = Mongo.updateUser("Laila_Beer", "user_level", "PREMIUM");
+
+           if(result){
+            System.out.println("OK UPDATE");
+        }else{
+            System.out.println("NO UPDATE");
+
+        }
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void get_Payment_Method(){
+        PaymentInfo obj = Mongo.getPaymentFromUsername("Laila_Beer");
+        System.out.println(obj);
     }
     
     // TODO add test methods here.
