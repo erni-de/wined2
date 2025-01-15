@@ -6,6 +6,7 @@ package it.unipi.wined.spring;
 
 import com.google.gson.Gson;
 import it.unipi.wined.bean.User;
+import it.unipi.wined.driver.Mongo;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import it.unipi.wined.spring.utils.LoginRequest;
 import org.springframework.stereotype.Controller;
@@ -47,7 +48,7 @@ public class Access {
         System.out.println(registering_user.toString());
         try {
             Neo4jGraphInteractions.addUserNode(registering_user);
-            //some mongodb query to load new registering user into db
+            Mongo.addUser(registering_user);
             return "0";
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,12 +68,14 @@ public class Access {
         try {
             Gson gson = new Gson();
             LoginRequest lr = gson.fromJson(jsonLoginRequest, LoginRequest.class);
-            //if user found on mongo
-            //User retUser = new User(12, User.level.ADMIN, "jacksonnn", "jack", "jackson");
-            return lr.username;
+            if (Mongo.loginUser(lr.username, lr.password)){
+                return gson.toJson(Mongo.RetrieveUser(lr.username));
+            } else {
+                return "1";
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return "1";
+            return "2";
         }
         //else
         //return "User not found";

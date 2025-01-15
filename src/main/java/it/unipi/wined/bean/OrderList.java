@@ -34,41 +34,43 @@ public class OrderList {
     //---------------
     //GETTER METHODS
     //---------------
-    public String getWine_id(){
+
+    public String getWine_id() {
         return wine_id;
     }
-    
-    public String getWine_name(){
+
+    public String getWine_name() {
         return wine_name;
     }
+
+    public double getPrice() {
         return price;
     }
-    
-    public double getPrice(){
+
+    public int getWine_number() {
         return wine_number;
     }
-    
-    public void setWine_id(String wine_id){
+
+    public void setWine_id(String wine_id) {
         this.wine_id = wine_id;
     }
-    
-    public int getWineNumber(){
+
+    public void setWine_name(String wine_name) {
         this.wine_name = wine_name;
     }
+
+    public void setPrice(double price) {
         this.price = price;
     }
-    
+
+    public void setWine_number(int wine_number) {
         this.wine_number = wine_number;
     }
 
     @Override
     public String toString() {
-        return "Order_Element{" + "wine_id = " + wine_id + "wine_name = "
-                + "" + wine_name + "price = " + price 
-                + "wine_number = " + wine_number + " }";
+        return "OrderList{" + "wine_id=" + wine_id + ", wine_name=" + wine_name + ", price=" + price + ", wine_number=" + wine_number + '}';
     }
-}
-
-    public void setWine_name(String wine_name) {
     
-    public void setWine_name(String wine_name){
+    
+}

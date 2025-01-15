@@ -203,7 +203,7 @@ public class Mongo {
         }
     }
     
-   public static boolean updateUser(String nickname, String field, String value){
+    public static boolean updateUser(String nickname, String field, String value){
     
     openConnection("Users");
 
@@ -264,6 +264,7 @@ public class Mongo {
         return false;
     }
 }
+    
     public static PaymentInfo getPaymentFromUsername(String nickname){
         openConnection("Users");
         

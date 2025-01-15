@@ -9,6 +9,7 @@ class WinedApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("fjbvhai".length());
     }
 
 }
