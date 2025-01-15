@@ -185,6 +185,42 @@ public class Mongo {
         }
     }
     
+    public static User.Level RetrieveUserLevel(String nickname, String password){
+        openConnection("Users");
+        
+        try {
+            Document userDoc = collection.find(eq("nickname", nickname)).first();
+            
+            if (userDoc == null){
+                System.out.println("Retrieve fallito: nickname non trovato");
+                closeConnection();
+                return null;
+            }
+            
+            String storedPassword = userDoc.getString("password");
+            
+            if (!storedPassword.equals(password)) {
+                System.out.println("Retrieve fallito: password errata");
+                closeConnection();
+                return null;
+            }
+            
+            //Casto da stringa a ENUM
+            User.Level result = User.Level.valueOf(userDoc.getString("user_level"));
+            
+            System.out.println("Retrieve del livello fatto con successo !");
+            closeConnection(); 
+            return result;
+            
+           
+        } catch (Exception e) {
+            System.out.println("Errore generale durante il login");
+            e.printStackTrace();
+            closeConnection();
+            return null;
+        }
+    }
+    
     public static boolean deleteUser(String nickname){
         
         openConnection("Users");
@@ -430,7 +466,6 @@ public class Mongo {
             for (Wine_WineVivino.Flavor fl : wine.getFlavorList()) {
                 Document flDoc = new Document();
                 flDoc.append("group", fl.getGroup());
-                // "mentions_count" va direttamente qui (oppure potresti creare un sub-doc "stats")
                 flDoc.append("mentions_count", fl.getMentions_count());
                 flavorArray.add(flDoc);
             }

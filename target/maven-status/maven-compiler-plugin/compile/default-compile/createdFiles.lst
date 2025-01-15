@@ -1,6 +1,11 @@
-it/unipi/wined/config/Driver_Config.class
-it/unipi/wined/driver/Mongo.class
-it/unipi/wined/bean/Wine_WineVivino$Food.class
-it/unipi/wined/bean/Wine_WineVivino.class
-it/unipi/wined/bean/Wine_WineVivino$Flavor.class
-it/unipi/wined/bean/Wine_WineMag.class
+it\unipi\wined\spring\utils\LoginRequest.class
+it\unipi\wined\bean\Wine_WineVivino.class
+it\unipi\wined\neo4j\Statistics.class
+it\unipi\wined\config\Driver_Config.class
+it\unipi\wined\neo4j\interaction\Neo4jGraphInteractions$1.class
+it\unipi\wined\driver\Mongo.class
+it\unipi\wined\bean\Wine_WineVivino$Food.class
+it\unipi\wined\neo4j\interaction\Neo4jGraphInteractions.class
+it\unipi\wined\bean\Wine_WineVivino$Flavor.class
+it\unipi\wined\neo4j\interaction\Neo4jGraphInteractions$2.class
+it\unipi\wined\bean\Wine_WineMag.class

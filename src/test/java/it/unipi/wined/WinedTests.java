@@ -192,6 +192,12 @@ public class WinedTests {
         System.out.println(result.getWinery_name() + " " + result.getWinery_id());
     }
     
+    @Test
+    public void retrieveUserLevel(){
+        User.Level result = Mongo.RetrieveUserLevel("Mozelle_Erdman", "Mozelle1970");
+        System.out.println(result);
+    }
+            
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
