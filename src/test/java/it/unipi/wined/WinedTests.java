@@ -192,6 +192,7 @@ public class WinedTests {
         System.out.println(result.getWinery_name() + " " + result.getWinery_id());
     }
     
+    //OK FUNZIONANTE
     @Test
     public void retrieveUserLevel(){
         User.Level result = Mongo.RetrieveUserLevel("Mozelle_Erdman", "Mozelle1970");
