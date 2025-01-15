@@ -25,6 +25,7 @@ import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.PaymentInfo;
 import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
+import it.unipi.wined.bean.OrderList;
 
 //Import di Jackson
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -34,7 +35,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 //Import di Java
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  *
@@ -88,7 +88,6 @@ public class Mongo {
     }
         
     //+----------------------CRUD OPERATIONS INTO THE USER --------------------+
-    
     public static boolean addUser(User user){
         
         openConnection("Users");
@@ -154,7 +153,7 @@ public class Mongo {
         closeConnection();
         return true;
     }
-    
+   
     public static User RetrieveUser(String nickname){
         
         openConnection("Users");
@@ -184,7 +183,7 @@ public class Mongo {
             
         }
     }
-    
+ 
     public static User.Level RetrieveUserLevel(String nickname, String password){
         openConnection("Users");
         
@@ -378,9 +377,88 @@ public class Mongo {
     }
      
     //+-------------------CRUD OPERATIONS FOR ORDER CLASS----------------------+
-    //TODO  TODO    TODO    TODO    TODO    TODO    TODO    TODO    TODO    TODO
-     
-     
+    public static boolean addWineOrder(String nickname, Order order) {
+    openConnection("Users"); 
+    try {
+
+        Document userDoc = collection.find(eq("nickname", nickname)).first();
+        if (userDoc == null) {
+            System.out.println("Impossibile aggiungere l'ordine, utente non esistente");
+            closeConnection();
+            return false;
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Document> oldOrders = (List<Document>) userDoc.get("orders");
+        
+        Document orderDoc = new Document();
+        
+        orderDoc.append("id_order", order.getIdOrder());
+        orderDoc.append("confirmation_date", order.getConfirmationDate());
+        orderDoc.append("departure_date", order.getDepartureDate());
+        orderDoc.append("delivery_date", order.getDeliveryDate());
+        orderDoc.append("feedback", order.getFeedback());
+        orderDoc.append("order_total_cost", order.getOrderTotalCost());
+
+        List<Document> orderListDocs = new ArrayList<>();
+        for (OrderList item : order.getOrderElements()) {
+            
+            Document itemDoc = new Document();
+            
+            itemDoc.append("wine_id",     item.getWine_id());
+            itemDoc.append("wine_name",   item.getWine_name());
+            itemDoc.append("price",       item.getPrice());
+            itemDoc.append("wine_number", item.getWine_number());
+            
+            orderListDocs.add(itemDoc);
+        }
+        
+        orderDoc.append("order_list", orderListDocs);
+
+        Bson updateCmd;
+        if (oldOrders != null && !oldOrders.isEmpty()) {
+            // push
+            updateCmd = Updates.push("orders", orderDoc);
+        } else {
+            // set
+            List<Document> newOrdersArray = new ArrayList<>();
+            newOrdersArray.add(orderDoc);
+            updateCmd = Updates.set("orders", newOrdersArray);
+        }
+
+        collection.updateOne(eq("nickname", nickname), updateCmd);
+        
+        closeConnection();
+        System.out.println("Ordine aggiunto correttamente");
+        return true;
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        closeConnection();
+        return false;
+    }
+}
+
+    //PRIVILEGED
+    public static boolean removeWineOrder(String nickname, String orderId) {
+    openConnection("Users");
+    
+    try {
+        Bson pullFilter = Filters.eq("id_order", orderId);
+        Bson update = Updates.pull("orders", pullFilter);
+        
+        collection.updateOne(eq("nickname", nickname), update);
+        closeConnection();
+        System.out.println("Ordine con id_order=" + orderId + " rimosso per utente " + nickname);
+        return true;
+    
+    } catch (Exception e) {
+        e.printStackTrace();
+        closeConnection();
+        return false;
+    }
+}
+
     //+--------------------CRUD OPERATIONS FOR WINE CLASS ---------------------+
     public static boolean addWineWineMag(Wine_WineMag wine){
         

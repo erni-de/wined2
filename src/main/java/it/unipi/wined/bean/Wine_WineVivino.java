@@ -56,6 +56,37 @@ public class Wine_WineVivino {
         this.flavorList = new ArrayList<>();
         this.foodList = new ArrayList<>();
     }
+    
+    //Costruttore completo
+    public Wine_WineVivino(String _id, String name, int price, String alcohol_percentage,
+                           String description, String country, String region, String provenance,
+                           String variety, String winery_id, String winery_name, Double acidity,
+                           Double fizziness, Double intensity, Double sweetness, Double tannin,
+                           List<Flavor> flavorList, Integer body,
+                           String body_description, List<Food> foodList) {
+        //Inizializzo
+        this();
+        this._id = _id;
+        this.name = name;
+        this.price = price;
+        this.alcohol_percentage = alcohol_percentage;
+        this.description = description;
+        this.country = country;
+        this.region = region;
+        this.provenance = provenance;
+        this.variety = variety;
+        this.winery_id = winery_id;
+        this.winery_name = winery_name;
+        this.acidity = acidity;
+        this.fizziness = fizziness;
+        this.intensity = intensity;
+        this.sweetness = sweetness;
+        this.tannin = tannin;
+        this.flavorList = flavorList;
+        this.body = body;
+        this.body_description = body_description;
+        this.foodList = foodList;
+    }
 
     // ==============
     // Getter & Setter
@@ -195,7 +226,6 @@ public class Wine_WineVivino {
         for (Map<String, Object> flavorObj : flavorArray) {
             Flavor fl = new Flavor();
             fl.setGroup((String) flavorObj.get("group"));
-            // Mentions_count (se presente)
             fl.setMentions_count(toInteger(flavorObj.get("mentions_count")));
             tempFlavorList.add(fl);
         }
@@ -267,38 +297,67 @@ public class Wine_WineVivino {
     // =====================
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Flavor {
-        private String group;
-        private Integer mentions_count;
+    private String group;
+    private Integer mentions_count;
 
-        public String getGroup() {
-            return group;
-        }
-
-        public void setGroup(String group) {
-            this.group = group;
-        }
-
-        public Integer getMentions_count() {
-            return mentions_count;
-        }
-
-        public void setMentions_count(Integer mentions_count) {
-            this.mentions_count = mentions_count;
-        }
+    public Flavor() {
     }
 
+    public Flavor(String group, Integer mentions_count) {
+        this.group = group;
+        this.mentions_count = mentions_count;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public Integer getMentions_count() {
+        return mentions_count;
+    }
+
+    public void setMentions_count(Integer mentions_count) {
+        this.mentions_count = mentions_count;
+    }
+
+    @Override
+    public String toString() {
+        return "Flavor{" +
+               "group='" + group + '\'' +
+               ", mentions_count=" + mentions_count +
+               '}';
+    }
+}
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Food {
-        private String name; 
+    private String name;
 
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
+    public Food() {
     }
+
+    public Food(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Food{" +
+               "name='" + name + '\'' +
+               '}';
+    }
+}
 
     @Override
     public String toString() {

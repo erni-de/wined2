@@ -22,12 +22,6 @@ public class User {
     private String address;     
     private String nickname;    
     private String password;    
-
-
-    public User(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
     
     //Un solo sistema di pagamento
     private PaymentInfo payment;
@@ -68,8 +62,6 @@ public class User {
                 String password,
                 Level user_level) {
 
-
-        
         this();
         this.firstname = firstname;
         this.lastname = lastname;
@@ -227,19 +219,21 @@ public class User {
         }
     }
 
-    @Override
+   @Override
     public String toString() {
-        return "User{" +
-                "firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", email='" + email + '\'' +
-                ", phone=" + phone +
-                ", birthday='" + birthday + '\'' +
-                ", gender='" + gender + '\'' +
-                ", address='" + address + '\'' +
-                ", nickname='" + nickname + '\'' +
-                ", password='" + password + '\'' +
-                ", user_level=" + user_level +
-                '}';
+    return "User{" +
+            "firstname='" + firstname + '\'' +
+            ", lastname='" + lastname + '\'' +
+            ", email='" + email + '\'' +
+            ", phone=" + phone +
+            ", birthday='" + birthday + '\'' +
+            ", gender='" + gender + '\'' +
+            ", address='" + address + '\'' +
+            ", nickname='" + nickname + '\'' +
+            ", password='" + password + '\'' +
+            ", user_level=" + user_level +
+            ", orders=" + orders +
+            '}';
     }
+
 }

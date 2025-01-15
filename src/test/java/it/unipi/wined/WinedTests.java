@@ -11,6 +11,8 @@ import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.PaymentInfo;
 import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
+import it.unipi.wined.bean.OrderList;
+import it.unipi.wined.bean.Order;
 
 import it.unipi.wined.driver.Mongo;
 //import it.unipi.wined.json.objects.FakeUser;
@@ -20,6 +22,7 @@ import it.unipi.wined.spring.Actions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +86,7 @@ public class WinedTests {
     //OK FUNZIONANTE
     @Test
     public void Retrieve_User_MongoDB(){
-        User user = Mongo.RetrieveUser("Eryn_Bradtke");
+        User user = Mongo.RetrieveUser("Delphia_Rogahn");
         System.out.println(user);
     }
     
@@ -198,7 +201,130 @@ public class WinedTests {
         User.Level result = Mongo.RetrieveUserLevel("Mozelle_Erdman", "Mozelle1970");
         System.out.println(result);
     }
-            
+    
+    //OK FUNZIONANTE
+    @Test
+    public void addVivino(){
+        
+        String wineId = UUID.randomUUID().toString();
+        String idWinery = UUID.randomUUID().toString();
+        
+        //Dati del vino
+        String name = "Grand Estates Chardonnay";
+        int price = 75;
+        String alcoholPercentage = "18%";
+        String description = "Il vino bono per il rione darsena";
+        String country = "IT";
+        String region = "Viareggio";
+        String provenance = "V";
+        String variety = "White";
+
+        //Dati della cantina
+        String wineryId = idWinery;
+        String wineryName = "Viareggio 12";
+
+        //Dati del gusto
+        Double acidity = 3.4851587;
+        Double fizziness = null; 
+        Double intensity = 3.986575;
+        Double sweetness = 2.0111642;
+        Double tannin = null; 
+
+        //Flavors
+        List<Wine_WineVivino.Flavor> flavors = Arrays.asList(
+            new Wine_WineVivino.Flavor("oak", 1305),
+            new Wine_WineVivino.Flavor("tree_fruit", 310),
+            new Wine_WineVivino.Flavor("tropical_fruit", 226)
+        );
+
+        //Stile
+        Integer body = 4;
+        String bodyDescription = "Full-bodied";
+
+        //Food pairings
+        List<Wine_WineVivino.Food> foods = Arrays.asList(
+            new Wine_WineVivino.Food("Pork"),
+            new Wine_WineVivino.Food("Rich fish (salmon, tuna etc)"),
+            new Wine_WineVivino.Food("Vegetarian"),
+            new Wine_WineVivino.Food("Poultry")
+        );
+
+        //Creazione dell'oggetto Wine_WineVivino
+        Wine_WineVivino wine = new Wine_WineVivino(
+            wineId, name, price, alcoholPercentage, description, country, region, provenance, variety,
+            wineryId, wineryName, acidity, fizziness, intensity, sweetness, tannin, flavors, body, bodyDescription, foods
+        );
+        
+        boolean result = Mongo.addWineWineVivino(wine);
+        
+        if(result){
+            System.out.println("Vino di tipo Vivino inserito corretamente");
+        }else{
+            System.out.println("Problemi nell'inserimento");
+        }
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void deleteVivinoWine(){
+        String id = "93ee8c57-5737-4cae-83b6-acc8fada7d36";
+        Mongo.deleteWineVivinoWine(id);
+    }
+    
+    //OK FUNZIONANTE (C'HO MOCCOLATO L'ANIMA CON IL JACKSON A DESERIALIZZARE)
+    @Test
+    public void getVivinoById(){
+        String id = "884d7d37-694a-4660-8c9a-6c2b99cee346";
+        
+        Wine_WineVivino wine = Mongo.getWineVivinoWineById(id);
+        System.out.println(wine);
+    }   
+    
+    //OK FUNZIONANTE
+    @Test
+    public void testAddWineOrder() {
+    String nickname = "Delphia_Rogahn";
+
+    Order order = new Order();
+    //Anche qui ovviamente si usa lo UUID
+    order.setIdOrder("ringori");
+    order.setConfirmationDate("2024-01-31");
+    order.setDepartureDate("2024-02-02");
+    order.setDeliveryDate("2024-02-03");
+    order.setFeedback(4.5);
+    order.setOrderTotalCost(99.9);
+
+    OrderList item1 = new OrderList();
+    item1.setWine_id("2a78a67d-8b50-4184-aee3-1634c19022ed");
+    item1.setWine_name("Willamette Valley Vineyards 2009 Estate Pinot Noir");
+    item1.setPrice(15.5);
+    item1.setWine_number(2);
+
+    OrderList item2 = new OrderList();
+    item2.setWine_id("1d0024c3-7b5d-490f-9b67-fe78248354a6");
+    item2.setWine_name("Goats do Roam 2008 Goat-Roti Syrah-Viognier");
+    item2.setPrice(45.0);
+    item2.setWine_number(1);
+
+    order.setOrderElements(item1);
+    order.setOrderElements(item2);
+
+    boolean result = Mongo.addWineOrder(nickname, order);
+    if (result) {
+        System.out.println("Ordine aggiunto correttamente!");
+    } else {
+        System.out.println("Problemi nell'aggiunta dell'ordine");
+    }
+}
+    @Test
+    public void removeOrderUser(){
+        
+        String nickname = "Delphia_Rogahn";
+        String id_order = "ringori";
+        
+        Mongo.removeWineOrder(nickname, id_order);
+    }
+
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //

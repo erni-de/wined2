@@ -4,6 +4,10 @@
  */
 
 package it.unipi.wined.bean;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 
 /**
@@ -13,13 +17,22 @@ import java.util.ArrayList;
 
 //An order is implemented as an array of order_list, so in each order we have an
 //Array of order_list that specifies the wine bought, the quantity and the price
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Order {
-    private int id_order;
+    
+    @JsonProperty("id_order")
+    private String id_order;
+    @JsonProperty("order_list")
     private ArrayList<OrderList> orderList;
+    @JsonProperty("confirmation_date")
     private String confirmation_date;
+    @JsonProperty("departure_date")
     private String departure_date;
+    @JsonProperty("delivery_date")
     private String delivery_date;
+    @JsonProperty("feedback")
     private double feedback;
+    @JsonProperty("order_total_cost")
     private double order_total_cost;
     
     //---------------
@@ -34,7 +47,7 @@ public class Order {
     }
     
     //Main constructor. The assumption is 
-    public Order(int id_order, ArrayList<OrderList> orderList, String confirmation_date,
+    public Order(String id_order, ArrayList<OrderList> orderList, String confirmation_date,
                 String departure_date, String delivery_date, double feedback,
                 double order_total_cost){
         
@@ -54,7 +67,7 @@ public class Order {
     //---GET METHOD--
     //---------------
     
-    public int getIdOrder(){
+    public String getIdOrder(){
         return id_order;
     }
     
@@ -86,7 +99,7 @@ public class Order {
     //---SET METHOD--
     //---------------
     
-    public void setIdOrder(int id_order){
+    public void setIdOrder(String id_order){
         this.id_order = id_order;
     }
     
@@ -114,16 +127,16 @@ public class Order {
         this.order_total_cost = order_total_cost;
     }
     
-    @Override
-    public String toString(){
-        return "Order {" +
-                "id_order=" + id_order +
-                ", orderList=" + orderList +
-                ", confirmation_date='" + confirmation_date + '\'' +
-                ", departure_date='" + departure_date + '\'' +
-                ", delivery_date='" + delivery_date + '\'' +
-                ", feedback=" + feedback +
-                ", order_total_cost=" + order_total_cost +
-                '}';
+   @Override
+    public String toString() {
+    return "Order {" +
+            "id_order=" + id_order +
+            ", orderList=" + orderList +
+            ", confirmation_date='" + confirmation_date + '\'' +
+            ", departure_date='" + departure_date + '\'' +
+            ", delivery_date='" + delivery_date + '\'' +
+            ", feedback=" + feedback +
+            ", order_total_cost=" + order_total_cost +
+            '}';
     }
 }
