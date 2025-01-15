@@ -2,3 +2,24 @@ NEL DATASET FINALE ABBIAMO:
 
 Numero di vini di Winemag: 129971
 Numero di vini di Vivino: 5050
+
+
++---------------------FUNZIONAMENTO ARRAY LIST-------------------+
+
+get(int index)				Accede a un elemento all'indice 
+specificato.
+
+set(int index, E element)		Modifica un elemento all'indice specificato.
+
+add(int index, E element)		Aggiunge un elemento in una 							posizione specifica.
+
+remove(int index)			Rimuove un elemento all'indice specificato.
+
+indexOf(Object o)			Restituisce l'indice della prima occorrenza.
+
+lastIndexOf(Object o)			Restituisce l'indice dell'ultima occorrenza.
+
+subList(int fromIndex, int toIndex)	Crea una sottolista basata 
+							sugli indici.
+
+Collections.swap(List, int, int)		Scambia due elementi 									specifici.

@@ -2,6 +2,14 @@ package it.unipi.wined.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author nicol
+ */
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
     
@@ -21,6 +29,12 @@ public class User {
     }
 
     
+    //Un solo sistema di pagamento
+    private PaymentInfo payment;
+    
+    //Lista di ordini dell'utente;
+    private List<Order> orders;
+
     public enum Level {
         REGULAR, PREMIUM, ADMIN
     }
@@ -35,9 +49,14 @@ public class User {
     
     //Il costruttore vuoto lo richiede il down di Jackson se non c'è fa casino
     public User() {
+        //Inizializzo a vuoto (sennò da Null Pointer)
+        this.orders = new ArrayList<>();
     }
 
-    //Costruttore completo
+    //Costruttore senza order e payment
+    //E' la versione iniziale degli utenti che ho messo nel dataset
+    //Potrebbe esserci un user bo che vuole registrarsi, essere PREMIUM
+    //Ma solo per vedere gli abbinamenti dei vini e non voler fare acquisti
     public User(String firstname,
                 String lastname,
                 String email,
@@ -50,6 +69,8 @@ public class User {
                 Level user_level) {
 
 
+        
+        this();
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
@@ -61,12 +82,39 @@ public class User {
         this.password = password;
         this.user_level = user_level;
     }
+    
+    //Costruttore completo previsto sia di payments che di ArrayOrders
+    public User(String firstname,
+                String lastname,
+                String email,
+                long phone,
+                String birthday,
+                String gender,
+                String address,
+                String nickname,
+                String password,
+                Level user_level,
+                PaymentInfo payment,
+                List<Order> orders){
+
+        //Riuso il costruttore sopra
+        this(firstname, lastname, email, phone, birthday, gender, address,
+                nickname, password, user_level);
+        
+        this.payment = payment;
+        
+        if(orders == null){
+            this.orders = new ArrayList<>();
+        }else{
+            this.orders = orders;
+        }
+    }
 
     // =====================
     // GETTER & SETTER
     // =====================
     
-    public String getFirstname() {
+    public String getFirstName(){
         return firstname;
     }
 
@@ -74,7 +122,7 @@ public class User {
         this.firstname = firstname;
     }
 
-    public String getLastname() {
+    public String getLastName() {
         return lastname;
     }
 
@@ -146,6 +194,22 @@ public class User {
         this.user_level = user_level;
     }
 
+    public PaymentInfo getPayment(){
+        return payment;
+    }
+    
+    public void setPayment(PaymentInfo payment){
+        this.payment = payment;
+    }
+    
+    public List<Order> getOrders(){
+        return orders;
+    }
+    
+    public void setOrders(List<Order> orders){
+        this.orders = orders;
+    }
+    
     public boolean[] getPrivileges() {
         if (user_level == null) {
             // Se l'utente non ha un livello impostato
