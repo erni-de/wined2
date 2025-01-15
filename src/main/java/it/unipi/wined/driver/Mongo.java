@@ -16,13 +16,15 @@ import com.mongodb.client.model.*;
 import org.bson.conversions.Bson;
 import com.mongodb.client.model.Updates;
 import static com.mongodb.client.model.Filters.eq;
+import org.bson.Document;
 
 //Import delle classi del nostro progetto
 import it.unipi.wined.bean.Order;
 import it.unipi.wined.config.Driver_Config;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.PaymentInfo;
-import org.bson.Document;
+import it.unipi.wined.bean.Wine_WineMag;
+import it.unipi.wined.bean.Wine_WineVivino;
 
 //Import di Jackson
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -32,6 +34,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 //Import di Java
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -83,16 +86,9 @@ public class Mongo {
         }
       }
     }
-    
-    
-    //+--------------------OPERATIONS INTO THE USER COLLECTION-----------------+
-    
-    
-    
-    
-    
+        
     //+----------------------CRUD OPERATIONS INTO THE USER --------------------+
-
+    
     public static boolean addUser(User user){
         
         openConnection("Users");
@@ -171,9 +167,14 @@ public class Mongo {
             //assicurandonemene solo uno
             Document result = collection.find(eq("nickname",nickname)).first();
             
-            User result_user = deserialize.readValue(result.toJson(), User.class);
-            closeConnection();
-            return result_user;
+            if(result != null){
+                User result_user = deserialize.readValue(result.toJson(), User.class);
+                closeConnection();
+                return result_user;
+            }else{
+                System.out.println("Nessun utente presente con quel nickname");
+                return null;
+            }
             
         }catch(Exception e){
             System.out.println("Errore improvviso nella lettura dal database");
@@ -338,4 +339,227 @@ public class Mongo {
             return false;
         }
     }
+     
+    //+-------------------CRUD OPERATIONS FOR ORDER CLASS----------------------+
+    //TODO  TODO    TODO    TODO    TODO    TODO    TODO    TODO    TODO    TODO
+     
+     
+    //+--------------------CRUD OPERATIONS FOR WINE CLASS ---------------------+
+    public static boolean addWineWineMag(Wine_WineMag wine){
+        
+        //Qui avremo due tipi di inserimenti a seconda del vino che inseriamo
+        Document doc = new Document();
+    
+            try{
+                openConnection("Wines");
+                //Dati vino winemag generali
+                doc.append("_id", wine.getId());
+                doc.append("points", wine.getPoints());
+                doc.append("description", wine.getDescription());
+                doc.append("tester_name", wine.getTaster_name());
+                doc.append("price", wine.getPrice());
+                doc.append("variety", wine.getVariety());
+                doc.append("province", wine.getProvince());
+                doc.append("country", wine.getCountry());
+                doc.append("alchol_percentage", wine.getAlcohol_percentage());
+                doc.append("name", wine.getName());
+                doc.append("region", wine.getRegion());
+                doc.append("provenance", wine.getProvenance());
+                
+                //Dati cantina
+                Document doc_winery = new Document();
+                doc_winery.append("id", wine.getWinery_id());
+                doc_winery.append("name", wine.getWinery_name());
+            
+                doc.append("Winery", doc_winery);
+                
+                collection.insertOne(doc);
+                
+                System.out.println("Vino di tipo WineMag inserito correttamente");
+                closeConnection();
+                return true;
+                
+            }catch(Exception e){
+                System.out.println("Errore generale nell'inserimento del vino");
+                e.printStackTrace();
+                closeConnection();
+                return false;
+            }
+    }
+    
+   public static boolean addWineWineVivino(Wine_WineVivino wine) {
+    openConnection("Wines");
+    
+    try {
+        
+        Document doc = new Document();
+        
+        doc.append("_id", wine.get_id());         
+        doc.append("name", wine.getName());
+        doc.append("price", wine.getPrice());
+        doc.append("alcohol_percentage", wine.getAlcohol_percentage());
+        doc.append("description", wine.getDescription());
+        doc.append("country", wine.getCountry());
+        doc.append("region", wine.getRegion());
+        doc.append("provenance", wine.getProvenance());  
+        doc.append("variety", wine.getVariety());
+
+        //winery
+        Document wineryDoc = new Document();
+        
+        wineryDoc.append("id",   wine.getWinery_id());
+        wineryDoc.append("name", wine.getWinery_name());
+        doc.append("winery", wineryDoc);
+
+        //taste
+        Document tasteDoc = new Document();
+        Document structureDoc = new Document();
+        
+        structureDoc.append("acidity",   wine.getAcidity());
+        structureDoc.append("fizziness", wine.getFizziness());
+        structureDoc.append("intensity", wine.getIntensity());
+        structureDoc.append("sweetness", wine.getSweetness());
+        structureDoc.append("tannin",    wine.getTannin());
+
+        tasteDoc.append("structure", structureDoc);
+
+        //flavor
+        List<Document> flavorArray = new ArrayList<>();
+        if (wine.getFlavorList() != null) {
+            for (Wine_WineVivino.Flavor fl : wine.getFlavorList()) {
+                Document flDoc = new Document();
+                flDoc.append("group", fl.getGroup());
+                // "mentions_count" va direttamente qui (oppure potresti creare un sub-doc "stats")
+                flDoc.append("mentions_count", fl.getMentions_count());
+                flavorArray.add(flDoc);
+            }
+        }
+        tasteDoc.append("flavor", flavorArray);
+
+        doc.append("taste", tasteDoc);
+
+        //style
+        Document styleDoc = new Document();
+        styleDoc.append("body", wine.getBody());
+        styleDoc.append("body_description", wine.getBody_description());
+
+        //food
+        List<Document> foodArray = new ArrayList<>();
+        if (wine.getFoodList() != null) {
+            for (Wine_WineVivino.Food fd : wine.getFoodList()) {
+                Document fdDoc = new Document();
+                fdDoc.append("name", fd.getName());
+                foodArray.add(fdDoc);
+            }
+        }
+        styleDoc.append("food", foodArray);
+
+        doc.append("style", styleDoc);
+
+        //Insert 
+        collection.insertOne(doc);
+
+        System.out.println("Vino di tipo Vivino inserito correttamente.");
+        closeConnection();
+        return true;
+
+    } catch (Exception e) {
+        System.out.println("Errore generale nell'inserimento del vino Vivino");
+        e.printStackTrace();
+        closeConnection();
+        return false;
+    }
+}
+    
+    public static boolean deleteWineMagWine(String id){
+        openConnection("Wines");
+        
+        try{
+            collection.deleteOne(Filters.eq("_id", id));
+            closeConnection();
+            return true;
+        }catch(Exception e){
+            
+            System.out.println("Errore nel cancellare il vino");
+            e.printStackTrace();
+            closeConnection();
+            return false;
+        }
+    }
+    
+    public static boolean deleteWineVivinoWine(String id){
+        openConnection("Wines");
+        
+        try{
+            collection.deleteOne(Filters.eq("_id", id));
+            System.out.println("Vino eliminato correttamente !");
+            closeConnection();
+            return true;
+        
+        }catch(Exception e){
+            
+            System.out.println("Errore nel cancellare il vino");
+            e.printStackTrace();
+            closeConnection();
+            return false;    
+        }
+    }
+    
+    public static Wine_WineVivino getWineVivinoWineById(String id) {
+    openConnection("Wines");
+    Wine_WineVivino result = null;
+
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        Document db_result = collection.find(eq("_id", id)).first();
+        
+        if (db_result != null) {
+            result = deserialize.readValue(db_result.toJson(), Wine_WineVivino.class);
+        } else {
+            System.out.println("Nessun vino Vivino presente con _id=" + id);
+        }
+
+        closeConnection();
+        return result;
+
+    } catch (Exception e) {
+        System.out.println("Errore nella lettura del vino Vivino dal database");
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+
+    public static Wine_WineMag getWineMagWineById(String id){
+        openConnection("Wines");
+        Wine_WineMag result;
+    
+        ObjectMapper deserialize = new ObjectMapper();
+        deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        try{
+            //Ho un solo risultato, mantengo unicità con l'id assicurandonemene solo uno
+            Document db_result = collection.find(eq("_id",id)).first();
+            
+            if(db_result != null){
+                result = deserialize.readValue(db_result.toJson(), Wine_WineMag.class);
+                closeConnection();
+                return result;
+                
+            }else{
+                System.out.println("Nessun vino è presente con quell'id");
+                return null;
+            }
+            
+        }catch(Exception e){
+            System.out.println("Errore improvviso nella lettura dal database");
+            e.printStackTrace();
+            closeConnection();
+            return null;
+            
+        }
+    }
+        
 }

@@ -3,6 +3,11 @@ package it.unipi.wined.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ *
+ * @author nicol
+ */
+
 //Ho dovuto usare le proprietà di Jackson per rimappare i nomi, poiché sono diversi
 //Dal JSON rispetto a quelli che ho nella classe
 @JsonIgnoreProperties(ignoreUnknown = true)

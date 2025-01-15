@@ -5,9 +5,10 @@
 
 package it.unipi.wined;
 
-
 import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.PaymentInfo;
+import it.unipi.wined.bean.Wine_WineMag;
+import it.unipi.wined.bean.Wine_WineVivino;
 
 import it.unipi.wined.driver.Mongo;
 //import it.unipi.wined.json.objects.FakeUser;
@@ -132,6 +133,61 @@ public class WinedTests {
     public void get_Payment_Method(){
         PaymentInfo obj = Mongo.getPaymentFromUsername("Laila_Beer");
         System.out.println(obj);
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void addWineMagWine(){
+        Wine_WineMag wine = new Wine_WineMag("frfifeinfineri",
+            "Tavernello",
+            1,
+            "Rosso",
+            "Sconosciuta",
+            "Un vino che non è vino",
+            "Italia(Forse)",
+            "8.5%",
+            "W",
+            "1",
+            "MeStesso",
+            "Toscana",
+            "465656646456",
+            "TavernelloCantine");
+        
+        boolean result = Mongo.addWineWineMag(wine);
+        
+        if(result){
+            System.out.println("Tutto ok");
+        }else{
+            System.out.println("Failed Insert");
+        }
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void deleteWineMagWine(){
+        String id = "57014aff-ec4b-417f-b9df-1b6a4ab2b6f0";
+       
+        boolean result = Mongo.deleteWineMagWine(id);
+       
+        if(result){
+            System.out.println("Vino cancellato correttamente");
+        }else{
+            System.out.println("Errore nel cancellamento");
+        }
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void getWineMagWineById(){
+        String id = "9791a6d2-ac81-45fc-874d-a73bdd52baab";
+        
+        Wine_WineMag result;
+        result = Mongo.getWineMagWineById(id);
+        
+        System.out.println(result);
+        
+        //Da qui si estrapolano direttamente i dati della cantina
+        System.out.println(result.getWinery_name() + " " + result.getWinery_id());
     }
     
     // TODO add test methods here.

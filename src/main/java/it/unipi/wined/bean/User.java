@@ -5,6 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ *
+ * @author nicol
+ */
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
     
