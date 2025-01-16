@@ -36,27 +36,10 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
     
-    public static String connectionIp = "192.168.244.146";
+    public static String connectionIp = "192.168.1.12";
     
     public static Driver establishConnection(String uri, String user, String password) {
         return GraphDatabase.driver(uri, AuthTokens.basic(user, password));
     }
-    
-    public static List<FakeUser> getUsers(String filepath){
-        Gson gson = new Gson();
-        List<FakeUser> fu = new Stack<>();
-        try {
-            FileReader reader = new FileReader(filepath);
-            FakeUserWrapper overall = gson.fromJson(reader, FakeUserWrapper.class);
-            fu = overall.getUsers();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-        return fu;
-    }
-    
-    public static List<FakeUser> getUsers(String filepath1, String filepath2){
-        return Stream.concat(getUsers(filepath1).stream(), getUsers(filepath2).stream()).toList();
-    }
-    
+
 }

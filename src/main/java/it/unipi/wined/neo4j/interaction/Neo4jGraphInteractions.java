@@ -159,9 +159,20 @@ public class Neo4jGraphInteractions {
     public static void addUserNode(User userToAdd) {
         Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               CREATE(a:user {id: $userId, username: $userName}) 
+                               CREATE(u:user {id: $userId, username: $userName}) 
                                """).
                 withParameters(Map.of("userId", userToAdd.id, "userName", userToAdd.getNickname())).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
+    }
+    
+    public static void deleteUserNode(User userToDelete){
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        driver.executableQuery("""
+                               MATCH(u:user {id: $userId, username: $userName})
+                               DELETE u
+                               """).
+                withParameters(Map.of("userId", userToDelete.id, "userName", userToDelete.getNickname())).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
     }
@@ -240,6 +251,19 @@ public class Neo4jGraphInteractions {
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
         return result.records().toString();
+    }
+    
+    public static void getSuggestedWines(String username){
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        EagerResult result;
+        result = driver.executableQuery("""
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)
+                                         MATCH (v:wine)-[:REVIEWED]->(r:review)-[:WRITTEN_BY]->(b)
+                                         RETURN b.rating, b.text, b.title, u.username
+                                        """).
+                withParameters(Map.of("userName", username)).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
     }
     
 }

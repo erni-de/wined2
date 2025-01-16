@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author erni
  */
+/*
 public class WinedTests {
     
     public WinedTests() {

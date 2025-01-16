@@ -49,10 +49,10 @@ public class Access {
         try {
             Neo4jGraphInteractions.addUserNode(registering_user);
             Mongo.addUser(registering_user);
-            return "0";
+            return "200";
         } catch (Exception e) {
             e.printStackTrace();
-            return "1";
+            return "500";
         }
     }
 
@@ -68,14 +68,14 @@ public class Access {
         try {
             Gson gson = new Gson();
             LoginRequest lr = gson.fromJson(jsonLoginRequest, LoginRequest.class);
-            if (Mongo.loginUser(lr.username, lr.password)){
+            if (Mongo.loginUser(lr.username, lr.password)) {
                 return gson.toJson(Mongo.RetrieveUser(lr.username));
             } else {
-                return "1";
+                return "400";
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "2";
+            return "500";
         }
         //else
         //return "User not found";
