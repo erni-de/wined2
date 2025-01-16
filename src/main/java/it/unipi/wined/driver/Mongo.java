@@ -675,5 +675,204 @@ public class Mongo {
             
         }
     }
+    
+    //QUERY PROGETTO
+    
+    public static ArrayList<Wine_WineMag> getWineMagByFilter(String field, String value) {
+    openConnection("Wines");
+
+    ArrayList<Wine_WineMag> resultList = new ArrayList<>();
+    
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        //Filtra i documenti che hanno "provenance" = "W"
+        Bson baseFilter = eq("provenance", "W");
+
+        Bson secondaryFilter = null;
+
+        switch (field) {
+            case "points":
+                //points >= value
+                int pointsVal = Integer.parseInt(value);
+                secondaryFilter = Filters.gte("points", pointsVal);
+                break;
+
+            case "taster_name":
+                //taster_name == value
+                secondaryFilter = eq("taster_name", value);
+                break;
+
+            case "price":
+                //price <= value 
+                int priceVal = Integer.parseInt(value);
+                secondaryFilter = Filters.lte("price", priceVal);
+                break;
+
+            case "country":
+                //country == value
+                secondaryFilter = eq("country", value);
+                break;
+
+            case "alcohol_percentage":
+                //alcohol_percentage <= value
+                int alcVal = Integer.parseInt(value);
+                secondaryFilter = Filters.lte("alcohol_percentage", alcVal);
+                break;
+
+            default:
+                System.out.println("Campo non valido per WineMag: " + field);
+                closeConnection();
+                return resultList;
+        }
+
+        //Combino il filtro iniziale (provenance == "W") con quello passato
+        Bson finalFilter = Filters.and(baseFilter, secondaryFilter);
+
+        //Query
+        List<Document> docs = collection.find(finalFilter).into(new ArrayList<>());
+
+        //Deserializzo in WineMag
+        for (Document d : docs) {
+            Wine_WineMag wine = deserialize.readValue(d.toJson(), Wine_WineMag.class);
+            resultList.add(wine);
+        }
+
+        closeConnection();
+        return resultList;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+   public static ArrayList<Wine_WineVivino> getWineVivinoByFilter(String field, String value) {
+    openConnection("Wines");
+
+    ArrayList<Wine_WineVivino> resultList = new ArrayList<>();
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        //provenance = "V"
+        Bson baseFilter = eq("provenance", "V");
+
+        Bson secondaryFilter = null;
+
+        switch (field) {
+            case "price":
+                //price <= value
+                int priceVal = Integer.parseInt(value);
+                secondaryFilter = Filters.lte("price", priceVal);
+                break;
+
+            case "alcohol_percentage":
+                //alcohol_percentage <= value
+                int alcVal = Integer.parseInt(value);
+                secondaryFilter = Filters.lte("alcohol_percentage", alcVal);
+                break;
+
+            case "country":
+                //country == value
+                secondaryFilter = eq("country", value);
+                break;
+
+            default:
+                System.out.println("Campo non valido per Vivino: " + field);
+                closeConnection();
+                return resultList;
+        }
+
+        //Creo il filtro
+        Bson finalFilter = baseFilter;
+     
+        finalFilter = Filters.and(baseFilter, secondaryFilter);
         
+        //Query
+        List<Document> docs = collection.find(finalFilter).into(new ArrayList<>());
+
+        //Deserializzo in WineMag
+        for (Document d : docs) {
+            Wine_WineVivino wine = deserialize.readValue(d.toJson(), Wine_WineVivino.class);
+            resultList.add(wine);
+        }
+
+        closeConnection();
+        return resultList;
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+   
+   public static ArrayList<Wine_WineMag> getWineMagByWineryName(String wineryName) {
+    openConnection("Wines");
+
+    //Return
+    ArrayList<Wine_WineMag> resultList = new ArrayList<>();
+
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        //Filtro con procenance e nome cantina
+        Bson filter = Filters.and(
+            eq("provenance", "W"),
+            eq("winery.name", wineryName)
+        );
+
+        List<Document> docs = collection.find(filter).into(new ArrayList<>());
+
+        //Deserializzo
+        for (Document d : docs) {
+            Wine_WineMag wine = deserialize.readValue(d.toJson(), Wine_WineMag.class);
+            resultList.add(wine);
+        }
+
+        closeConnection();
+        return resultList;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+
+public static ArrayList<Wine_WineVivino> getWineVivinoByWineryName(String wineryName) {
+    openConnection("Wines");
+
+    ArrayList<Wine_WineVivino> resultList = new ArrayList<>();
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        //Filtro i documenti con provenance="V" e per winery
+        Bson filter = Filters.and(
+            eq("provenance", "V"),
+            eq("winery.name", wineryName)
+        );
+
+        List<Document> docs = collection.find(filter).into(new ArrayList<>());
+
+        //Deserializzo
+        for (Document d : docs) {
+            Wine_WineVivino wine = deserialize.readValue(d.toJson(), Wine_WineVivino.class);
+            resultList.add(wine);
+        }
+
+        closeConnection();
+        return resultList;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+
 }

@@ -20,10 +20,10 @@ public class Wine_WineMag {
     private String region;
     private String description;
     private String country;
-    private String alcohol_percentage;
+    private int alcohol_percentage;
     private String provenance; // "W" per WineMag
 
-    private String points;
+    private int points;
     private String taster_name;
     private String province;
 
@@ -58,9 +58,9 @@ public class Wine_WineMag {
             String region,
             String description,
             String country,
-            String alcohol_percentage,
+            int alcohol_percentage,
             String provenance,
-            String points,
+            int points,
             String taster_name,
             String province,
             String winery_id,
@@ -143,11 +143,11 @@ public class Wine_WineMag {
         this.country = country;
     }
 
-    public String getAlcohol_percentage() {
+    public int getAlcohol_percentage() {
         return alcohol_percentage;
     }
 
-    public void setAlcohol_percentage(String alcohol_percentage) {
+    public void setAlcohol_percentage(int alcohol_percentage) {
         this.alcohol_percentage = alcohol_percentage;
     }
 
@@ -159,11 +159,11 @@ public class Wine_WineMag {
         this.provenance = provenance;
     }
 
-    public String getPoints() {
+    public int getPoints() {
         return points;
     }
 
-    public void setPoints(String points) {
+    public void setPoints(int points) {
         this.points = points;
     }
 

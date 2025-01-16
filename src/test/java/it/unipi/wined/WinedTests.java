@@ -21,6 +21,7 @@ import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import it.unipi.wined.spring.Actions;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -150,9 +151,9 @@ public class WinedTests {
             "Sconosciuta",
             "Un vino che non è vino",
             "Italia(Forse)",
-            "8.5%",
+            8,
             "W",
-            "1",
+            1,
             "MeStesso",
             "Toscana",
             "465656646456",
@@ -212,7 +213,7 @@ public class WinedTests {
         //Dati del vino
         String name = "Grand Estates Chardonnay";
         int price = 75;
-        String alcoholPercentage = "18%";
+        int alcoholPercentage = 18;
         String description = "Il vino bono per il rione darsena";
         String country = "IT";
         String region = "Viareggio";
@@ -316,6 +317,7 @@ public class WinedTests {
         System.out.println("Problemi nell'aggiunta dell'ordine");
     }
 }
+    //OK FUNZIONANTE
     @Test
     public void removeOrderUser(){
         
@@ -324,6 +326,72 @@ public class WinedTests {
         
         Mongo.removeWineOrder(nickname, id_order);
     }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void testGetWineMagByFilterPoints() {
+    String field = "points"; 
+    String value = "100";
+
+    ArrayList <Wine_WineMag> wines = Mongo.getWineMagByFilter(field, value);
+    
+    if (wines == null || wines.isEmpty()) {
+        System.out.println("Nessun WineMag trovato con points >= " + value);
+    } else {
+        System.out.println("Wines WineMag con points >= " + value);
+        for (Wine_WineMag w : wines) {
+            System.out.println(w);
+        }
+    }
+    }
+
+    //OK FUNZIONANTE
+    @Test
+    public void testGetWineVivinoByPrice() {
+    String field = "price"; 
+    String value = "10"; 
+
+    ArrayList<Wine_WineVivino> wines = Mongo.getWineVivinoByFilter(field, value);
+    if (wines == null || wines.isEmpty()) {
+        System.out.println("Nessun WineVivino con price <= " + value);
+    } else {
+        System.out.println("Wines Vivino con price <= " + value);
+        for (Wine_WineVivino w : wines) {
+            System.out.println(w);
+        }
+    }
+}
+    //OK FUNZIONANTE
+    @Test
+    public void testGetWineMagByWineryName() {
+    String wineryName = "Terre di Giurfo"; 
+
+    ArrayList<Wine_WineMag> wines = Mongo.getWineMagByWineryName(wineryName);
+    if (wines == null || wines.isEmpty()) {
+        System.out.println("Nessun vino WineMag con cantina = " + wineryName);
+    } else {
+        System.out.println("Vini WineMag con cantina '" + wineryName + "':");
+        for (Wine_WineMag w : wines) {
+            System.out.println(w);
+        }
+    }
+}
+
+    //OK FUNZIONANTE
+    @Test
+    public void testGetWineVivinoByWineryName() {
+    String wineryName = "M. Chapoutier";
+
+    ArrayList<Wine_WineVivino> wines = Mongo.getWineVivinoByWineryName(wineryName);
+    if (wines == null || wines.isEmpty()) {
+        System.out.println("Nessun vino trovato con cantina = " + wineryName);
+    } else {
+        System.out.println("Vini di tipo Vivino aventi cantina '" + wineryName + "':");
+        for (Wine_WineVivino w : wines) {
+            System.out.println(w);
+        }
+    }
+}
 
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:

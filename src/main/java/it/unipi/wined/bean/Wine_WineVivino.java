@@ -18,7 +18,7 @@ public class Wine_WineVivino {
     private String _id;
     private String name;
     private int price;
-    private String alcohol_percentage;
+    private int alcohol_percentage;
     private String description;
     private String country;
     private String region;
@@ -58,7 +58,7 @@ public class Wine_WineVivino {
     }
     
     //Costruttore completo
-    public Wine_WineVivino(String _id, String name, int price, String alcohol_percentage,
+    public Wine_WineVivino(String _id, String name, int price, int alcohol_percentage,
                            String description, String country, String region, String provenance,
                            String variety, String winery_id, String winery_name, Double acidity,
                            Double fizziness, Double intensity, Double sweetness, Double tannin,
@@ -116,11 +116,11 @@ public class Wine_WineVivino {
         this.price = price;
     }
 
-    public String getAlcohol_percentage() {
+    public int getAlcohol_percentage() {
         return alcohol_percentage;
     }
 
-    public void setAlcohol_percentage(String alcohol_percentage) {
+    public void setAlcohol_percentage(int alcohol_percentage) {
         this.alcohol_percentage = alcohol_percentage;
     }
 
