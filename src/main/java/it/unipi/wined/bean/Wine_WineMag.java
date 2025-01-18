@@ -12,8 +12,7 @@ import java.util.Map;
 public class Wine_WineMag {
     
     @JsonProperty("_id")
-    private String id;
-    
+    private String id;  
     private String name;   
     private int price;     
     private String variety;
@@ -23,8 +22,6 @@ public class Wine_WineMag {
     private int alcohol_percentage;
     private String provenance; // "W" per WineMag
 
-    private int points;
-    private String taster_name;
     private String province;
 
     // ==============
@@ -60,8 +57,6 @@ public class Wine_WineMag {
             String country,
             int alcohol_percentage,
             String provenance,
-            int points,
-            String taster_name,
             String province,
             String winery_id,
             String winery_name
@@ -75,8 +70,6 @@ public class Wine_WineMag {
         this.country = country;
         this.alcohol_percentage = alcohol_percentage;
         this.provenance = provenance;
-        this.points = points;
-        this.taster_name = taster_name;
         this.province = province;
         this.winery_id = winery_id;
         this.winery_name = winery_name;
@@ -159,22 +152,6 @@ public class Wine_WineMag {
         this.provenance = provenance;
     }
 
-    public int getPoints() {
-        return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-    public String getTaster_name() {
-        return taster_name;
-    }
-
-    public void setTaster_name(String taster_name) {
-        this.taster_name = taster_name;
-    }
-
     public String getProvince() {
         return province;
     }
@@ -217,9 +194,7 @@ public class Wine_WineMag {
                 ", description='" + description + '\'' +
                 ", country='" + country + '\'' +
                 ", alcohol_percentage='" + alcohol_percentage + '\'' +
-                ", provenance='" + provenance + '\'' +
-                ", points='" + points + '\'' +
-                ", taster_name='" + taster_name + '\'' +
+                ", provenance='" + provenance + '\'' +          
                 ", province='" + province + '\'' +
                 ", winery_id='" + winery_id + '\'' +
                 ", winery_name='" + winery_name + '\'' +

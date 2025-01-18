@@ -23,6 +23,7 @@ it\unipi\wined\json\objects\WinemagWine.class
 it\unipi\wined\bean\User$Level.class
 it\unipi\wined\neo4j\interaction\Neo4jGraphInteractions.class
 it\unipi\wined\bean\OrderList.class
+it\unipi\wined\bean\Order_Insert.class
 it\unipi\wined\bean\Wine_WineVivino$Flavor.class
 it\unipi\wined\spring\Actions.class
 it\unipi\wined\neo4j\interaction\Neo4jGraphInteractions$2.class

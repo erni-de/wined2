@@ -26,12 +26,8 @@ public class Order {
     private ArrayList<OrderList> orderList;
     @JsonProperty("confirmation_date")
     private String confirmation_date;
-    @JsonProperty("departure_date")
-    private String departure_date;
     @JsonProperty("delivery_date")
     private String delivery_date;
-    @JsonProperty("feedback")
-    private double feedback;
     @JsonProperty("order_total_cost")
     private double order_total_cost;
     
@@ -57,9 +53,7 @@ public class Order {
         this.id_order = id_order;
         this.orderList = orderList;
         this.confirmation_date = confirmation_date;
-        this.departure_date = departure_date;
         this.delivery_date = delivery_date;
-        this.feedback = feedback;
         this.order_total_cost = order_total_cost;
     }
     
@@ -78,19 +72,11 @@ public class Order {
     public String getConfirmationDate(){
         return confirmation_date;
     }
-    
-    public String getDepartureDate(){
-        return departure_date;
-    }
-    
+
     public String getDeliveryDate(){
         return delivery_date;
     }
-    
-    public double getFeedback(){
-        return feedback;
-    }
-    
+
     public double getOrderTotalCost(){
         return order_total_cost;
     }
@@ -110,17 +96,9 @@ public class Order {
     public void setConfirmationDate(String confirmation_date){
         this.confirmation_date = confirmation_date;
     }
-    
-    public void setDepartureDate(String departure_date){
-        this.departure_date = departure_date;
-    }
-    
+
     public void setDeliveryDate(String delivery_date){
         this.delivery_date = delivery_date;
-    }
-    
-    public void setFeedback(double feedback){
-        this.feedback = feedback;
     }
     
     public void setOrderTotalCost(double order_total_cost){
@@ -133,9 +111,7 @@ public class Order {
             "id_order=" + id_order +
             ", orderList=" + orderList +
             ", confirmation_date='" + confirmation_date + '\'' +
-            ", departure_date='" + departure_date + '\'' +
             ", delivery_date='" + delivery_date + '\'' +
-            ", feedback=" + feedback +
             ", order_total_cost=" + order_total_cost +
             '}';
     }

@@ -43,6 +43,7 @@ import it.unipi.wined.bean.PaymentInfo;
 import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
 import it.unipi.wined.bean.OrderList;
+import it.unipi.wined.bean.Order_Insert;
 
 //Import di Jackson
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -413,9 +414,7 @@ public class Mongo {
         
         orderDoc.append("id_order", order.getIdOrder());
         orderDoc.append("confirmation_date", order.getConfirmationDate());
-        orderDoc.append("departure_date", order.getDepartureDate());
         orderDoc.append("delivery_date", order.getDeliveryDate());
-        orderDoc.append("feedback", order.getFeedback());
         orderDoc.append("order_total_cost", order.getOrderTotalCost());
 
         List<Document> orderListDocs = new ArrayList<>();
@@ -457,6 +456,80 @@ public class Mongo {
     }
 }
 
+    public static ArrayList<Order> retrieveUserOrders(String nickname){
+        openConnection("Users");
+        
+        ArrayList<Order> orders = new ArrayList<>();
+        
+        ObjectMapper deserialize = new ObjectMapper();
+        deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        try{
+            Document userDoc = collection.find(eq("nickname", nickname)).first();
+        
+            if(userDoc == null){    
+                System.out.println("Nessun utente trovato con quel soprannome");
+                return null;
+            }
+            
+            User user = deserialize.readValue(userDoc.toJson(), User.class);
+            
+            if(user.getOrders() != null && !user.getOrders().isEmpty()){
+                orders.addAll(user.getOrders());
+                
+            }else{
+                System.out.println("L'utente non ha nessun ordine");
+                closeConnection();
+                return null;
+            }
+            
+        }catch(Exception e){
+            System.out.println("Errore nel ritornare gli ordini");
+            e.printStackTrace();
+            closeConnection();
+            return null;
+        }
+        
+        closeConnection();
+        return orders;
+    }
+    
+    public static Order_Insert retrieveIdAndPrice(String wineName, String wineryName){
+        openConnection("Wines");
+        
+        try{
+            
+            Bson filter = Filters.and(
+                Filters.eq("name", wineName),
+                Filters.eq("winery.name", wineryName)
+            );
+            
+            Bson projection = Projections.fields(
+                Projections.include("_id", "price")
+            );
+            
+            Document doc = collection.find(filter).projection(projection).first();
+            
+            if (doc == null){
+                System.out.println("Nessun vino con quelle caratteristiche, "
+                        + "inserimento ordine impossibile");
+                return null;
+            }
+            
+            String idString = doc.get("_id").toString();
+            int price = doc.getInteger("price");
+            
+            closeConnection();
+            return new Order_Insert(idString, price);  
+            
+        }catch(Exception e){
+            System.out.println("Errore generale nel retrieve dell'id e price");
+            closeConnection();
+            return null;
+        }
+               
+    }
+    
     //PRIVILEGED
     public static boolean removeWineOrder(String nickname, String orderId) {
     openConnection("Users");
@@ -487,9 +560,7 @@ public class Mongo {
                 openConnection("Wines");
                 //Dati vino winemag generali
                 doc.append("_id", wine.getId());
-                doc.append("points", wine.getPoints());
                 doc.append("description", wine.getDescription());
-                doc.append("tester_name", wine.getTaster_name());
                 doc.append("price", wine.getPrice());
                 doc.append("variety", wine.getVariety());
                 doc.append("province", wine.getProvince());
@@ -961,7 +1032,7 @@ public static ArrayList<Document> getPriceBuckets() {
     try {
         List<Bson> pipeline = Arrays.asList(
            
-            //Fase di bucket
+        //Fase di bucket
         Aggregates.bucket(
             "$price", 
                 Arrays.asList(0, 25, 50, 75, 100), 
@@ -993,5 +1064,46 @@ public static ArrayList<Document> getPriceBuckets() {
 
     return results;
 }
+
+public static double getAvgOrderCost() {
+    
+    openConnection("Users");
+    double averageCost = 0.0;  
+
+    try {
+        List<Bson> pipeline = Arrays.asList(
+            
+                //Scompatta l'array in più document 
+                //Se ho 3 ordini darà 3 document
+                Aggregates.unwind("$orders"),
+                
+                Aggregates.group(null, Accumulators.avg("avgCost", "$orders.order_total_cost")),
+                
+                Aggregates.project(Projections.fields(
+                    Projections.excludeId(),
+                    Projections.computed("AverageOrderCost", "$avgCost")  
+            ))
+        );
+
+        Document resultDoc = collection.aggregate(pipeline).first();
+
+        if (resultDoc != null) {
+            averageCost = resultDoc.getDouble("AverageOrderCost");
+        
+        } else {
+            System.out.println("Nessun ordine presente o impossibile calcolare la media");
+        }
+        
+    } catch (Exception e) {
+        System.out.println("Errore nel calcolare la media degli ordini: " + e.getMessage());
+        e.printStackTrace();
+        
+    } finally {
+        closeConnection();
+    }
+
+    return averageCost;
+}
+
 
 }

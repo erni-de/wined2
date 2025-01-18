@@ -13,6 +13,7 @@ import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
 import it.unipi.wined.bean.OrderList;
 import it.unipi.wined.bean.Order;
+import it.unipi.wined.bean.Order_Insert;
 import org.bson.Document;
 
 import it.unipi.wined.driver.Mongo;
@@ -30,6 +31,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Random;
+import java.util.Scanner;
+
 
 /**
  *
@@ -155,8 +161,6 @@ public class WinedTests {
             "Italia(Forse)",
             8,
             "W",
-            1,
-            "MeStesso",
             "Toscana",
             "465656646456",
             "TavernelloCantine");
@@ -173,7 +177,7 @@ public class WinedTests {
     //OK FUNZIONANTE
     @Test
     public void deleteWineMagWine(){
-        String id = "57014aff-ec4b-417f-b9df-1b6a4ab2b6f0";
+        String id = "frfifeinfineri";
        
         boolean result = Mongo.deleteWineMagWine(id);
        
@@ -292,10 +296,8 @@ public class WinedTests {
     //Anche qui ovviamente si usa lo UUID
     order.setIdOrder("ringori");
     order.setConfirmationDate("2024-01-31");
-    order.setDepartureDate("2024-02-02");
     order.setDeliveryDate("2024-02-03");
-    order.setFeedback(4.5);
-    order.setOrderTotalCost(99.9);
+    order.setOrderTotalCost(99);
 
     OrderList item1 = new OrderList();
     item1.setWine_id("2a78a67d-8b50-4184-aee3-1634c19022ed");
@@ -431,10 +433,112 @@ public class WinedTests {
         
         }
     }
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
+    
+    //OK FUNZIONANTE
+    @Test
+    public void retrieveUserOrders() {
+    String nickname = "Delphia_Rogahn"; 
 
+    // Chiamo la funzione
+    ArrayList<Order> orders = Mongo.retrieveUserOrders(nickname);
+
+    // Stampo i risultati
+    if (orders.isEmpty()) {
+        System.out.println("Nessun ordine trovato per l'utente: " + nickname);
+    
+    } else {
+        System.out.println("Ordini trovati per l'utente: " + nickname);
+        for (Order ord : orders) {
+            System.out.println(ord);
+        }
+    }
+    
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void test_Order_Insert(){
+        
+        Order_Insert result = Mongo.retrieveIdAndPrice("Isole e Olena 2005  Chianti Classico"
+                , "Isole e Olena");
+    
+        System.out.println("Retrieve ottenuto " + result.getWineId() + " " + result.getPrice());
+    }
+    
+    //FUNZIONE UTILE (ANCHE PER IL CLIENT) PER INSERIRE NUOVI ORDINI
+    public static LocalDate getRandomFutureDate() {
+        Random random = new Random();
+        int daysToAdd = random.nextInt(365); 
+        return LocalDate.now().plus(daysToAdd, ChronoUnit.DAYS);
+    }
+
+    //OK FUNZIONANTE E' SUL MAIN QUI NON VA L'INPUT
+    @Test
+    public void insertOrderAutomated() {
+        Scanner scanner = new Scanner(System.in);
+        
+        
+        // Pulisci il buffer iniziale in caso di input residuo
+        if (scanner.hasNextLine()) {
+            scanner.nextLine();
+        }
+
+        while (true) {
+            System.out.println("Inserisci il nickname o digita 'esc' per uscire:");
+            String nickname = scanner.nextLine().trim(); // Usa trim() per evitare problemi di spazi
+
+            if (nickname.equalsIgnoreCase("esc")) {
+                break;
+            }
+
+            Order order = new Order();
+            order.setIdOrder(UUID.randomUUID().toString());
+            order.setConfirmationDate(LocalDate.now().toString());
+            order.setDeliveryDate(getRandomFutureDate().toString());
+            order.setOrderTotalCost(0);
+
+            boolean moreWines = true;
+            while (moreWines) {
+                System.out.println("Inserisci il nome del vino:");
+                String wineName = scanner.nextLine();
+                System.out.println("Inserisci il nome della cantina:");
+                String wineryName = scanner.nextLine();
+
+                OrderList item = new OrderList();
+                Order_Insert res = Mongo.retrieveIdAndPrice(wineName, wineryName);
+                item.setWine_id(res.getWineId());
+                item.setWine_name(wineName);
+                item.setPrice(res.getPrice());
+
+                System.out.println("Inserisci il numero di bottiglie:");
+                int wineNumber = Integer.parseInt(scanner.nextLine().trim());
+                item.setWine_number(wineNumber);
+
+                order.setOrderElements(item); // Assicurati che il metodo per aggiungere elementi all'ordine sia corretto
+                order.setOrderTotalCost(order.getOrderTotalCost() + (item.getPrice() * wineNumber));
+
+                System.out.println("Vuoi aggiungere un altro vino? (sì/no)");
+                String answer = scanner.nextLine().trim();
+                if (!answer.equalsIgnoreCase("sì")) {
+                    moreWines = false;
+                }
+            }
+
+            boolean result = Mongo.addWineOrder(nickname, order);
+            if (result) {
+                System.out.println("Ordine aggiunto correttamente!");
+            } else {
+                System.out.println("Problemi nell'aggiunta dell'ordine");
+            }
+        }
+
+        scanner.close();
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void getAvgOrderCost(){
+        System.out.println("Costo medio degli ordini nel DB pari a " + Mongo.getAvgOrderCost());
+    }
+    
 }
