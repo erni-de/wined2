@@ -14,9 +14,26 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.*;
 import org.bson.conversions.Bson;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import com.mongodb.client.model.Updates;
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
+import static com.mongodb.client.model.Accumulators.sum;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.project;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.computed;
+
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import static com.mongodb.client.model.Accumulators.sum;
+import static com.mongodb.client.model.Aggregates.count;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Filters.eq;
 
 //Import delle classi del nostro progetto
 import it.unipi.wined.bean.Order;
@@ -35,6 +52,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 //Import di Java
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 /**
  *
@@ -676,8 +694,7 @@ public class Mongo {
         }
     }
     
-    //QUERY PROGETTO
-    
+//+------------------------------QUERY PROGETTO--------------------------------+
     public static ArrayList<Wine_WineMag> getWineMagByFilter(String field, String value) {
     openConnection("Wines");
 
@@ -793,7 +810,7 @@ public class Mongo {
         //Query
         List<Document> docs = collection.find(finalFilter).into(new ArrayList<>());
 
-        //Deserializzo in WineMag
+        //Deserializzo in WineVivino
         for (Document d : docs) {
             Wine_WineVivino wine = deserialize.readValue(d.toJson(), Wine_WineVivino.class);
             resultList.add(wine);
@@ -808,71 +825,173 @@ public class Mongo {
         return null;
     }
 }
-   
-   public static ArrayList<Wine_WineMag> getWineMagByWineryName(String wineryName) {
+  
+  //PIPELINE
+  public static ArrayList<Document> getWinesByWineryName(String wineryName, String provenance){
+    
     openConnection("Wines");
 
-    //Return
-    ArrayList<Wine_WineMag> resultList = new ArrayList<>();
-
-    ObjectMapper deserialize = new ObjectMapper();
-    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ArrayList<Document> results = new ArrayList<>();
 
     try {
-        //Filtro con procenance e nome cantina
-        Bson filter = Filters.and(
-            eq("provenance", "W"),
-            eq("winery.name", wineryName)
+        List<Bson> pipeline = Arrays.asList(
+            
+            Aggregates.match(Filters.and(eq("provenance", provenance), eq("winery.name", wineryName))),
+            
+            Aggregates.group("$winery.name", 
+            Accumulators.push("wines", "$name") //Accumula i nomi dei vini sotto il nome della cantina
+            ),
+            
+            Aggregates.project(Projections.fields(
+                Projections.excludeId(),
+                Projections.computed("winery", "$_id"),
+                Projections.computed("wines", "$wines")
+            ))
         );
 
-        List<Document> docs = collection.find(filter).into(new ArrayList<>());
-
-        //Deserializzo
-        for (Document d : docs) {
-            Wine_WineMag wine = deserialize.readValue(d.toJson(), Wine_WineMag.class);
-            resultList.add(wine);
+        for (Document doc : collection.aggregate(pipeline)) {
+            results.add(doc);
         }
-
-        closeConnection();
-        return resultList;
-
     } catch (Exception e) {
+        System.out.println("Errore durante l'aggregazione per cantina " + wineryName + " e provenienza " + provenance);
         e.printStackTrace();
-        closeConnection();
-        return null;
     }
+
+    closeConnection();
+    return results;
 }
 
-public static ArrayList<Wine_WineVivino> getWineVivinoByWineryName(String wineryName) {
-    openConnection("Wines");
+//+-----------------------------STATISTICHE ADMIN------------------------------+
 
-    ArrayList<Wine_WineVivino> resultList = new ArrayList<>();
-    ObjectMapper deserialize = new ObjectMapper();
-    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//AGGREGATION
+// Aggregazione per ottenere la distribuzione dei generi
+public static ArrayList<Document> getGenderDistribution() {
+    openConnection("Users");
+
+    ArrayList<Document> results = new ArrayList<>();
+
+    //Raggruppo per il campo "gender"
+    Bson group = group("$gender", sum("total", 1));
+
+    //Escludo l'ID e rinomino i campi per l'output
+    Bson projectFields = project(fields(
+        excludeId(),
+        computed("Gender", "$_id"),
+        computed("Total", "$total")
+    ));
 
     try {
-        //Filtro i documenti con provenance="V" e per winery
-        Bson filter = Filters.and(
-            eq("provenance", "V"),
-            eq("winery.name", wineryName)
+        //Eseguo l'aggregazione e aggiungo i risultati alla lista
+        for (Document doc : collection.aggregate(Arrays.asList(group, projectFields))) {
+            results.add(doc);
+        }
+    } catch (Exception e) {
+        System.out.println("Errore nell'aggregazione sui generi");
+    }
+
+    closeConnection();
+    return results;
+}
+
+//AGGREGATION
+public static ArrayList<Document> getRegionDistribution(){
+    openConnection("Wines");
+    
+    ArrayList<Document> results = new ArrayList<>();
+    
+    //Raggruppo per la regione del vino
+    Bson group = group("$region", sum("total", 1));
+    
+    //Escludo e rinomino come prima
+    Bson projectFields = project(fields(
+            excludeId(),    
+            computed("Region", "$_id"),
+            computed("Total", "$total"))
+    );
+    
+    try{
+        for (Document doc: collection.aggregate(Arrays.asList(group,projectFields))){
+             results.add(doc);
+        }
+    }catch(Exception e){
+        System.out.println("Aggregation su region fallita");
+        e.printStackTrace();
+    }
+    
+    return results;
+}
+
+//AGGREGATION
+public static long countUniqueWineNames() {
+    openConnection("Wines");
+
+    long count = 0;
+
+    //Uso l'aggregation perché può succedere che un vino compaia sia nei vini
+    //Di tipo Vivino sia in quelli di tipo WineMag
+    //Qua c'interessa il numero di vini UNICI 
+    List<Bson> aggregationPipeline = Arrays.asList(
+        group("$name"),  //Raggruppa per nome creando un gruppo per ciascun nome unico
+        count("uniqueNameCount")  //Conta i gruppi unici formati
+    );
+
+    try {
+        //E' il tipo che restituisce l'aggregate, prima scorrevo col for
+        AggregateIterable<Document> result = collection.aggregate(aggregationPipeline);
+        
+        if (result.first() != null) {
+            count = result.first().getInteger("uniqueNameCount"); 
+        }
+        
+    } catch (Exception e) {
+        System.err.println("Errore durante l'aggregazione per contare i nomi unici dei vini: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        closeConnection();
+    }
+
+    return count;
+}
+
+public static ArrayList<Document> getPriceBuckets() {
+    openConnection("Wines");
+
+    ArrayList<Document> results = new ArrayList<>();
+
+    try {
+        List<Bson> pipeline = Arrays.asList(
+           
+            //Fase di bucket
+        Aggregates.bucket(
+            "$price", 
+                Arrays.asList(0, 25, 50, 75, 100), 
+                    new BucketOptions()
+                        .defaultBucket(">100") 
+                        .output(new BsonField("count", new Document("$sum", 1))) 
+        ),
+         
+         //Fase di project
+         Aggregates.project(
+                Projections.fields(
+                    excludeId(),
+                    Projections.computed("Fascia", "$_id"),
+                    Projections.computed("Numero Vini", "$count")     
+                )
+            )
         );
 
-        List<Document> docs = collection.find(filter).into(new ArrayList<>());
-
-        //Deserializzo
-        for (Document d : docs) {
-            Wine_WineVivino wine = deserialize.readValue(d.toJson(), Wine_WineVivino.class);
-            resultList.add(wine);
+        for (Document doc : collection.aggregate(pipeline)) {
+            results.add(doc);
         }
 
-        closeConnection();
-        return resultList;
-
     } catch (Exception e) {
+        System.out.println("Errore durante l'esecuzione della pipeline");
         e.printStackTrace();
+    } finally {
         closeConnection();
-        return null;
     }
+
+    return results;
 }
 
 }

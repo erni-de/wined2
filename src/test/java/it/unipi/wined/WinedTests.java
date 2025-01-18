@@ -13,6 +13,7 @@ import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
 import it.unipi.wined.bean.OrderList;
 import it.unipi.wined.bean.Order;
+import org.bson.Document;
 
 import it.unipi.wined.driver.Mongo;
 //import it.unipi.wined.json.objects.FakeUser;
@@ -362,38 +363,74 @@ public class WinedTests {
         }
     }
 }
+
+    //OK FUNZIONANTE (UNITA IN UN'UNICA FUNZIONE)
+    @Test
+    public void testGetWinesByWineryName() {
+
+    ArrayList<Document> results = Mongo.getWinesByWineryName("M. Chapoutier", "V");
+    
+    if (!results.isEmpty()) {
+        System.out.println("Dettagli vini WineMag per la cantina 'M. Chapoutier':");
+        
+        results.forEach(doc -> {
+            System.out.println("Cantina: " + doc.getString("winery"));
+            System.out.println("Vini: " + doc.getList("wines", String.class));
+        });
+    } 
+    }
+        
     //OK FUNZIONANTE
     @Test
-    public void testGetWineMagByWineryName() {
-    String wineryName = "Terre di Giurfo"; 
-
-    ArrayList<Wine_WineMag> wines = Mongo.getWineMagByWineryName(wineryName);
-    if (wines == null || wines.isEmpty()) {
-        System.out.println("Nessun vino WineMag con cantina = " + wineryName);
-    } else {
-        System.out.println("Vini WineMag con cantina '" + wineryName + "':");
-        for (Wine_WineMag w : wines) {
-            System.out.println(w);
+    public void testGenderDistribution(){
+        
+        ArrayList<Document> result = Mongo.getGenderDistribution();
+        int totalUsers = 0;
+        
+        for(Document doc : result){
+            System.out.println(doc.toString());
+            totalUsers = totalUsers + doc.getInteger("Total");
         }
+        
+        System.out.println("\n Il numero degli utenti totali e' quindi " + totalUsers);
     }
-}
-
+    
+    //OK FUNZIONANTE 
+    //(MASCHERA PER OUTPUT OK)
+    @Test
+    public void getRegionDistribution(){
+        
+        ArrayList<Document> results = Mongo.getRegionDistribution();
+        
+        //Un document per ogni regione
+        for(Document doc : results){
+            System.out.println("Cantina " + doc.getString("Region") 
+                    + " con " + doc.getInteger("Total") + " vini");     
+        }
+        
+    }
+    
     //OK FUNZIONANTE
     @Test
-    public void testGetWineVivinoByWineryName() {
-    String wineryName = "M. Chapoutier";
+    public void getTotalNumberWines(){
+        System.out.println("Il numero totale di vini e' " + Mongo.countUniqueWineNames());
+    }
+    
+    //OK FUNZIONANTE
+    @Test
+    public void getPriceRanges(){
+        
+        ArrayList<Document> result = Mongo.getPriceBuckets();
+        int istanza = 0;
+        String[] fasce = {"0-25", "25-50", "50-75", "75-100", ">100"};
 
-    ArrayList<Wine_WineVivino> wines = Mongo.getWineVivinoByWineryName(wineryName);
-    if (wines == null || wines.isEmpty()) {
-        System.out.println("Nessun vino trovato con cantina = " + wineryName);
-    } else {
-        System.out.println("Vini di tipo Vivino aventi cantina '" + wineryName + "':");
-        for (Wine_WineVivino w : wines) {
-            System.out.println(w);
+        for (Document doc : result){
+          
+        System.out.println("Fascia " + fasce[istanza] + " " + doc.getInteger("Numero Vini"));
+        istanza++;
+        
         }
     }
-}
-
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
