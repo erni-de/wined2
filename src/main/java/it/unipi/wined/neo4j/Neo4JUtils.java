@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
+import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.json.objects.FakeUser;
 import it.unipi.wined.json.objects.FakeUserWrapper;
 import it.unipi.wined.json.objects.WinemagWine;
@@ -40,6 +41,48 @@ public class Neo4JUtils {
     
     public static Driver establishConnection(String uri, String user, String password) {
         return GraphDatabase.driver(uri, AuthTokens.basic(user, password));
+    }
+    
+    public static void loadUsers(String path){
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Gson gson = new Gson();
+        
+        try (FileReader reader = new FileReader(path)) {
+            // Map JSON to a Java object
+            User[] users = gson.fromJson(reader, User[].class);
+            for(User u : users){
+                driver.executableQuery("""
+                               CREATE(u:user { username: $userName}) 
+                               """).
+                withParameters(Map.of("userName", u.getNickname())).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+        public static void loadWine(String path){
+        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Gson gson = new Gson();
+        
+        try (FileReader reader = new FileReader(path)) {
+            // Map JSON to a Java object
+            Wine_WineMag[] wines = gson.fromJson(reader, Wine_WineMag[].class);
+            for(Wine_WineMag w : wines){
+                driver.executableQuery("""
+                               CREATE(w:wine {name: $wineName}) 
+                               """).
+                withParameters(Map.of("wineName", w.getName())).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
