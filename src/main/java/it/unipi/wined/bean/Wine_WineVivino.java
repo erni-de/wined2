@@ -2,79 +2,38 @@ package it.unipi.wined.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author nicol
- */
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Wine_WineVivino {
+public class Wine_WineVivino extends AbstractWine {
 
-    private String _id;
-    private String name;
-    private int price;
-    private int alcohol_percentage;
-    private String description;
-    private String country;
-    private String region;
-    private String provenance;
-    private String variety;
-
-    // ==============
-    // Winery
-    // ==============
     private String winery_id;
     private String winery_name;
-
-    // ==============
-    // taste
-    // ==============
     private Double acidity;
     private Double fizziness;
     private Double intensity;
     private Double sweetness;
     private Double tannin;
-
     private List<Flavor> flavorList;
-
-    // ==============
-    // style
-    // ==============
     private Integer body;
     private String body_description;
     private List<Food> foodList;
 
-    // ==============
-    // Costruttori
-    // ==============
     public Wine_WineVivino() {
+        super();
         this.flavorList = new ArrayList<>();
         this.foodList = new ArrayList<>();
     }
-    
-    //Costruttore completo
-    public Wine_WineVivino(String _id, String name, int price, int alcohol_percentage,
+
+    public Wine_WineVivino(String id, String name, int price, int alcohol_percentage,
                            String description, String country, String region, String provenance,
                            String variety, String winery_id, String winery_name, Double acidity,
                            Double fizziness, Double intensity, Double sweetness, Double tannin,
-                           List<Flavor> flavorList, Integer body,
-                           String body_description, List<Food> foodList) {
-        //Inizializzo
-        this();
-        this._id = _id;
-        this.name = name;
-        this.price = price;
-        this.alcohol_percentage = alcohol_percentage;
-        this.description = description;
-        this.country = country;
-        this.region = region;
-        this.provenance = provenance;
-        this.variety = variety;
+                           List<Flavor> flavorList, Integer body, String body_description,
+                           List<Food> foodList) {
+        super(id, name, price, description, country, region, provenance, variety, alcohol_percentage);
         this.winery_id = winery_id;
         this.winery_name = winery_name;
         this.acidity = acidity;
@@ -88,83 +47,6 @@ public class Wine_WineVivino {
         this.foodList = foodList;
     }
 
-    // ==============
-    // Getter & Setter
-    // ==============
-    
-    public String get_id() {
-        return _id;
-    }
-
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public int getAlcohol_percentage() {
-        return alcohol_percentage;
-    }
-
-    public void setAlcohol_percentage(int alcohol_percentage) {
-        this.alcohol_percentage = alcohol_percentage;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getProvenance() {
-        return provenance;
-    }
-
-    public void setProvenance(String provenance) {
-        this.provenance = provenance;
-    }
-
-    public String getVariety() {
-        return variety;
-    }
-
-    public void setVariety(String variety) {
-        this.variety = variety;
-    }
-
-    //Winery
     public String getWinery_id() {
         return winery_id;
     }
@@ -182,19 +64,22 @@ public class Wine_WineVivino {
         }
     }
 
-    //taste
     public Double getAcidity() {
         return acidity;
     }
+
     public Double getFizziness() {
         return fizziness;
     }
+
     public Double getIntensity() {
         return intensity;
     }
+
     public Double getSweetness() {
         return sweetness;
     }
+
     public Double getTannin() {
         return tannin;
     }
@@ -207,8 +92,6 @@ public class Wine_WineVivino {
     @JsonProperty("taste")
     private void unpackTaste(Map<String, Object> taste) {
         if (taste == null) return;
-
-        // structure
         Map<String, Object> structure = (Map<String, Object>) taste.get("structure");
         if (structure != null) {
             this.acidity   = toDouble(structure.get("acidity"));
@@ -217,11 +100,8 @@ public class Wine_WineVivino {
             this.sweetness = toDouble(structure.get("sweetness"));
             this.tannin    = toDouble(structure.get("tannin"));
         }
-
-        // flavor
         List<Map<String, Object>> flavorArray = (List<Map<String, Object>>) taste.get("flavor");
         if (flavorArray == null) return;
-
         List<Flavor> tempFlavorList = new ArrayList<>();
         for (Map<String, Object> flavorObj : flavorArray) {
             Flavor fl = new Flavor();
@@ -230,10 +110,8 @@ public class Wine_WineVivino {
             tempFlavorList.add(fl);
         }
         this.flavorList = tempFlavorList;
-}
+    }
 
-
-    //style
     public Integer getBody() {
         return body;
     }
@@ -250,28 +128,19 @@ public class Wine_WineVivino {
     @JsonProperty("style")
     private void unpackStyle(Map<String, Object> style) {
         if (style == null) return;
-
         this.body = toInteger(style.get("body"));
         this.body_description = (String) style.get("body_description");
-
         List<Map<String, Object>> foodArray = (List<Map<String, Object>>) style.get("food");
         if (foodArray == null) return;
-
         List<Food> tempFoodList = new ArrayList<>();
-        
         for (Map<String, Object> foodObj : foodArray) {
             Food f = new Food();
             f.setName((String) foodObj.get("name"));
             tempFoodList.add(f);
         }
-        
         this.foodList = tempFoodList;
     }
 
-
-    // ==============
-    // Metodi di supporto
-    // ==============
     private Double toDouble(Object val) {
         if (val == null) return null;
         if (val instanceof Number) return ((Number)val).doubleValue();
@@ -281,6 +150,7 @@ public class Wine_WineVivino {
             return null;
         }
     }
+
     private Integer toInteger(Object val) {
         if (val == null) return null;
         if (val instanceof Number) return ((Number)val).intValue();
@@ -291,81 +161,13 @@ public class Wine_WineVivino {
         }
     }
 
-    // =====================
-    //    CLASSI NIDIFICATE 
-    //      DI SUPPORTO
-    // =====================
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Flavor {
-    private String group;
-    private Integer mentions_count;
-
-    public Flavor() {
-    }
-
-    public Flavor(String group, Integer mentions_count) {
-        this.group = group;
-        this.mentions_count = mentions_count;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public Integer getMentions_count() {
-        return mentions_count;
-    }
-
-    public void setMentions_count(Integer mentions_count) {
-        this.mentions_count = mentions_count;
-    }
-
-    @Override
-    public String toString() {
-        return "Flavor{" +
-               "group='" + group + '\'' +
-               ", mentions_count=" + mentions_count +
-               '}';
-    }
-}
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Food {
-    private String name;
-
-    public Food() {
-    }
-
-    public Food(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Food{" +
-               "name='" + name + '\'' +
-               '}';
-    }
-}
-
     @Override
     public String toString() {
         return "Wine_WineVivino{" +
-                "_id='" + _id + '\'' +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", price=" + price +
-                ", alcohol_percentage='" + alcohol_percentage + '\'' +
+                ", alcohol_percentage=" + alcohol_percentage +
                 ", description='" + description + '\'' +
                 ", country='" + country + '\'' +
                 ", region='" + region + '\'' +
@@ -383,5 +185,54 @@ public class Wine_WineVivino {
                 ", body_description='" + body_description + '\'' +
                 ", foodList=" + foodList +
                 '}';
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Flavor {
+        private String group;
+        private Integer mentions_count;
+        public Flavor() {}
+        public Flavor(String group, Integer mentions_count) {
+            this.group = group;
+            this.mentions_count = mentions_count;
+        }
+        public String getGroup() {
+            return group;
+        }
+        public void setGroup(String group) {
+            this.group = group;
+        }
+        public Integer getMentions_count() {
+            return mentions_count;
+        }
+        public void setMentions_count(Integer mentions_count) {
+            this.mentions_count = mentions_count;
+        }
+        @Override
+        public String toString() {
+            return "Flavor{" +
+                   "group='" + group + '\'' +
+                   ", mentions_count=" + mentions_count +
+                   '}';
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Food {
+        private String name;
+        public Food() {}
+        public Food(String name) {
+            this.name = name;
+        }
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        @Override
+        public String toString() {
+            return "Food{" + "name='" + name + '\'' + '}';
+        }
     }
 }

@@ -5,18 +5,9 @@
 package it.unipi.wined;
 
 import com.google.gson.Gson;
-import it.unipi.wined.bean.Review;
-import it.unipi.wined.bean.User;
-import it.unipi.wined.bean.PaymentInfo;
-import it.unipi.wined.bean.Wine_WineMag;
-import it.unipi.wined.bean.Wine_WineVivino;
-import it.unipi.wined.bean.OrderList;
+import it.unipi.wined.bean.*;
 import it.unipi.wined.bean.Order;
-import it.unipi.wined.bean.Order_Insert;
-import org.bson.Document;
-
 import it.unipi.wined.driver.Mongo;
-//import it.unipi.wined.json.objects.FakeUser;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import it.unipi.wined.spring.Actions;
@@ -119,7 +110,6 @@ public class WinedTests {
             System.out.println("OK UPDATE");
         } else {
             System.out.println("NO UPDATE");
-
         }
 
         //CASI SPECIALI
@@ -129,7 +119,6 @@ public class WinedTests {
             System.out.println("OK UPDATE");
         } else {
             System.out.println("NO UPDATE");
-
         }
 
         result = Mongo.updateUser("Laila_Beer", "user_level", "PREMIUM");
@@ -138,7 +127,6 @@ public class WinedTests {
             System.out.println("OK UPDATE");
         } else {
             System.out.println("NO UPDATE");
-
         }
     }
 
@@ -226,37 +214,28 @@ public class WinedTests {
         String provenance = "V";
         String variety = "White";
 
-        //Dati della cantina
         String wineryId = idWinery;
         String wineryName = "Viareggio 12";
 
-        //Dati del gusto
         Double acidity = 3.4851587;
         Double fizziness = null;
         Double intensity = 3.986575;
         Double sweetness = 2.0111642;
         Double tannin = null;
 
-        //Flavors
         List<Wine_WineVivino.Flavor> flavors = Arrays.asList(
                 new Wine_WineVivino.Flavor("oak", 1305),
                 new Wine_WineVivino.Flavor("tree_fruit", 310),
                 new Wine_WineVivino.Flavor("tropical_fruit", 226)
         );
-
-        //Stile
         Integer body = 4;
         String bodyDescription = "Full-bodied";
-
-        //Food pairings
         List<Wine_WineVivino.Food> foods = Arrays.asList(
                 new Wine_WineVivino.Food("Pork"),
                 new Wine_WineVivino.Food("Rich fish (salmon, tuna etc)"),
                 new Wine_WineVivino.Food("Vegetarian"),
                 new Wine_WineVivino.Food("Poultry")
         );
-
-        //Creazione dell'oggetto Wine_WineVivino
         Wine_WineVivino wine = new Wine_WineVivino(
                 wineId, name, price, alcoholPercentage, description, country, region, provenance, variety,
                 wineryId, wineryName, acidity, fizziness, intensity, sweetness, tannin, flavors, body, bodyDescription, foods
@@ -350,7 +329,6 @@ public class WinedTests {
         }
     }
 
-    //OK FUNZIONANTE
     @Test
     public void testGetWineVivinoByPrice() {
         String field = "price";
@@ -392,7 +370,7 @@ public class WinedTests {
 
         for (Document doc : result) {
             System.out.println(doc.toString());
-            totalUsers = totalUsers + doc.getInteger("Total");
+            totalUsers += doc.getInteger("Total");
         }
 
         System.out.println("\n Il numero degli utenti totali e' quindi " + totalUsers);
@@ -473,7 +451,7 @@ public class WinedTests {
         return LocalDate.now().plus(daysToAdd, ChronoUnit.DAYS);
     }
 
-    //OK FUNZIONANTE E' SUL MAIN QUI NON VA L'INPUT
+    //OK FUNZIONANTE
     @Test
     public void insertOrderAutomated() {
         Scanner scanner = new Scanner(System.in);
@@ -482,15 +460,12 @@ public class WinedTests {
         if (scanner.hasNextLine()) {
             scanner.nextLine();
         }
-
         while (true) {
             System.out.println("Inserisci il nickname o digita 'esc' per uscire:");
-            String nickname = scanner.nextLine().trim(); // Usa trim() per evitare problemi di spazi
-
+            String nickname = scanner.nextLine().trim();
             if (nickname.equalsIgnoreCase("esc")) {
                 break;
             }
-
             Order order = new Order();
             order.setIdOrder(UUID.randomUUID().toString());
             order.setConfirmationDate(LocalDate.now().toString());
@@ -514,7 +489,7 @@ public class WinedTests {
                 int wineNumber = Integer.parseInt(scanner.nextLine().trim());
                 item.setWine_number(wineNumber);
 
-                order.setOrderElements(item); // Assicurati che il metodo per aggiungere elementi all'ordine sia corretto
+                order.setOrderElements(item);
                 order.setOrderTotalCost(order.getOrderTotalCost() + (item.getPrice() * wineNumber));
 
                 System.out.println("Vuoi aggiungere un altro vino? (sì/no)");
@@ -531,7 +506,6 @@ public class WinedTests {
                 System.out.println("Problemi nell'aggiunta dell'ordine");
             }
         }
-
         scanner.close();
     }
 
