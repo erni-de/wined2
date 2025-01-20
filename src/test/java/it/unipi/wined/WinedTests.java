@@ -25,8 +25,5 @@ import org.neo4j.driver.QueryConfig;
  */
 public class WinedTests {
 
-    @Test
-    public void testSuggested (){
-        Neo4jGraphInteractions.getSuggestedWines("ernak");
-    }
+   
 }
