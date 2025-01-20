@@ -6,7 +6,10 @@ package it.unipi.wined.spring;
 
 import com.google.gson.Gson;
 import it.unipi.wined.bean.Review;
+import it.unipi.wined.bean.User;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -105,6 +108,28 @@ public class Actions {
         } catch (Exception e) {
             e.printStackTrace();
             return "1";
+        }
+        
+    }
+    
+    @PostMapping(path = "/get-suggested-by-followers")
+    public @ResponseBody
+    String getSuggestedByFollowers(@RequestBody String input) {
+        try{//method should invoke followUser method in it.unipi.wined.neo4j.interaction.GraphActions.java
+        Gson gson = new Gson();
+        User user = gson.fromJson(input, User.class);
+        
+        List<org.neo4j.driver.Record> records = Neo4jGraphInteractions.getSuggestedWines(user.getNickname());
+        ArrayList<String> retList = new ArrayList<>();
+        
+        for (int i = 0; i < 10; i++){
+            retList.add(records.get(i).get("w.name") + "");
+        }
+        
+        return gson.toJson(retList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "500";
         }
         
     }

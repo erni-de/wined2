@@ -4,6 +4,8 @@
  */
 package it.unipi.wined.spring;
 
+import it.unipi.wined.bean.User;
+import it.unipi.wined.driver.Mongo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -14,5 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(path = "/premium-act/")
 public class PremiumActions {
+    
+    public static boolean isAdmin(User user) {
+        User.Level level = Mongo.RetrieveUserLevel(user.getNickname(), user.getPassword());
+        return level == User.Level.PREMIUM || level == User.Level.ADMIN;
+    }
+    
+    
     
 }

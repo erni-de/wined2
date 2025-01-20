@@ -36,8 +36,8 @@ import org.neo4j.driver.QueryConfig;
  * @author erni
  */
 public class Neo4JUtils {
-
-    public static String connectionString = "neo4j://192.168.1.12:7687";
+//192.168.1.12
+    public static String connectionString = "neo4j://192.168.1.10:7687";
     public static String neo4j_user = "neo4j";
     public static String neo4j_password = "cinematto123";
 

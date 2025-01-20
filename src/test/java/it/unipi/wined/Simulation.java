@@ -53,12 +53,12 @@ public class Simulation {
         String winesPath = "/home/erni/Downloads/wines_definitive(1).json";
         String reviewsPath = "/home/erni/Downloads/reviews/preprocessed_reviews.json";
             //Number of drivers for neo4j
-        int n_drivers = 10;
+        int n_drivers = 100;
             //no of iterations for each action
         int ORDER_ITER = 1000;
-        int FOLLOW_ITER = 10000;
-        int LIKE_ITER = 30000;
-        int REVIEW_ITER = 7000;
+        int FOLLOW_ITER = 10;
+        int LIKE_ITER = 300;
+        int REVIEW_ITER = 70;
         
         
         Driver[] drivers = new Driver[n_drivers];

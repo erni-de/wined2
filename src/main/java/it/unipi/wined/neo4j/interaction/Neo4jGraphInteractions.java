@@ -5,16 +5,9 @@
 package it.unipi.wined.neo4j.interaction;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
-import it.unipi.wined.json.objects.VivinoWine;
-import it.unipi.wined.json.objects.VivinoWrapper;
-import it.unipi.wined.json.objects.WinemagWine;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import org.neo4j.driver.Driver;
@@ -38,6 +31,7 @@ public class Neo4jGraphInteractions {
                 execute();
         String res = result.records().toString().replace("Record<", "").replace(">", "").replace("r.", "");
         Gson gson = new Gson();
+        
         Review[] rev = gson.fromJson(res, Review[].class);
         int totrev = 0;
         float sumrev = 0;
@@ -53,6 +47,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("wineName", wine, "wineRating", wineRating)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
     }
     
     /*
@@ -70,6 +65,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("wineName", wine, "reviewTitle", review.title, "reviewCorpus", review.body, "reviewRating", review.rating, "userName", username)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         recomputeRating(wine); //to update the qine rating
     }
     
@@ -82,6 +78,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("wine", wine)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
     }
     
     public static void likeWine(String wine, String username) {
@@ -94,6 +91,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("wineName", wine,"userName", username)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         updateLikeCount(wine);
     }
     
@@ -108,17 +106,19 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("userId", userToAdd.id, "userName", userToAdd.getNickname())).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
     }
     
     public static void deleteUserNode(User userToDelete){
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               MATCH(u:user {id: $userId, username: $userName})
-                               DELETE u
+                               MATCH(u:user {username: $userName})
+                               DETACH DELETE u
                                """).
-                withParameters(Map.of("userId", userToDelete.id, "userName", userToDelete.getNickname())).
+                withParameters(Map.of("userName", userToDelete.getNickname())).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
     }
 
     /*
@@ -135,6 +135,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("selfUser", selfUsername, "targetUser", targetUserName)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
     }
 
     public static boolean checkIfUserExists(String username) {
@@ -146,6 +147,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("username", username)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         return result.records().toString().equals("[Record<{exists: 1}>]");
     }
 
@@ -158,6 +160,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("winename", wine)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         return !result.records().toString().equals("[]");
     }
 
@@ -170,6 +173,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("username", user)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         return result.records().toString();
     }
     
@@ -182,6 +186,7 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("username", user)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         return result.records().toString();
     }
     
@@ -194,20 +199,29 @@ public class Neo4jGraphInteractions {
                 withParameters(Map.of("wineName", wine)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        driver.close();
         return result.records().toString();
     }
     
-    public static void getSuggestedWines(String username){
+    public static List<org.neo4j.driver.Record> getSuggestedWines(String username){
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
-        EagerResult result;
-        result = driver.executableQuery("""
-                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)
-                                         MATCH (v:wine)-[:REVIEWED]->(r:review)-[:WRITTEN_BY]->(b)
-                                         RETURN b.rating, b.text, b.title, u.username
+        var liked = driver.executableQuery("""
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)                                        
+                                         RETURN w.name, w.rating, w.likes
+                                         ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
+
                                         """).
                 withParameters(Map.of("userName", username)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
+        /*for (org.neo4j.driver.Record r : liked.records()){
+            System.out.println(r.get("w.rating") + " " + r.get("w.likes") + " " + r.get("w.name"));
+        }*/
+        
+        driver.close();
+        return liked.records();
     }
+    
+    
     
 }
