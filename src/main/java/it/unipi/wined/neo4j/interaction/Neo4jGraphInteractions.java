@@ -11,20 +11,15 @@ import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.VivinoWine;
 import it.unipi.wined.json.objects.VivinoWrapper;
 import it.unipi.wined.json.objects.WinemagWine;
-import static it.unipi.wined.neo4j.Neo4JUtils.connectionIp;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
-import static it.unipi.wined.spring.Access.currentUser;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.EagerResult;
 import org.neo4j.driver.QueryConfig;
-import org.neo4j.driver.Result;
 
 /**
  *
@@ -36,7 +31,7 @@ public class Neo4jGraphInteractions {
     Insert new vivino-json like wine node into neo4j graph istance
      */
     public static void insertVivinoJson(String filepath) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
         try {
             FileReader reader = new FileReader(filepath);
@@ -63,7 +58,7 @@ public class Neo4jGraphInteractions {
     *Insert new winemag-json like wine node into neo4j graph istance
     */
     public static void insertWinemagJson(String filepath) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
         try {
             FileReader reader = new FileReader(filepath);
@@ -84,7 +79,7 @@ public class Neo4jGraphInteractions {
     }
 
     public static void recomputeRating(String wine){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                MATCH (w:wine {name: $wineName})-[:REVIEWED]->(r:review)
                                RETURN r.rating
@@ -115,7 +110,7 @@ public class Neo4jGraphInteractions {
     Inserts review to a specific wine, from the current user
      */
     public static void insertReview(String wine, Review review, String username) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
                                MATCH (a:wine {name: $wineName})
                                MATCH (c:user {username: $userName})
@@ -130,7 +125,7 @@ public class Neo4jGraphInteractions {
     }
     
     public static void updateLikeCount(String wine){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
                                MATCH (u:user)-[l:LIKES]->(w:wine {name: $wine})
                                WITH w, COUNT(l) as likes SET w.likes = likes
@@ -141,7 +136,7 @@ public class Neo4jGraphInteractions {
     }
     
     public static void likeWine(String wine, String username) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
                                MATCH (w:wine {name: $wineName})
                                MATCH (u:user {username: $userName})
@@ -157,7 +152,7 @@ public class Neo4jGraphInteractions {
     Inserts new user into graph (called when registering)
      */
     public static void addUserNode(User userToAdd) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
                                CREATE(u:user {id: $userId, username: $userName}) 
                                """).
@@ -167,7 +162,7 @@ public class Neo4jGraphInteractions {
     }
     
     public static void deleteUserNode(User userToDelete){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
                                MATCH(u:user {id: $userId, username: $userName})
                                DELETE u
@@ -182,7 +177,7 @@ public class Neo4jGraphInteractions {
     user.
      */
     public static void followUser(String selfUsername, String targetUserName) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
                                MATCH (a:user {username: $selfUser})
                                MATCH (b:user {username: $targetUser})
@@ -194,7 +189,7 @@ public class Neo4jGraphInteractions {
     }
 
     public static boolean checkIfUserExists(String username) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (n:user {username: $username})
                                 RETURN CASE WHEN n IS NOT NULL THEN 1 ELSE 0 END AS exists
@@ -206,7 +201,7 @@ public class Neo4jGraphInteractions {
     }
 
     public static boolean checkIfWineExists(String wine) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (n:wine {name: $winename})
                                 RETURN CASE WHEN n IS NOT NULL THEN 1 ELSE 0 END AS exists
@@ -218,7 +213,7 @@ public class Neo4jGraphInteractions {
     }
 
     public static String usersReviewedWines(String user) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (w:wine)-[r:REVIEWED]->(b)-[d:WRITTEN_BY]->(u:user {username: $username})
                                 RETURN w.name
@@ -230,7 +225,7 @@ public class Neo4jGraphInteractions {
     }
     
     public static String usersReviews(String user){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (w:wine)-[r:REVIEWED]->(b)-[d:WRITTEN_BY]->(u:user {username: $username})
                                 RETURN w.name, b.rating, b.text, b.title
@@ -242,7 +237,7 @@ public class Neo4jGraphInteractions {
     }
     
     public static String wineReviews(String wine){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (w:wine {name : $wineName})-[r:REVIEWED]->(b)-[d:WRITTEN_BY]->(u:user)
                                 RETURN b.rating, b.text, b.title, u.username
@@ -254,7 +249,7 @@ public class Neo4jGraphInteractions {
     }
     
     public static void getSuggestedWines(String username){
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result;
         result = driver.executableQuery("""
                                          MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)

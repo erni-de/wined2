@@ -37,10 +37,12 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
 
-    public static String connectionIp = "192.168.1.12";
+    public static String connectionString = "neo4j://192.168.1.12:7687";
+    public static String neo4j_user = "neo4j";
+    public static String neo4j_password = "cinematto123";
 
-    public static Driver establishConnection(String uri, String user, String password) {
-        return GraphDatabase.driver(uri, AuthTokens.basic(user, password));
+    public static Driver establishConnection() {
+        return GraphDatabase.driver(connectionString, AuthTokens.basic(neo4j_user, neo4j_password));
     }
 
     /**
@@ -49,7 +51,7 @@ public class Neo4JUtils {
      * @param path
      */
     public static void loadUsers(String path) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
 
         try (FileReader reader = new FileReader(path)) {
@@ -57,7 +59,7 @@ public class Neo4JUtils {
             User[] users = gson.fromJson(reader, User[].class);
             for (User u : users) {
                 driver.executableQuery("""
-                               CREATE(u:user { username: $userName}) 
+                               MERGE (u:user { username: $userName}) 
                                """).
                         withParameters(Map.of("userName", u.getNickname())).
                         withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -75,7 +77,7 @@ public class Neo4JUtils {
      * @param path 
      */
     public static void loadWine(String path) {
-        Driver driver = establishConnection("neo4j://" + connectionIp + ":7687", "neo4j", "cinematto123"); //use ifconfig to retrive private ip
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
 
         try (FileReader reader = new FileReader(path)) {
@@ -83,7 +85,7 @@ public class Neo4JUtils {
             Wine_WineMag[] wines = gson.fromJson(reader, Wine_WineMag[].class);
             for (Wine_WineMag w : wines) {
                 driver.executableQuery("""
-                               CREATE(w:wine {name: $wineName}) 
+                               MERGE (w:wine {name: $wineName}) 
                                """).
                         withParameters(Map.of("wineName", w.getName())).
                         withConfig(QueryConfig.builder().withDatabase("neo4j").build()).

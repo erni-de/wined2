@@ -11,11 +11,15 @@ import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import static it.unipi.wined.neo4j.Neo4JUtils.connectionIp;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
-import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import java.io.FileReader;
 import java.util.Map;
 import java.util.Random;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.EagerResult;
 import org.neo4j.driver.QueryConfig;
@@ -24,9 +28,9 @@ import org.neo4j.driver.QueryConfig;
  *
  * @author erni
  */
-public class WinedTests {
-
-    @Test
+public class Simulation {
+    
+     @Test
     public void populateDB() {
         //Add Users and Wines node to graph 
         Neo4JUtils.loadWine("/home/erni/Downloads/wines_definitive(1).json");
@@ -48,18 +52,15 @@ public class WinedTests {
         String reviewsPath = "/home/erni/Downloads/reviews/preprocessed_reviews.json";
             //Number of drivers
         int n_drivers = 10;
-            //Neo4j connection parameters
-                //see NEO4JUtils class to change connectionIp
-        String neo4j_connectionString = "neo4j://" + connectionIp +":7687";
-        String neo4j_user = "neo4j";
-        String neo4j_password = "cinematto123";
         
         
         Driver[] drivers = new Driver[n_drivers];
 
         //init drivers
+        //IMPORTANT -- see NEO4JUtils class to set your own 
+        // connection address, username and password for neo4j 
         for (int i = 0; i < n_drivers; i++) {
-            drivers[i] = establishConnection(neo4j_connectionString, neo4j_user, neo4j_password);
+            drivers[i] = establishConnection();
         }
 
         try {
@@ -161,4 +162,10 @@ public class WinedTests {
         }
 
     }
+
+    // TODO add test methods here.
+    // The methods must be annotated with annotation @Test. For example:
+    //
+    // @Test
+    // public void hello() {}
 }
