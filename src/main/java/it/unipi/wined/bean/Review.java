@@ -19,6 +19,10 @@ public class Review {
     public String rating;
     public User user;
 
+    public Review(){
+        
+    }
+    
     public Review(String rating, String title, String body) {
         this.title = title;
         this.body = body;

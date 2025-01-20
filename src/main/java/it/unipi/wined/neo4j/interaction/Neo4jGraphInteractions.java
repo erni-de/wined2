@@ -27,57 +27,6 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4jGraphInteractions {
 
-    /*
-    Insert new vivino-json like wine node into neo4j graph istance
-     */
-    public static void insertVivinoJson(String filepath) {
-        Driver driver = establishConnection(); //use ifconfig to retrive private ip
-        Gson gson = new Gson();
-        try {
-            FileReader reader = new FileReader(filepath);
-            Type userListType = new TypeToken<List<VivinoWrapper>>() {
-            }.getType();
-            List<VivinoWrapper> overall = gson.fromJson(reader, userListType);
-            VivinoWrapper wines = overall.get(0);
-            List<VivinoWine> wine = wines.getWines();
-            for (VivinoWine v : wine) {
-                v.id = WinemagWine.id_count;
-                WinemagWine.id_count++;
-                driver.executableQuery("CREATE (:wine {id: $id, name: $name})").
-                        withParameters(Map.of("id", v.id, "name", v.name)).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                        execute();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-    }
-
-    /**
-    *Insert new winemag-json like wine node into neo4j graph istance
-    */
-    public static void insertWinemagJson(String filepath) {
-        Driver driver = establishConnection(); //use ifconfig to retrive private ip
-        Gson gson = new Gson();
-        try {
-            FileReader reader = new FileReader(filepath);
-            Type userListType = new TypeToken<List<WinemagWine>>() {
-            }.getType();
-            List<WinemagWine> wines = gson.fromJson(reader, userListType);
-            for (WinemagWine v : wines) {
-                v.id = WinemagWine.id_count;
-                WinemagWine.id_count++;
-                driver.executableQuery("CREATE (:wine {id: $id, name: $name})").
-                        withParameters(Map.of("id", v.id, "name", v.title)).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                        execute();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
     public static void recomputeRating(String wine){
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
