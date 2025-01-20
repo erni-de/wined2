@@ -56,13 +56,25 @@ public class Actions {
     @PostMapping(path = "/user-reviews")
     public @ResponseBody
     String userReviews(@RequestBody String username) {
-        return Neo4jGraphInteractions.usersReviews(new Gson().fromJson(username, String.class));   
+        Gson gson = new Gson();
+        List<org.neo4j.driver.Record> ret = Neo4jGraphInteractions.usersReviews(new Gson().fromJson(username, String.class));   
+        ArrayList<Review> reviews = new ArrayList<>();
+        for (org.neo4j.driver.Record r : ret){
+            reviews.add(new Review(r.get("w.name") + "", r.get("b.rating") + "", r.get("b.text") + "", r.get("b.title") + ""));
+        }
+        return gson.toJson(reviews);
     }
     
     @PostMapping(path = "/wine-reviews")
     public @ResponseBody
     String wineReviews(@RequestBody String wine) {
-        return Neo4jGraphInteractions.wineReviews(new Gson().fromJson(wine, String.class));   
+        Gson gson = new Gson();
+        List<org.neo4j.driver.Record> ret = Neo4jGraphInteractions.wineReviews(new Gson().fromJson(wine, String.class));   
+        ArrayList<Review> reviews = new ArrayList<>();
+        for (org.neo4j.driver.Record r : ret){
+            reviews.add(new Review(wine, r.get("b.rating") + "", r.get("b.text") + "", r.get("b.title") + "", r.get("u.username") + ""));
+        }
+        return gson.toJson(reviews);
     }
     
     @PostMapping(path = "/check-wine")
@@ -86,7 +98,7 @@ public class Actions {
         
         String username = review[0];
         String wine = review[1];
-        Review rev = new Review(review[2], review[3], review[4]);
+        Review rev = new Review(review[1], review[2], review[3], review[4]);
         try {
             Neo4jGraphInteractions.insertReview(wine, rev, username);
             return "0";

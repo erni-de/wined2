@@ -12,18 +12,27 @@ import it.unipi.wined.json.objects.VivinoReview;
  * @author erni
  */
 public class Review {
-    public long id;
-    public static long id_count;
-    public String title;
-    public String body;
+    public String wine;
     public String rating;
-    public User user;
+    public String body;
+    public String title;
+    public String user;
 
     public Review(){
         
     }
+
+    public Review(String wine, String rating, String body, String title, String user) {
+        this.wine = wine;
+        this.rating = rating;
+        this.body = body;
+        this.title = title;
+        this.user = user;
+    }
     
-    public Review(String rating, String title, String body) {
+    
+    public Review(String wine, String rating, String title, String body) {
+        this.wine = wine;
         this.title = title;
         this.body = body;
         this.rating = rating;

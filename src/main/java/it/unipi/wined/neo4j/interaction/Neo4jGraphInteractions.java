@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.neo4j.driver.Driver;
@@ -177,7 +178,7 @@ public class Neo4jGraphInteractions {
         return result.records().toString();
     }
     
-    public static String usersReviews(String user){
+    public static List<org.neo4j.driver.Record> usersReviews(String user){
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (w:wine)-[r:REVIEWED]->(b)-[d:WRITTEN_BY]->(u:user {username: $username})
@@ -187,10 +188,10 @@ public class Neo4jGraphInteractions {
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
         driver.close();
-        return result.records().toString();
+        return result.records();
     }
     
-    public static String wineReviews(String wine){
+    public static List<org.neo4j.driver.Record> wineReviews(String wine){
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
                                 MATCH (w:wine {name : $wineName})-[r:REVIEWED]->(b)-[d:WRITTEN_BY]->(u:user)
@@ -200,7 +201,7 @@ public class Neo4jGraphInteractions {
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
         driver.close();
-        return result.records().toString();
+        return result.records();
     }
     
     public static List<org.neo4j.driver.Record> getSuggestedWines(String username){
