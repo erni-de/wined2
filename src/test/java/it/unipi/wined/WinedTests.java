@@ -17,6 +17,7 @@ import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import org.bson.Document;
@@ -55,7 +56,19 @@ public class WinedTests {
     
      @Test
     public void testd() {
-        System.out.println(Neo4jGraphInteractions.usersReviews("Susie_Sporer"));
+        Gson gson = new Gson();
+        ArrayList<Object> a = new ArrayList<>();
+        a.add(new User("bill", "clinton","billie",3253, "fwew","wfwef","fwewe","wegge","wgr", User.Level.REGULAR));
+        a.add(new Review("wine", "rating","nice","dick","donnu"));
+        String json = gson.toJson(a);
+        
+        Object[] o = gson.fromJson(json, Object[].class);
+        User user = gson.fromJson(gson.toJson(o[0]), User.class);
+        Review rev = gson.fromJson(gson.toJson(o[1]), Review.class);
+        
+        System.out.println(user.getNickname() + " " + rev.wine);
+        
+        
     }
     
 }
