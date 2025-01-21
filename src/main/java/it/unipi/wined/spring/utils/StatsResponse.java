@@ -4,13 +4,43 @@
  */
 package it.unipi.wined.spring.utils;
 
+import java.io.Serializable;
+import java.util.HashMap;
+
 /**
  *
  * @author erni
  */
-public class StatsResponse {
+public class StatsResponse implements Serializable{
     
-    int males;
-    int females;
+    public int males;
+    public int females;
+    public HashMap<String, Integer> regions = new HashMap<String, Integer>();
+    public HashMap<String, Integer> priceCategories = new HashMap<String, Integer>();
+    public long uniqueWines;
+    public double avgCost;
+    
+    public StatsResponse() {
+        
+    }
+
+    public void setMales(int males) {
+        this.males = males;
+    }
+
+    public void setFemales(int females) {
+        this.females = females;
+    }
+
+    public void setUniqueWines(long uniqueWines) {
+        this.uniqueWines = uniqueWines;
+    }
+
+    public void setAvgCost(double avgCost) {
+        this.avgCost = avgCost;
+    }
+    
+    
+    
     
 }
