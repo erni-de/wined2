@@ -33,13 +33,26 @@ public class WinedTests {
 
     @Test
     public void test() throws JsonProcessingException {
-        ArrayList<Document> docs = Mongo.getGenderDistribution();
+        ArrayList<Document> docs = Mongo.getRegionDistribution();
         ObjectMapper mapper = new ObjectMapper();
+        System.out.println(docs.toString());
         for (Document doc : docs) {
             JsonNode jsonNode = mapper.readTree(doc.toJson());
-            System.out.println(jsonNode.get("Gender").asText() + jsonNode.get("Total").asText() );
+            System.out.println(jsonNode.get("Region").asText() + " " + jsonNode.get("Total").asText() );
         }
     }
+    
+    @Test
+    public void test2() throws JsonProcessingException {
+        ArrayList<Document> docs = Mongo.getPriceBuckets();
+        ObjectMapper mapper = new ObjectMapper();
+        System.out.println(docs.toString());
+        for (Document doc : docs) {
+            JsonNode jsonNode = mapper.readTree(doc.toJson());
+            System.out.println(jsonNode.get("Fascia").asText() + " " + jsonNode.get("Numero Vini").asText() );
+        }
+    }
+    
      @Test
     public void testd() {
         System.out.println(Neo4jGraphInteractions.usersReviews("Susie_Sporer"));
