@@ -4,6 +4,7 @@
  */
 package it.unipi.wined.spring;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import it.unipi.wined.bean.AbstractWine;
 import it.unipi.wined.bean.Review;
@@ -14,6 +15,7 @@ import it.unipi.wined.driver.Mongo;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import java.util.ArrayList;
 import java.util.List;
+import org.bson.Document;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -151,6 +153,28 @@ public class Actions {
 
     }
 
+    @PostMapping(path = "/get-by-winery")
+    public @ResponseBody
+    String getByWineryName(@RequestBody String input) {
+        try {//method should invoke followUser method in it.unipi.wined.neo4j.interaction.GraphActions.java
+            Gson gson = new Gson();
+            ObjectMapper mapper = new ObjectMapper();
+
+            String winery = gson.fromJson(input, String.class);
+
+            ArrayList<Document> ret = Mongo.getWinesByWineryName(winery, "V");
+            ArrayList<Document> ret2 = Mongo.getWinesByWineryName(winery, "W");
+            ret.addAll(ret2);
+            return mapper.readTree(ret.get(0).toJson()).get("wines") + "";
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "500";
+        }
+
+    }
+
+    
     /**
      *Input should be a serialization of a user object a string containing 
      * the name of the wine to be returned.

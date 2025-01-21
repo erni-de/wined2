@@ -85,21 +85,22 @@ public class WinedTests {
     }
 
     @Test
-    public void getWineByName() {
+    public void getWineByName() throws JsonProcessingException {
         //WineMag
         Gson gson = new Gson();
+        ObjectMapper mapper = new ObjectMapper();
 
-        List<AbstractWine> result = Mongo.getWineByName("Acrobat 2013 Pinot Noir (Oregon)");
-        //Vivino
-        List<AbstractWine> result2 = Mongo.getWineByName("Ermitage Le Méal");
+        ArrayList<Document> ret = Mongo.getWinesByWineryName("Cottonwood Winery of Oregon", "W");
+        ArrayList<Document> ret2 = Mongo.getWinesByWineryName("Cottonwood Winery of Oregon", "V");
+        ret.addAll(ret2);
+        String re = mapper.readTree(ret.get(0).toJson()).get("wines") + "";
 
-        System.out.println(result);
-        System.out.println(result2);
-        String serialized = gson.toJson(result);
-        System.out.println(serialized);
-        System.out.println(gson.toJson(gson.fromJson(serialized, Wine_WineMag[].class)));
-
-
-        //Ermitage Le Méal
+        String[] str = gson.fromJson(re, String[].class);
+        
+        for(String s : str){
+            System.out.println(s);
+        }
+        
+//Ermitage Le Méal
     }
 }
