@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(path = "/premium-act/")
 public class PremiumActions {
     
-    public static boolean isAdmin(User user) {
+    public static boolean isPremium(User user) {
         User.Level level = Mongo.RetrieveUserLevel(user.getNickname(), user.getPassword());
         return level == User.Level.PREMIUM || level == User.Level.ADMIN;
     }

@@ -434,7 +434,6 @@ public class Mongo {
             if(wine.getProvenance().equals("W")){
                 
                 Wine_WineMag winemag = (Wine_WineMag) wine;
-                doc.append("province", winemag.getProvince());
                 
                 Document winery = new Document();
                 

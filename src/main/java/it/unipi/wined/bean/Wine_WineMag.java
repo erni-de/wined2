@@ -12,7 +12,6 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Wine_WineMag extends AbstractWine {
 
-    private String province;
     private String winery_id;
     private String winery_name;
 
@@ -22,21 +21,14 @@ public class Wine_WineMag extends AbstractWine {
 
     public Wine_WineMag(String id, String name, int price, String variety, 
                         String region, String description, String country, 
-                        int alcohol_percentage, String provenance, String province, 
+                        int alcohol_percentage, String provenance, 
                         String winery_id, String winery_name) {
         super(id, name, price, description, country, region, provenance, variety, alcohol_percentage);
-        this.province = province;
         this.winery_id = winery_id;
         this.winery_name = winery_name;
     }
 
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
+   
 
     public String getWinery_id() {
         return winery_id;
@@ -70,7 +62,6 @@ public class Wine_WineMag extends AbstractWine {
                 ", country='" + country + '\'' +
                 ", alcohol_percentage=" + alcohol_percentage +
                 ", provenance='" + provenance + '\'' +
-                ", province='" + province + '\'' +
                 ", winery_id='" + winery_id + '\'' +
                 ", winery_name='" + winery_name + '\'' +
                 '}';

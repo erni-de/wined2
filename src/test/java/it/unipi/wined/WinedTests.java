@@ -8,9 +8,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import it.unipi.wined.bean.AbstractWine;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.Wine_WineMag;
+import it.unipi.wined.bean.Wine_WineVivino;
 import it.unipi.wined.driver.Mongo;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
@@ -18,6 +20,7 @@ import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.bson.Document;
@@ -39,10 +42,10 @@ public class WinedTests {
         System.out.println(docs.toString());
         for (Document doc : docs) {
             JsonNode jsonNode = mapper.readTree(doc.toJson());
-            System.out.println(jsonNode.get("Gender").asText() + " " + jsonNode.get("Total").asText() );
+            System.out.println(jsonNode.get("Gender").asText() + " " + jsonNode.get("Total").asText());
         }
     }
-    
+
     @Test
     public void test3() throws JsonProcessingException {
         ArrayList<Document> docs = Mongo.getRegionDistribution();
@@ -50,10 +53,10 @@ public class WinedTests {
         System.out.println(docs.toString());
         for (Document doc : docs) {
             JsonNode jsonNode = mapper.readTree(doc.toJson());
-            System.out.println(jsonNode.get("Region").asText() + " " + jsonNode.get("Total").asText() );
+            System.out.println(jsonNode.get("Region").asText() + " " + jsonNode.get("Total").asText());
         }
     }
-    
+
     @Test
     public void test2() throws JsonProcessingException {
         ArrayList<Document> docs = Mongo.getPriceBuckets();
@@ -61,25 +64,42 @@ public class WinedTests {
         System.out.println(docs.toString());
         for (Document doc : docs) {
             JsonNode jsonNode = mapper.readTree(doc.toJson());
-            System.out.println(jsonNode.get("Fascia").asText() + " " + jsonNode.get("Numero Vini").asText() );
+            System.out.println(jsonNode.get("Fascia").asText() + " " + jsonNode.get("Numero Vini").asText());
         }
     }
-    
-     @Test
+
+    @Test
     public void testd() {
         Gson gson = new Gson();
         ArrayList<Object> a = new ArrayList<>();
-        a.add(new User("bill", "clinton","billie",3253, "fwew","wfwef","fwewe","wegge","wgr", User.Level.REGULAR));
-        a.add(new Review("wine", "rating","nice","dick","donnu"));
+        a.add(new User("bill", "clinton", "billie", 3253, "fwew", "wfwef", "fwewe", "wegge", "wgr", User.Level.REGULAR));
+        a.add(new Review("wine", "rating", "nice", "dick", "donnu"));
         String json = gson.toJson(a);
-        
+
         Object[] o = gson.fromJson(json, Object[].class);
         User user = gson.fromJson(gson.toJson(o[0]), User.class);
         Review rev = gson.fromJson(gson.toJson(o[1]), Review.class);
-        
+
         System.out.println(user.getNickname() + " " + rev.wine);
-        
-        
+
     }
-    
+
+    @Test
+    public void getWineByName() {
+        //WineMag
+        Gson gson = new Gson();
+
+        List<AbstractWine> result = Mongo.getWineByName("Acrobat 2013 Pinot Noir (Oregon)");
+        //Vivino
+        List<AbstractWine> result2 = Mongo.getWineByName("Ermitage Le Méal");
+
+        System.out.println(result);
+        System.out.println(result2);
+        String serialized = gson.toJson(result);
+        System.out.println(serialized);
+        System.out.println(gson.toJson(gson.fromJson(serialized, Wine_WineMag[].class)));
+
+
+        //Ermitage Le Méal
+    }
 }
