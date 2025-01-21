@@ -31,6 +31,8 @@ import it.unipi.wined.config.Driver_Config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
 /**
  *
@@ -634,6 +636,42 @@ public class Mongo {
         return results;
     }
 
+    public static ArrayList<AbstractWine> getWineByName(String name){
+        openConnection("Wines");
+        
+        try{
+            ObjectMapper deserialize = new ObjectMapper();
+            deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            
+            MongoCursor <Document> cursor = collection.find(eq("name", name)).iterator();
+            
+            ArrayList <AbstractWine> resultsreturn = new ArrayList<>();
+            String provenance;
+            
+            //Possibile avere più risultati se prendo solo in base al nome
+            while(cursor.hasNext()){
+                Document doc = cursor.next();
+                provenance = doc.getString("provenance");
+                
+                if(provenance.equals("W")){
+                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineMag.class));
+                }
+                
+                if(provenance.equals("V")){
+                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineVivino.class));
+                }
+            }
+                            
+            closeConnection();
+            
+            return resultsreturn;
+        
+        }catch(Exception e){
+            System.out.println("Errore nel fare il retrieve del vino dal nome");
+            return null;
+        }
+    }
+    
     //+-----------------------------STATISTICHE ADMIN------------------------------+
 
     public static ArrayList<Document> getGenderDistribution() {
@@ -757,4 +795,69 @@ public class Mongo {
         }
         return averageCost;
     }
+    
+    public static List<AbstractWine> getBestSellingWineOfTheMonth() {
+    openConnection("Users");
+    try {
+        LocalDate now = LocalDate.now();
+        LocalDate low_interval = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate high_interval = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+
+        List<Bson> pipeline = Arrays.asList(
+                
+            Aggregates.unwind("$orders"),
+            
+            Aggregates.match(
+                Filters.and(
+                    Filters.gte("orders.confirmation_date", low_interval.toString()),
+                    Filters.lte("orders.confirmation_date", high_interval.toString())
+                )
+            ),
+            
+            Aggregates.unwind("$orders.order_list"),
+            Aggregates.group(
+                "$orders.order_list.wine_id",
+                Accumulators.sum("vino_comprato", "$orders.order_list.wine_number")
+            ),
+            Aggregates.sort(Sorts.descending("vino_comprato")),
+            Aggregates.project(
+                fields(
+                    computed("id_vino", "$_id"),
+                    computed("Numero bottiglie", "$vino_comprato")
+                )
+            )
+        );
+
+        List<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+        
+        if (results.isEmpty()) {
+            System.out.println("Nessun vino venduto nell'ultimo mese");
+            closeConnection();
+            return null;
+        
+        } else {
+            
+            int max = results.get(0).getInteger("Numero bottiglie");
+            List<AbstractWine> bestSelledWines= new ArrayList<>();
+            
+            //Ci può essere un caso limite dove abbiamo dei risultati parimerito
+            for (Document doc : results) {
+                
+                if (doc.getInteger("Numero bottiglie") == max) {
+                    bestSelledWines.add(getWineById(doc.getString("id_vino")));
+                
+                } else {
+                    break;
+                }
+            }
+            closeConnection();
+            return bestSelledWines;
+        }
+    } catch (Exception e) {
+        System.out.println("Errore generale nell'eseguire l'operazione");
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
 }
