@@ -88,13 +88,11 @@ public class WinedTests {
     //OK FUNZIONANTE
     @Test
     public void testGetUsersWithAtLeastNOrders() {
-  
          
     int n = 2;
     
     ArrayList<UserAggregationOrder> results = Mongo.getUserWithAtLeastNOrders(n);
     
-    System.out.println("Dioboia");
     if (results != null && !results.isEmpty()) {
         
         System.out.println("Utenti con almeno " + n + " ordini:");
