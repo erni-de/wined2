@@ -36,7 +36,7 @@ import org.neo4j.driver.QueryConfig;
  * @author erni
  */
 public class WinedTests {
-/*
+
     @Test
     public void test() throws JsonProcessingException {
         ArrayList<Document> docs = Mongo.getGenderDistribution();
@@ -85,8 +85,8 @@ public class WinedTests {
         System.out.println(user.getNickname() + " " + rev.wine);
 
     }
-
- */
+   
+    //OK FUNZIONANTE
     @Test
     public void testGetUsersWithAtLeastNOrders() {
         System.out.println("Dioboia");
@@ -98,7 +98,6 @@ public class WinedTests {
     
     ArrayList<UserAggregationOrder> results = Mongo.getUserWithAtLeastNOrders(n);
     
-    System.out.println("Dioboia");
     if (results != null && !results.isEmpty()) {
         
         System.out.println("Utenti con almeno " + n + " ordini:");
@@ -107,15 +106,13 @@ public class WinedTests {
             System.out.println(res);
         }
     } else {
-        System.out.println("Nessun utente con almeno " + n + " ordini, oppure errore in aggregazione.");
+        System.out.println("Nessun utente con almeno " + n + " ordini.");
     }
 }
 
     @Test
     public void testG() {
-        ArrayList<String> arr = new ArrayList<>();
-        arr.add("Les Vignes d'Alexandre 2009 Red (Châteauneuf-du-Pape)");
-        arr.add("Madrigal 2012 Estate Tempranillo (Calistoga)");
+        ArrayList<String> arr = Mongo.getWinesByPrice(0, 15);
         for (org.neo4j.driver.Record r : Neo4jGraphInteractions.getSuggestedWinesByFilter("ernak", arr)) {
             System.out.println(r.get("w.name") + "");
         }

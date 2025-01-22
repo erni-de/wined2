@@ -229,9 +229,13 @@ public class Neo4jGraphInteractions {
         var liked = driver.executableQuery("""
                                          MATCH (w:wine)
                                          WHERE w.name IN $wineNames
-                                         RETURN w.name
+                                         WITH w
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)    
+                                         WHERE NOT (w)<-[:LIKES]-(u)                                    
+                                         RETURN w.name, w.rating, w.likes
+                                         ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
-                withParameters(Map.of("wineNames", filteredWines)).
+                withParameters(Map.of("userName",username, "wineNames", filteredWines)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                 execute();
         /*for (org.neo4j.driver.Record r : liked.records()){

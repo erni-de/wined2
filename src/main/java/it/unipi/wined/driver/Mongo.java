@@ -553,63 +553,61 @@ public class Mongo {
         }
     }
 
-    public static List<AbstractWine> getWinesByFilter(String field, String value, String provenance){
-        openConnection("Wines");
-        
-        List<AbstractWine> resultList = new ArrayList<>();
-        ObjectMapper deserialize = new ObjectMapper();
-        deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public static List<AbstractWine> getWinesByFilter(String field, String value){
+    openConnection("Wines");
+    
+    List<AbstractWine> resultList = new ArrayList<>();
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        try{
-            Bson baseFilter = eq("provenance", provenance);
-            Bson secondaryFilter = null;
+    try {
+        Bson secondaryFilter = null;
 
-            switch(field){
-                case "price":
-                    int priceVal = Integer.parseInt(value);
-                    secondaryFilter = Filters.lte("price", priceVal);
-                    break;
-                    
-                case "alcohol_percentage":
-                    int alcVal = Integer.parseInt(value);
-                    secondaryFilter = Filters.lte("alcohol_percentage", alcVal);
-                    break;
-                    
-                case "country":
-                    secondaryFilter = eq("country", value);
-                    break;
-                    
-                default:
-                    System.out.println("Campo non valido per la provenance " + provenance + ": " + field);
-                    closeConnection();
-                    return resultList;
-            }
-
-            Bson finalFilter = Filters.and(baseFilter, secondaryFilter);
-            List<Document> docs = collection.find(finalFilter).into(new ArrayList<>());
-
-            for(Document d : docs){
+        switch(field) {
+            case "price":
+                int priceVal = Integer.parseInt(value);
+                secondaryFilter = eq("price", priceVal);
+                break;
                 
-                String prov = d.getString("provenance");
+            case "alcohol_percentage":
+                int alcVal = Integer.parseInt(value);
+                secondaryFilter = Filters.lte("alcohol_percentage", alcVal);
+                break;
                 
-                if(prov.equals("W")){
-                    Wine_WineMag wineMag = deserialize.readValue(d.toJson(), Wine_WineMag.class);
-                    resultList.add(wineMag);
-                    
-                } else {
-                    Wine_WineVivino wineViv = deserialize.readValue(d.toJson(), Wine_WineVivino.class);
-                    resultList.add(wineViv);
-                }
-            }
-            closeConnection();
-            return resultList;
-        }catch(Exception e){
-            e.printStackTrace();
-            closeConnection();
-            return null;
+            case "country":
+                secondaryFilter = eq("country", value);
+                break;
+                
+            default:
+                System.out.println("Campo non valido: " + field);
+                closeConnection();
+                return resultList;
         }
-    }
 
+        List<Document> docs = collection.find(secondaryFilter).into(new ArrayList<>());
+
+        for (Document doc : docs) {
+            String prov = doc.getString("provenance");
+            
+            if (prov.equals("W")) {
+                
+                Wine_WineMag wineMag = deserialize.readValue(doc.toJson(), Wine_WineMag.class);
+                resultList.add(wineMag);
+            } else if (prov.equals("V")) {
+                Wine_WineVivino wineViv = deserialize.readValue(doc.toJson(), Wine_WineVivino.class);
+                resultList.add(wineViv);
+            }
+        }
+        closeConnection();
+        return resultList;
+    } catch (Exception e) {
+        System.out.println("Errore nel gestire la ricerca dei vini per " + field);
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+    
     public static ArrayList<Document> getWinesByWineryName(String wineryName, String provenance){
         openConnection("Wines");
         ArrayList<Document> results = new ArrayList<>();
@@ -636,7 +634,45 @@ public class Mongo {
         return results;
     }
 
-    public static ArrayList<AbstractWine> getWineByName(String name){
+    public static ArrayList<AbstractWine> getWinesByPrice(int min_price, int max_price) {
+    openConnection("Wines");
+    
+        ArrayList<AbstractWine> results = new ArrayList<>();
+        ObjectMapper deserialize = new ObjectMapper();
+    
+        deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        Bson priceFilter = Filters.and(
+                Filters.gte("price", min_price),
+                Filters.lte("price", max_price)
+        );
+
+        ArrayList<Document> docs = collection.find(priceFilter).into(new ArrayList<>());
+
+        for (Document doc : docs) {
+            String prov = doc.getString("provenance");
+            if (prov.equals("W")) {
+                Wine_WineMag wineMag = deserialize.readValue(doc.toJson(), Wine_WineMag.class);
+                results.add(wineMag);
+            } else {
+                Wine_WineVivino wineViv = deserialize.readValue(doc.toJson(), Wine_WineVivino.class);
+                results.add(wineViv);
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("Errore nel gestire la ricerca dei vini per prezzo");
+        e.printStackTrace();
+        return null;
+        
+    } finally {
+        closeConnection();
+    }
+
+    return results;
+    }
+    
+    public static ArrayList<String> getWineByName(String name){
         openConnection("Wines");
         
         try{
@@ -645,7 +681,7 @@ public class Mongo {
             
             MongoCursor <Document> cursor = collection.find(eq("name", name)).iterator();
             
-            ArrayList <AbstractWine> resultsreturn = new ArrayList<>();
+            ArrayList <String> resultsreturn = new ArrayList<>();
             String provenance;
             
             //Possibile avere più risultati se prendo solo in base al nome
@@ -654,11 +690,11 @@ public class Mongo {
                 provenance = doc.getString("provenance");
                 
                 if(provenance.equals("W")){
-                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineMag.class));
+                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineMag.class).getName());
                 }
                 
                 if(provenance.equals("V")){
-                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineVivino.class));
+                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineVivino.class).getName());
                 }
             }
                             
@@ -866,70 +902,52 @@ public class Mongo {
     }
 }
 
-    public static ArrayList<UserAggregationOrder> getUserWithAtLeastNOrders(int n){
-        openConnection("Users");
-        
-        System.out.println("Entrato nella function");
-        
-        try{
-            ArrayList<Bson> pipeline = new ArrayList<>();
-            
-            //1) Spacchetto orders
-            pipeline.add(Aggregates.unwind("$orders"));
-            
-            //2) Faccio la group by sull'utente e calcolo il numero degli ordini
-            //E la spesa
-            pipeline.add(Aggregates.group(
-                Filters.eq("_id", "$id"),
-                Accumulators.sum("count", 1),
-                Accumulators.sum("totalSpent", "$order.order_price")
-            ));
-            
-            //3) Prendo solo quelli che hanno fatto almeno n ordini
-            pipeline.add(Aggregates.match(
-                Filters.gte("count", n)
-            ));
-            
-            //4) Proiezione per restituire i campi utili
-            pipeline.add(Aggregates.project(
-                fields(
-                        computed("userId", "$_id"),
-                        computed("orderCount", "$count"),
-                        computed("totalSpent", "$totalSpent")
-                )
-            ));
-            
-            ArrayList<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+ public static ArrayList<UserAggregationOrder> getUserWithAtLeastNOrders(int n) {
+    openConnection("Users");
+    try {
+        ArrayList<Bson> pipeline = new ArrayList<>();
 
-            //Converto i document nella classe di return
+        //1) Spacchetta gli ordini
+        pipeline.add(Aggregates.unwind("$orders"));
+
+        //2) Raggruppa per nickname (univoco)
+        pipeline.add(Aggregates.group(
+            "$nickname",
+            Accumulators.sum("count", 1),
+            Accumulators.sum("totalSpent", "$orders.order_total_cost")
+        ));
+
+        //3) Filtra per avere almeno n ordini
+        pipeline.add(Aggregates.match(Filters.gte("count", n)));
+
+        //4) Proietto
+        pipeline.add(Aggregates.project(
+            fields(
+                computed("userId", "$_id"),      
+                computed("orderCount", "$count"),
+                computed("totalSpent", "$totalSpent")
+            )
+        ));
+
+        ArrayList<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+        ArrayList<UserAggregationOrder> out = new ArrayList<>();
+
+        for (Document doc : results) {
+            String userId = doc.getString("userId"); 
+            int orderCount = doc.getInteger("orderCount");
+            double totalSpent = doc.get("totalSpent", Number.class).doubleValue();
             
-            ArrayList<UserAggregationOrder> out = new ArrayList<>();
-            
-            for (Document doc : results){
-                
-                //Estraggo dal documento i campi per la classe di appoggio
-                String userId = doc.get("UserId").toString();
-                int orderCount = doc.getInteger("orderCount");
-                double totalSpent = doc.getDouble("totalSpent");
-                
-                UserAggregationOrder result = new UserAggregationOrder(
-                    userId, 
-                    orderCount, 
-                    totalSpent
-                );
-                
-                out.add(result);              
-            }
-            
-            closeConnection();
-            
-            return out;
-        
-        }catch (Exception e) {
-            System.out.println("Errore generale nello stampare i risultati");
-            e.printStackTrace();
-            closeConnection();
-            return null;
+            out.add(new UserAggregationOrder(userId, orderCount, totalSpent));
         }
+        return out;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    } finally {
+        closeConnection();
     }
+}
+
+
 }

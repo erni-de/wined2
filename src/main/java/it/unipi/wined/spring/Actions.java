@@ -154,7 +154,35 @@ public class Actions {
             e.printStackTrace();
             return "500";
         }
+    }
+    
+    @PostMapping(path = "/get-by-price")
+    public @ResponseBody
+    String getSuggestedByPrice(@RequestBody String input) {
+        try {//method should invoke followUser method in it.unipi.wined.neo4j.interaction.GraphActions.java
+            Gson gson = new Gson();
+            Object[] par = gson.fromJson(input, Object[].class);
+            User user = gson.fromJson(gson.toJson(par[0]), User.class);
+            int min = gson.fromJson(gson.toJson(par[1]), Integer.class);
+            int max = gson.fromJson(gson.toJson(par[2]), Integer.class);
+            
+            ArrayList<String> wines = Mongo.getWinesByPrice(min, max);
+            
+            
+            
+            
+            List<org.neo4j.driver.Record> records = Neo4jGraphInteractions.getSuggestedWines(user.getNickname());
+            ArrayList<String> retList = new ArrayList<>();
 
+            for (int i = 0; i < 10; i++) {
+                retList.add(records.get(i).get("w.name") + "");
+            }
+
+            return gson.toJson(retList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "500";
+        }
     }
 
     @PostMapping(path = "/get-by-winery")
@@ -252,5 +280,7 @@ public class Actions {
             return "500";
         }
     }
+    
+    
 
 }
