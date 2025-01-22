@@ -5,6 +5,7 @@
 package it.unipi.wined.spring.utils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -19,6 +20,7 @@ public class StatsResponse implements Serializable{
     public HashMap<String, Integer> priceCategories = new HashMap<String, Integer>();
     public long uniqueWines;
     public double avgCost;
+    public ArrayList<String> bestSelling = new ArrayList<>();
     
     public StatsResponse() {
         

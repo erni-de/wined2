@@ -15,6 +15,7 @@ import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
 import it.unipi.wined.bean.UserAggregationOrder;
 import it.unipi.wined.driver.Mongo;
+import it.unipi.wined.bean.Neo4jListWrapper;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
@@ -87,7 +88,7 @@ public class WinedTests {
 
  */
     @Test
-    public static void testGetUsersWithAtLeastNOrders() {
+    public void testGetUsersWithAtLeastNOrders() {
         System.out.println("Dioboia");
 
             System.out.println("Dioboia");
@@ -110,6 +111,14 @@ public class WinedTests {
     }
 }
 
-    
+    @Test
+    public void testG() {
+        ArrayList<String> arr = new ArrayList<>();
+        arr.add("Les Vignes d'Alexandre 2009 Red (Châteauneuf-du-Pape)");
+        arr.add("Madrigal 2012 Estate Tempranillo (Calistoga)");
+        for (org.neo4j.driver.Record r : Neo4jGraphInteractions.getSuggestedWinesByFilter("ernak", arr)) {
+            System.out.println(r.get("w.name") + "");
+        }
+    }
     
 }

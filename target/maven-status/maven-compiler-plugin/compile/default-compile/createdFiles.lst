@@ -1,3 +1,2 @@
-it\unipi\wined\bean\AbstractWine.class
-it\unipi\wined\bean\UserAggregationOrder.class
-it\unipi\wined\spring\utils\StatsResponse.class
+it/unipi/wined/bean/Neo4jListWrapper.class
+it/unipi/wined/bean/UserAggregationOrder.class

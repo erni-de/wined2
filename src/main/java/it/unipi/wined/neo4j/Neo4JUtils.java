@@ -5,7 +5,7 @@
 package it.unipi.wined.neo4j;
 
 import it.unipi.wined.json.objects.VivinoWine;
-import it.unipi.wined.json.objects.VivinoWrapper;
+import it.unipi.wined.bean.Neo4jListWrapper;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -37,9 +37,9 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
 //192.168.1.12
-    public static String connectionString = "bolt://localhost:7687";
+    public static String connectionString = "neo4j://192.168.86.146:7687";
     public static String neo4j_user = "neo4j";
-    public static String neo4j_password = "nicola98";
+    public static String neo4j_password = "cinematto123";
 
     public static Driver establishConnection() {
         return GraphDatabase.driver(connectionString, AuthTokens.basic(neo4j_user, neo4j_password));

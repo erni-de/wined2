@@ -9,7 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.json.objects.VivinoWine;
-import it.unipi.wined.json.objects.VivinoWrapper;
+import it.unipi.wined.bean.Neo4jListWrapper;
 import it.unipi.wined.json.objects.WinemagWine;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
 import static it.unipi.wined.spring.Access.currentUser;
@@ -40,7 +40,7 @@ public class GraphActions {
             Type userListType = new TypeToken<List<VivinoWrapper>>() {
             }.getType();
             List<VivinoWrapper> overall = gson.fromJson(reader, userListType);
-            VivinoWrapper wines = overall.get(0);
+            Neo4jListWrapper wines = overall.get(0);
             List<VivinoWine> wine = wines.getWines();
             for (VivinoWine v : wine) {
                 v.id = WinemagWine.id_count;

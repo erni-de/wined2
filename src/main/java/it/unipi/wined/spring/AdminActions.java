@@ -224,7 +224,7 @@ public class AdminActions {
             ObjectMapper mapper = new ObjectMapper();
             User user = gson.fromJson(input, User.class);
             if (isAdmin(user)) {
-                
+
                 StatsResponse sr = new StatsResponse();
                 //gender stats
                 ArrayList<Document> genderDocs = Mongo.getGenderDistribution();
@@ -252,9 +252,15 @@ public class AdminActions {
                     sr.priceCategories.put(jsonNode.get("Fascia").asText(), jsonNode.get("Numero Vini").asInt());
                 }
 
+                //unique wines present
                 sr.uniqueWines = Mongo.countUniqueWineNames();
+                //average cost
                 sr.avgCost = Mongo.getAvgOrderCost();
-                
+
+                //best selling wine of last month
+                for (AbstractWine w : Mongo.getBestSellingWineOfTheMonth()) {
+                    sr.bestSelling.add(w.getName());
+                }
 
                 return gson.toJson(sr);
             } else {

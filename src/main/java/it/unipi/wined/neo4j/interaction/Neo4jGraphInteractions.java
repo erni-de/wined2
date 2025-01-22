@@ -5,6 +5,7 @@
 package it.unipi.wined.neo4j.interaction;
 
 import com.google.gson.Gson;
+import it.unipi.wined.bean.Neo4jListWrapper;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
@@ -223,10 +224,24 @@ public class Neo4jGraphInteractions {
         return liked.records();
     }
 
-    //best suggested wines by filter
-    
-    
-    
+    public static List<org.neo4j.driver.Record> getSuggestedWinesByFilter(String username, ArrayList<String> filteredWines) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        var liked = driver.executableQuery("""
+                                         MATCH (w:wine)
+                                         WHERE w.name IN $wineNames
+                                         RETURN w.name
+                                        """).
+                withParameters(Map.of("wineNames", filteredWines)).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
+        /*for (org.neo4j.driver.Record r : liked.records()){
+            System.out.println(r.get("w.rating") + " " + r.get("w.likes") + " " + r.get("w.name"));
+        }*/
+
+        driver.close();
+        return liked.records();
+    }
+
     public static ArrayList<String> getSuggestedUsers(String username, int size) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         boolean done = false;
@@ -234,13 +249,13 @@ public class Neo4jGraphInteractions {
         ArrayList<String> ret = new ArrayList<>();
         while (!done) {
             var users = driver.executableQuery(
-                                        "MATCH (u:user {username: $userName})-[r:FOLLOWS * " + distance + " ]->(w:user) " + 
-                                        """
+                    "MATCH (u:user {username: $userName})-[r:FOLLOWS * " + distance + " ]->(w:user) "
+                    + """
                                         MATCH (u:user {username: $userName})-[:LIKES]->(s:wine)<-[:LIKES]-(w:user)
                                         ORDER BY s.rating IS NULL, s.rating DESC
                                         RETURN DISTINCT w.username 
-                                        """                    
-                                        ).
+                                        """
+            ).
                     withParameters(Map.of("userName", username)).
                     withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                     execute();
@@ -251,7 +266,7 @@ public class Neo4jGraphInteractions {
                     break;
                 }
             }
-            distance ++;
+            distance++;
         }
         driver.close();
         return ret;

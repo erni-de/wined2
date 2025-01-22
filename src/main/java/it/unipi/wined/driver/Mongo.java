@@ -800,8 +800,8 @@ public class Mongo {
     openConnection("Users");
     try {
         LocalDate now = LocalDate.now();
-        LocalDate low_interval = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
-        LocalDate high_interval = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate low_interval = now.minusMonths(0).with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate high_interval = now.minusMonths(0).with(TemporalAdjusters.lastDayOfMonth());
 
         ArrayList<Bson> pipeline = new ArrayList<>();
         
