@@ -634,10 +634,10 @@ public class Mongo {
         return results;
     }
 
-    public static ArrayList<AbstractWine> getWinesByPrice(int min_price, int max_price) {
+    public static ArrayList<String> getWinesByPrice(int min_price, int max_price) {
     openConnection("Wines");
     
-        ArrayList<AbstractWine> results = new ArrayList<>();
+        ArrayList<String> results = new ArrayList<>();
         ObjectMapper deserialize = new ObjectMapper();
     
         deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -654,10 +654,10 @@ public class Mongo {
             String prov = doc.getString("provenance");
             if (prov.equals("W")) {
                 Wine_WineMag wineMag = deserialize.readValue(doc.toJson(), Wine_WineMag.class);
-                results.add(wineMag);
+                results.add(wineMag.getName());
             } else {
                 Wine_WineVivino wineViv = deserialize.readValue(doc.toJson(), Wine_WineVivino.class);
-                results.add(wineViv);
+                results.add(wineViv.getName());
             }
         }
     } catch (Exception e) {
@@ -672,7 +672,7 @@ public class Mongo {
     return results;
     }
     
-    public static ArrayList<String> getWineByName(String name){
+    public static ArrayList<AbstractWine> getWineByName(String name){
         openConnection("Wines");
         
         try{
@@ -681,7 +681,7 @@ public class Mongo {
             
             MongoCursor <Document> cursor = collection.find(eq("name", name)).iterator();
             
-            ArrayList <String> resultsreturn = new ArrayList<>();
+            ArrayList <AbstractWine> resultsreturn = new ArrayList<>();
             String provenance;
             
             //Possibile avere più risultati se prendo solo in base al nome
@@ -690,11 +690,11 @@ public class Mongo {
                 provenance = doc.getString("provenance");
                 
                 if(provenance.equals("W")){
-                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineMag.class).getName());
+                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineMag.class));
                 }
                 
                 if(provenance.equals("V")){
-                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineVivino.class).getName());
+                    resultsreturn.add(deserialize.readValue(doc.toJson(), Wine_WineVivino.class));
                 }
             }
                             

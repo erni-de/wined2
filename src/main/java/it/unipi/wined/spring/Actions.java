@@ -142,12 +142,7 @@ public class Actions {
             Gson gson = new Gson();
             User user = gson.fromJson(input, User.class);
 
-            List<org.neo4j.driver.Record> records = Neo4jGraphInteractions.getSuggestedWines(user.getNickname());
-            ArrayList<String> retList = new ArrayList<>();
-
-            for (int i = 0; i < 10; i++) {
-                retList.add(records.get(i).get("w.name") + "");
-            }
+            ArrayList<String> retList = Neo4jGraphInteractions.getSuggestedWines(user.getNickname(), 10);
 
             return gson.toJson(retList);
         } catch (Exception e) {
@@ -167,17 +162,8 @@ public class Actions {
             int max = gson.fromJson(gson.toJson(par[2]), Integer.class);
             
             ArrayList<String> wines = Mongo.getWinesByPrice(min, max);
-            
-            
-            
-            
-            List<org.neo4j.driver.Record> records = Neo4jGraphInteractions.getSuggestedWines(user.getNickname());
-            ArrayList<String> retList = new ArrayList<>();
 
-            for (int i = 0; i < 10; i++) {
-                retList.add(records.get(i).get("w.name") + "");
-            }
-
+            ArrayList<String> retList = Neo4jGraphInteractions.getSuggestedWinesByFilter(user.getNickname(), wines, 10);
             return gson.toJson(retList);
         } catch (Exception e) {
             e.printStackTrace();

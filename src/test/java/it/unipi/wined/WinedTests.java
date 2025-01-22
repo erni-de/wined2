@@ -110,11 +110,14 @@ public class WinedTests {
     }
 }
 
+    /**
+     *
+     */
     @Test
     public void testG() {
-        ArrayList<String> arr = Mongo.getWinesByPrice(0, 15);
-        for (org.neo4j.driver.Record r : Neo4jGraphInteractions.getSuggestedWinesByFilter("ernak", arr)) {
-            System.out.println(r.get("w.name") + "");
+        ArrayList<String> arr = Mongo.getWinesByPrice(5,6);
+        for (String r : Neo4jGraphInteractions.getSuggestedWinesByFilter("ernak", arr, 100)) {
+            System.out.println(r);
         }
     }
     

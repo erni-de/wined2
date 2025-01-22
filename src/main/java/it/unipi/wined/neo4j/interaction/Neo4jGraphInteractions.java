@@ -205,46 +205,67 @@ public class Neo4jGraphInteractions {
         return result.records();
     }
 
-    public static List<org.neo4j.driver.Record> getSuggestedWines(String username) {
+    public static ArrayList<String> getSuggestedWines(String username, int size) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
-        var liked = driver.executableQuery("""
-                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)    
+        boolean done = false;
+        int distance = 1;
+        ArrayList<String> ret = new ArrayList<>();
+        while (!done) {
+            var liked = driver.executableQuery("""
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS * """ + distance + "]->(b:user)-[l:LIKES]->(w:wine) " + 
+                                         """
                                          WHERE NOT (w)<-[:LIKES]-(u)                                    
-                                         RETURN w.name, w.rating, w.likes
+                                         RETURN DISTINCT w.name, w.rating, w.likes
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
-                withParameters(Map.of("userName", username)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                execute();
-        /*for (org.neo4j.driver.Record r : liked.records()){
-            System.out.println(r.get("w.rating") + " " + r.get("w.likes") + " " + r.get("w.name"));
-        }*/
-
-        driver.close();
-        return liked.records();
+                    withParameters(Map.of("userName", username)).
+                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                    execute();
+        for (org.neo4j.driver.Record r : liked.records()) {
+                ret.add(r.get("w.name") + "");
+                if (ret.size() == size) {
+                    done = true;
+                    break;
+                }
+            }
+        distance ++;
+        }
+            driver.close();
+            return ret;
     }
-
-    public static List<org.neo4j.driver.Record> getSuggestedWinesByFilter(String username, ArrayList<String> filteredWines) {
+    
+    public static ArrayList<String> getSuggestedWinesByFilter(String username, ArrayList<String> filteredWines, int size) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
-        var liked = driver.executableQuery("""
+        boolean done = false;
+        int distance = 1;
+        ArrayList<String> ret = new ArrayList<>();
+        while (!done) {
+            var liked = driver.executableQuery("""
                                          MATCH (w:wine)
                                          WHERE w.name IN $wineNames
                                          WITH w
-                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)    
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS * """ + distance + "]->(b:user)-[l:LIKES]->(w:wine) " + 
+                                         """
                                          WHERE NOT (w)<-[:LIKES]-(u)                                    
-                                         RETURN w.name, w.rating, w.likes
+                                         RETURN DISTINCT w.name, w.rating, w.likes
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
-                withParameters(Map.of("userName",username, "wineNames", filteredWines)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
-                execute();
-        /*for (org.neo4j.driver.Record r : liked.records()){
-            System.out.println(r.get("w.rating") + " " + r.get("w.likes") + " " + r.get("w.name"));
-        }*/
-
-        driver.close();
-        return liked.records();
-    }
+                    withParameters(Map.of("userName", username, "wineNames", filteredWines)).
+                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                    execute();
+        for (org.neo4j.driver.Record r : liked.records()) {
+                ret.add(r.get("w.name") + "");
+                System.out.println(filteredWines.size());
+                if (ret.size() == size) {
+                    done = true;
+                    break;
+                }
+            }
+            distance ++;
+        }
+            driver.close();
+            return ret;
+        }
 
     public static ArrayList<String> getSuggestedUsers(String username, int size) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
