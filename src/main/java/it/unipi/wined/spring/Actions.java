@@ -234,5 +234,23 @@ public class Actions {
         }
 
     }
+    
+    /**
+     * Input should be a serialization of the current user
+     * @param input
+     * @return 
+     */
+    @PostMapping(path = "/suggested-follows")
+    public @ResponseBody
+    String suggestUsers(@RequestBody String input) {
+        try {
+            Gson gson = new Gson();
+            User user = gson.fromJson(input, User.class);
+            return gson.toJson(Neo4jGraphInteractions.getSuggestedUsers(user.getNickname(), 20));
+        } catch (Exception e){
+            e.printStackTrace();
+            return "500";
+        }
+    }
 
 }
