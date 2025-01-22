@@ -26,6 +26,7 @@ import org.bson.conversions.Bson;
 //Import delle classi del nostro progetto
 import it.unipi.wined.bean.*;
 import it.unipi.wined.config.Driver_Config;
+import it.unipi.wined.bean.UserAggregationOrder;
 
 //Import di Jackson
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -795,56 +796,61 @@ public class Mongo {
         return averageCost;
     }
     
-    public static List<AbstractWine> getBestSellingWineOfTheMonth() {
+    public static ArrayList<AbstractWine> getBestSellingWineOfTheMonth() {
     openConnection("Users");
     try {
         LocalDate now = LocalDate.now();
         LocalDate low_interval = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
         LocalDate high_interval = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
-        List<Bson> pipeline = Arrays.asList(
-                
-            Aggregates.unwind("$orders"),
-            
-            Aggregates.match(
-                Filters.and(
-                    Filters.gte("orders.confirmation_date", low_interval.toString()),
-                    Filters.lte("orders.confirmation_date", high_interval.toString())
-                )
-            ),
-            
-            Aggregates.unwind("$orders.order_list"),
-            Aggregates.group(
-                "$orders.order_list.wine_id",
-                Accumulators.sum("vino_comprato", "$orders.order_list.wine_number")
-            ),
-            Aggregates.sort(Sorts.descending("vino_comprato")),
-            Aggregates.project(
-                fields(
-                    computed("id_vino", "$_id"),
-                    computed("Numero bottiglie", "$vino_comprato")
-                )
-            )
-        );
-
-        List<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+        ArrayList<Bson> pipeline = new ArrayList<>();
         
+        //1) Spacchetta gli ordini
+        pipeline.add(Aggregates.unwind("$orders"));
+        
+        //2) Filtra sulla data dell'ultimo mese
+        pipeline.add(Aggregates.match(
+            Filters.and(
+                Filters.gte("orders.confirmation_date", low_interval.toString()),
+                Filters.lte("orders.confirmation_date", high_interval.toString())
+            )
+        ));
+        
+        //3) Spacchetta gli order_list
+        pipeline.add(Aggregates.unwind("$orders.order_list"));
+        
+        //4) Group by sull'id (univoco) e somma i vini venduti
+        pipeline.add(Aggregates.group(
+            "$orders.order_list.wine_id",
+            Accumulators.sum("vino_comprato", "$orders.order_list.wine_number")
+        ));
+        
+        //5) Sorta in base al numero di bottiglie
+        pipeline.add(Aggregates.sort(Sorts.descending("vino_comprato")));
+        
+        //Projecto per pulire
+        pipeline.add(Aggregates.project(
+            fields(
+                computed("id_vino", "$_id"),
+                computed("Numero bottiglie", "$vino_comprato")
+            )
+        ));
+
+        //Caso degenere con vini a parimerito, quindi lista di risultati
+        ArrayList<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+
         if (results.isEmpty()) {
             System.out.println("Nessun vino venduto nell'ultimo mese");
             closeConnection();
             return null;
-        
         } else {
-            
             int max = results.get(0).getInteger("Numero bottiglie");
-            List<AbstractWine> bestSelledWines= new ArrayList<>();
-            
-            //Ci può essere un caso limite dove abbiamo dei risultati parimerito
+            ArrayList<AbstractWine> bestSelledWines = new ArrayList<>();
+
+            // Gestione del caso di pareggio
             for (Document doc : results) {
-                
                 if (doc.getInteger("Numero bottiglie") == max) {
                     bestSelledWines.add(getWineById(doc.getString("id_vino")));
-                
                 } else {
                     break;
                 }
@@ -859,4 +865,71 @@ public class Mongo {
         return null;
     }
 }
+
+    public static ArrayList<UserAggregationOrder> getUserWithAtLeastNOrders(int n){
+        openConnection("Users");
+        
+        System.out.println("Entrato nella function");
+        
+        try{
+            ArrayList<Bson> pipeline = new ArrayList<>();
+            
+            //1) Spacchetto orders
+            pipeline.add(Aggregates.unwind("$orders"));
+            
+            //2) Faccio la group by sull'utente e calcolo il numero degli ordini
+            //E la spesa
+            pipeline.add(Aggregates.group(
+                Filters.eq("_id", "$id"),
+                Accumulators.sum("count", 1),
+                Accumulators.sum("totalSpent", "$order.order_price")
+            ));
+            
+            //3) Prendo solo quelli che hanno fatto almeno n ordini
+            pipeline.add(Aggregates.match(
+                Filters.gte("count", n)
+            ));
+            
+            //4) Proiezione per restituire i campi utili
+            pipeline.add(Aggregates.project(
+                fields(
+                        computed("userId", "$_id"),
+                        computed("orderCount", "$count"),
+                        computed("totalSpent", "$totalSpent")
+                )
+            ));
+            
+            ArrayList<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+
+            //Converto i document nella classe di return
+            
+            ArrayList<UserAggregationOrder> out = new ArrayList<>();
+            
+            for (Document doc : results){
+                
+                //Estraggo dal documento i campi per la classe di appoggio
+                String userId = doc.get("UserId").toString();
+                int orderCount = doc.getInteger("orderCount");
+                double totalSpent = doc.getDouble("totalSpent");
+                
+                UserAggregationOrder result = new UserAggregationOrder(
+                    userId, 
+                    orderCount, 
+                    totalSpent
+                );
+                
+                out.add(result);              
+            }
+            
+            closeConnection();
+            
+            return out;
+        
+        }catch (Exception e) {
+            System.out.println("Errore generale nello stampare i risultati");
+            e.printStackTrace();
+            closeConnection();
+            return null;
+        }
+    }
 }

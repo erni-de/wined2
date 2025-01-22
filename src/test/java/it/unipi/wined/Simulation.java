@@ -35,8 +35,10 @@ public class Simulation {
      @Test
     public void populateDB() {
         //Add Users and Wines node to graph 
-        Neo4JUtils.loadWine("/home/erni/Downloads/wines_definitive(1).json");
-        Neo4JUtils.loadUsers("/home/erni/Downloads/users_final.json");
+        System.out.println("Carico i vini");
+        Neo4JUtils.loadWine("C:\\neo4j\\wines_definitive.json");
+        System.out.println("Carico gli user");
+        Neo4JUtils.loadUsers("C:\\neo4j\\users_final.json");
     }
 
     @Test
@@ -44,17 +46,17 @@ public class Simulation {
         ObjectMapper mapper = new ObjectMapper();
         Gson gson = new Gson();
         Random random = new Random();
-        
-        
-        
+       
         //PARAMETERS -- change manually
-            //Path to data
-        String usersPath = "/home/erni/Downloads/users_final.json";
-        String winesPath = "/home/erni/Downloads/wines_definitive(1).json";
-        String reviewsPath = "/home/erni/Downloads/reviews/preprocessed_reviews.json";
-            //Number of drivers for neo4j
-        int n_drivers = 100;
+        //Path to data
+        String usersPath = "C:\\neo4j\\users_final.json";
+        String winesPath = "C:\\neo4j\\wines_definitive.json";
+        String reviewsPath = "C:\\neo4j\\preprocessed_reviews.json";
+        
+        //Number of drivers for neo4j
+        int n_drivers = 50;
             //no of iterations for each action
+        
         int ORDER_ITER = 1000;
         int FOLLOW_ITER = 10;
         int LIKE_ITER = 300;
@@ -99,7 +101,7 @@ public class Simulation {
                     System.out.println("[" + i + "] " + "User " + users[r_user].getNickname() + " has made an order : " + order.toString());
                     System.out.println("Threads : " + Thread.activeCount());
                 }
-                
+      
                 for (int i = 0; i < FOLLOW_ITER; i++) { //following sim
                     for (Driver driver : drivers) {
                         r_users = random.ints(2, 0, users.length).toArray();
@@ -109,12 +111,13 @@ public class Simulation {
                                CREATE (a)-[:FOLLOWS]->(b)
                                """).
                                 withParameters(Map.of("selfUser", users[r_users[0]].getNickname(), "targetUser", users[r_users[1]].getNickname())).
-                                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                                withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                                 execute();
                         System.out.println("[" + i + "] " + "User " + users[r_users[0]].getNickname() + " follows " + users[r_users[1]].getNickname());
                     }
                 }
 
+                
                 for (int i = 0; i < LIKE_ITER; i++) { //liking sim
                     for (Driver driver : drivers) {
                         r_users = random.ints(4, 0, users.length).toArray();
@@ -126,14 +129,14 @@ public class Simulation {
                                CREATE (u)-[:LIKES]->(w)
                                """).
                                 withParameters(Map.of("wineName", wines[r_wines[1]].getName(), "userName", users[r_users[3]].getNickname())).
-                                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                                withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                                 execute();
                         driver.executableQuery("""
                                MATCH (u:user)-[l:LIKES]->(w:wine {name: $wine})
                                WITH w, COUNT(l) as likes SET w.likes = likes
                                """).
                                 withParameters(Map.of("wine", wines[r_wines[1]].getName())).
-                                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                                withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                                 execute();
                         System.out.println("[" + i + "] " + "User " + users[r_users[3]].getNickname() + " likes " + wines[r_wines[1]].getName());
                     }
@@ -152,14 +155,14 @@ public class Simulation {
                                CREATE (b)-[:WRITTEN_BY]->(c)
                                """).
                                 withParameters(Map.of("wineName", wines[r_wines[1]].getName(), "reviewTitle", reviews[r_rev].title, "reviewCorpus", reviews[r_rev].body, "reviewRating", reviews[r_rev].rating, "userName", users[r_users[3]].getNickname())).
-                                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                                withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                                 execute();
                         EagerResult result = driver.executableQuery("""
                                MATCH (w:wine {name: $wineName})-[:REVIEWED]->(r:review)
                                RETURN r.rating
                                """).
                                 withParameters(Map.of("wineName", wines[r_wines[1]].getName())).
-                                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                                withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                                 execute();
                         String res = result.records().toString().replace("Record<", "").replace(">", "").replace("r.", "");
                         Review[] rev = gson.fromJson(res, Review[].class);
@@ -175,7 +178,7 @@ public class Simulation {
                                SET w.rating = $wineRating
                                """).
                                 withParameters(Map.of("wineName", wines[r_wines[1]].getName(), "wineRating", wineRating)).
-                                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                                withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                                 execute();
                         System.out.println("[" + i + "] " + "User " + users[r_users[3]].getNickname() + " reviewes " + wines[r_wines[1]].getName());
                     }

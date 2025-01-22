@@ -13,6 +13,7 @@ import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
+import it.unipi.wined.bean.UserAggregationOrder;
 import it.unipi.wined.driver.Mongo;
 import it.unipi.wined.neo4j.Neo4JUtils;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
@@ -34,7 +35,7 @@ import org.neo4j.driver.QueryConfig;
  * @author erni
  */
 public class WinedTests {
-
+/*
     @Test
     public void test() throws JsonProcessingException {
         ArrayList<Document> docs = Mongo.getGenderDistribution();
@@ -84,13 +85,31 @@ public class WinedTests {
 
     }
 
+ */
     @Test
-    public void getWineByName() throws JsonProcessingException {
-        //WineMag
+    public static void testGetUsersWithAtLeastNOrders() {
+        System.out.println("Dioboia");
+
+            System.out.println("Dioboia");
+
+            
+    int n = 1;
+    
+    ArrayList<UserAggregationOrder> results = Mongo.getUserWithAtLeastNOrders(n);
+    
+    System.out.println("Dioboia");
+    if (results != null && !results.isEmpty()) {
         
+        System.out.println("Utenti con almeno " + n + " ordini:");
         
-//Ermitage Le Méal
+        for (UserAggregationOrder res : results) {
+            System.out.println(res);
+        }
+    } else {
+        System.out.println("Nessun utente con almeno " + n + " ordini, oppure errore in aggregazione.");
     }
+}
+
     
     
 }
