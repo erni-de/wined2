@@ -37,9 +37,9 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
 //192.168.1.12
-    public static String connectionString = "neo4j://192.168.1.10:7687";
+    public static String connectionString = "bolt://localhost:7687";
     public static String neo4j_user = "neo4j";
-    public static String neo4j_password = "cinematto123";
+    public static String neo4j_password = "nicola98";
 
     public static Driver establishConnection() {
         return GraphDatabase.driver(connectionString, AuthTokens.basic(neo4j_user, neo4j_password));
@@ -53,7 +53,8 @@ public class Neo4JUtils {
     public static void loadUsers(String path) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
-
+        int i = 1;
+        
         try (FileReader reader = new FileReader(path)) {
             // Map JSON to a Java object
             User[] users = gson.fromJson(reader, User[].class);
@@ -62,10 +63,12 @@ public class Neo4JUtils {
                                MERGE (u:user { username: $userName}) 
                                """).
                         withParameters(Map.of("userName", u.getNickname())).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                        withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                         execute();
+            System.out.println("Caricato il " + i + "utente");
+            i++;
             }
-
+           
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,7 +82,7 @@ public class Neo4JUtils {
     public static void loadWine(String path) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
-
+        int i = 1;        
         try (FileReader reader = new FileReader(path)) {
             // Map JSON to a Java object
             Wine_WineMag[] wines = gson.fromJson(reader, Wine_WineMag[].class);
@@ -88,8 +91,12 @@ public class Neo4JUtils {
                                MERGE (w:wine {name: $wineName}) 
                                """).
                         withParameters(Map.of("wineName", w.getName())).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                        withConfig(QueryConfig.builder().withDatabase("wineddb").build()).
                         execute();
+                
+                System.out.println("Caricato il " + i + " vino");
+                i++;
+                
             }
 
         } catch (IOException e) {
