@@ -10,7 +10,7 @@ package it.unipi.wined.bean;
  */
 public class UserAggregationOrder {
     
-    private String userId;
+    private String nickname;
     private int orderCount;
     private double totalSpent;
     
@@ -19,13 +19,13 @@ public class UserAggregationOrder {
     }
     
     public UserAggregationOrder(String id, int orderCount, double totalSpent){
-        this.userId = id;
+        this.nickname = id;
         this.orderCount = orderCount;
         this.totalSpent = totalSpent;
     }
     
     public String getUserId(){
-        return userId;
+        return nickname;
     }
     
     public int getOrderCount(){
@@ -39,7 +39,7 @@ public class UserAggregationOrder {
      @Override
     public String toString() {
         return "UserOrderAggregationResult{" +
-                "userId='" + userId + '\'' +
+                "nickname='" + nickname + '\'' +
                 ", orderCount=" + orderCount +
                 ", totalSpent=" + totalSpent +
                 '}';

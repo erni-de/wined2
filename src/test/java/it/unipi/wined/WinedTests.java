@@ -35,7 +35,7 @@ import org.neo4j.driver.QueryConfig;
  * @author erni
  */
 public class WinedTests {
-/*
+
     @Test
     public void test() throws JsonProcessingException {
         ArrayList<Document> docs = Mongo.getGenderDistribution();
@@ -84,16 +84,13 @@ public class WinedTests {
         System.out.println(user.getNickname() + " " + rev.wine);
 
     }
-
- */
+   
+    //OK FUNZIONANTE
     @Test
-    public static void testGetUsersWithAtLeastNOrders() {
-        System.out.println("Dioboia");
-
-            System.out.println("Dioboia");
-
-            
-    int n = 1;
+    public void testGetUsersWithAtLeastNOrders() {
+  
+         
+    int n = 2;
     
     ArrayList<UserAggregationOrder> results = Mongo.getUserWithAtLeastNOrders(n);
     
@@ -106,7 +103,7 @@ public class WinedTests {
             System.out.println(res);
         }
     } else {
-        System.out.println("Nessun utente con almeno " + n + " ordini, oppure errore in aggregazione.");
+        System.out.println("Nessun utente con almeno " + n + " ordini.");
     }
 }
 

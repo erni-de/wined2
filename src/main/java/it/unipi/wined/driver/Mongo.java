@@ -866,70 +866,52 @@ public class Mongo {
     }
 }
 
-    public static ArrayList<UserAggregationOrder> getUserWithAtLeastNOrders(int n){
-        openConnection("Users");
-        
-        System.out.println("Entrato nella function");
-        
-        try{
-            ArrayList<Bson> pipeline = new ArrayList<>();
-            
-            //1) Spacchetto orders
-            pipeline.add(Aggregates.unwind("$orders"));
-            
-            //2) Faccio la group by sull'utente e calcolo il numero degli ordini
-            //E la spesa
-            pipeline.add(Aggregates.group(
-                Filters.eq("_id", "$id"),
-                Accumulators.sum("count", 1),
-                Accumulators.sum("totalSpent", "$order.order_price")
-            ));
-            
-            //3) Prendo solo quelli che hanno fatto almeno n ordini
-            pipeline.add(Aggregates.match(
-                Filters.gte("count", n)
-            ));
-            
-            //4) Proiezione per restituire i campi utili
-            pipeline.add(Aggregates.project(
-                fields(
-                        computed("userId", "$_id"),
-                        computed("orderCount", "$count"),
-                        computed("totalSpent", "$totalSpent")
-                )
-            ));
-            
-            ArrayList<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+ public static ArrayList<UserAggregationOrder> getUserWithAtLeastNOrders(int n) {
+    openConnection("Users");
+    try {
+        ArrayList<Bson> pipeline = new ArrayList<>();
 
-            //Converto i document nella classe di return
+        //1) Spacchetta gli ordini
+        pipeline.add(Aggregates.unwind("$orders"));
+
+        //2) Raggruppa per nickname (univoco)
+        pipeline.add(Aggregates.group(
+            "$nickname",
+            Accumulators.sum("count", 1),
+            Accumulators.sum("totalSpent", "$orders.order_total_cost")
+        ));
+
+        //3) Filtra per avere almeno n ordini
+        pipeline.add(Aggregates.match(Filters.gte("count", n)));
+
+        //4) Proietto
+        pipeline.add(Aggregates.project(
+            fields(
+                computed("userId", "$_id"),      
+                computed("orderCount", "$count"),
+                computed("totalSpent", "$totalSpent")
+            )
+        ));
+
+        ArrayList<Document> results = collection.aggregate(pipeline).into(new ArrayList<>());
+        ArrayList<UserAggregationOrder> out = new ArrayList<>();
+
+        for (Document doc : results) {
+            String userId = doc.getString("userId"); 
+            int orderCount = doc.getInteger("orderCount");
+            double totalSpent = doc.get("totalSpent", Number.class).doubleValue();
             
-            ArrayList<UserAggregationOrder> out = new ArrayList<>();
-            
-            for (Document doc : results){
-                
-                //Estraggo dal documento i campi per la classe di appoggio
-                String userId = doc.get("UserId").toString();
-                int orderCount = doc.getInteger("orderCount");
-                double totalSpent = doc.getDouble("totalSpent");
-                
-                UserAggregationOrder result = new UserAggregationOrder(
-                    userId, 
-                    orderCount, 
-                    totalSpent
-                );
-                
-                out.add(result);              
-            }
-            
-            closeConnection();
-            
-            return out;
-        
-        }catch (Exception e) {
-            System.out.println("Errore generale nello stampare i risultati");
-            e.printStackTrace();
-            closeConnection();
-            return null;
+            out.add(new UserAggregationOrder(userId, orderCount, totalSpent));
         }
+        return out;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    } finally {
+        closeConnection();
     }
+}
+
+
 }
