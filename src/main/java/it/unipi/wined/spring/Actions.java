@@ -7,14 +7,18 @@ package it.unipi.wined.spring;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import it.unipi.wined.bean.AbstractWine;
+import it.unipi.wined.bean.Order;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.Wine_WineMag;
 import it.unipi.wined.bean.Wine_WineVivino;
 import it.unipi.wined.driver.Mongo;
 import it.unipi.wined.neo4j.interaction.Neo4jGraphInteractions;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.bson.Document;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -195,6 +199,34 @@ public class Actions {
                 return serialized;
             } else {
                 return gson.toJson(gson.fromJson(serialized, Wine_WineMag[].class));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "500";
+        }
+
+    }
+    
+    /**
+     * Input should be serialization of a user and a current order
+     * @param input
+     * @return 
+     */
+    @PostMapping(path = "/add-order")
+    public @ResponseBody
+    String addOrder(@RequestBody String input) {
+        try {
+            Gson gson = new Gson();
+            Object[] par = gson.fromJson(input, Object[].class);
+            User user = gson.fromJson(gson.toJson(par[0]), User.class);
+            Order order = gson.fromJson(gson.toJson(par[1]), Order.class);
+            order.setConfirmationDate(LocalDateTime.now() + "");
+            order.setIdOrder(UUID.randomUUID().toString());
+            order.setDeliveryDate(LocalDate.now().plusDays(1) + "");
+            if (Mongo.addWineOrder(user.getNickname(), order)) {
+                return gson.toJson(Mongo.RetrieveUser(user.getNickname()));
+            } else {
+                return "500";
             }
         } catch (Exception e) {
             e.printStackTrace();

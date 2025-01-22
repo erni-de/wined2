@@ -207,10 +207,10 @@ public class Neo4jGraphInteractions {
     public static List<org.neo4j.driver.Record> getSuggestedWines(String username){
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         var liked = driver.executableQuery("""
-                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)                                        
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS]->(b:user)-[l:LIKES]->(w:wine)    
+                                         WHERE NOT (w)<-[:LIKES]-(u)                                    
                                          RETURN w.name, w.rating, w.likes
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
-
                                         """).
                 withParameters(Map.of("userName", username)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -222,6 +222,9 @@ public class Neo4jGraphInteractions {
         driver.close();
         return liked.records();
     }
+    
+    //best suggested wines by filter
+    //suggested users to follow
     
     
     
