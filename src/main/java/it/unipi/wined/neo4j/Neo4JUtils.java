@@ -37,9 +37,9 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
 //192.168.1.12
-    public static String connectionString = "neo4j://192.168.1.12:7687";
+    public static String connectionString = "bolt://127.0.0.1:7687";
     public static String neo4j_user = "neo4j";
-    public static String neo4j_password = "cinematto123";
+    public static String neo4j_password = "neo4j";
 
     public static Driver establishConnection() {
         return GraphDatabase.driver(connectionString, AuthTokens.basic(neo4j_user, neo4j_password));
