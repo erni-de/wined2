@@ -797,6 +797,40 @@ public class Mongo {
         }
     }
     
+  public static String getWineryIdByName(String wineryName) {
+      
+    openConnection("Wines");
+    
+    try {
+        Bson filter = Filters.eq("winery.name", wineryName);
+        Document doc = collection.find(filter).first();
+        
+        if (doc == null) {
+            System.out.println("Nessuna cantina trovata con il nome di " + wineryName);
+            closeConnection();
+            return null;
+        }
+        
+        Document wineryDoc = doc.get("winery", Document.class);
+        
+        if (wineryDoc == null) {
+            System.out.println("Dettagli della cantina mancanti per la cantina " + wineryName);
+            closeConnection();
+            return null;
+        }
+        
+        String wineryId = wineryDoc.getString("id");
+        closeConnection();
+        return wineryId;
+        
+    } catch (Exception e) {
+        System.out.println("Errore nel recuperare l'ID della cantina " + wineryName);
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
+    
     //+-----------------------------STATISTICHE ADMIN------------------------------+
 
     public static ArrayList<Document> getGenderDistribution() {

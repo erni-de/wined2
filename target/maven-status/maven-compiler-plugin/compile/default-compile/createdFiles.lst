@@ -1,2 +1,2 @@
-it/unipi/wined/bean/Neo4jListWrapper.class
-it/unipi/wined/bean/UserAggregationOrder.class
+it\unipi\wined\bean\UserAggregationOrder.class
+it\unipi\wined\bean\Neo4jListWrapper.class

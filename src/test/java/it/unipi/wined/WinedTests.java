@@ -37,5 +37,8 @@ import org.neo4j.driver.QueryConfig;
  */
 public class WinedTests {
 
-    
+    @Test
+    public void getWineryIdByName(){
+        System.out.println(Mongo.getWineryIdByName("M. Chapoutier"));
+    }
 }
