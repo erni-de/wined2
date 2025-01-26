@@ -36,8 +36,9 @@ public class Neo4jGraphInteractions {
     public static void deleteWine(String winename) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               MATCH(w:wine {username: $userName})-[:REVIEWED]->(r:review)
-                               DETACH DELETE w DETACH DELETE r 
+                               MATCH(u:wine {name: $wineName})
+                               MATCH(w:wine {name: $wineName})-[:REVIEWED]->(r:review)
+                               DETACH DELETE u DETACH DELETE w DETACH DELETE r 
                                """).
                 withParameters(Map.of("wineName", winename)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -137,8 +138,9 @@ public class Neo4jGraphInteractions {
     public static void deleteUserNode(User userToDelete) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
+                               MATCH (a:user {username :"ernak"})
                                MATCH (u:user {username :"ernak"})<-[:WRITTEN_BY]-(r:review)
-                               DETACH DELETE u DETACH DELETE r;
+                               DETACH DELETE a DETACH DELETE u DETACH DELETE r;
                                """).
                 withParameters(Map.of("userName", userToDelete.getNickname())).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).

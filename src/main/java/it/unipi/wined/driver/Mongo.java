@@ -797,7 +797,7 @@ public class Mongo {
         }
     }
     
-  public static String getWineryIdByName(String wineryName) {
+    public static String getWineryIdByName(String wineryName) {
       
     openConnection("Wines");
     

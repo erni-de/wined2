@@ -38,6 +38,8 @@ public class AdminActions {
     public static boolean isAdmin(String nickname, String password) {
         return Mongo.RetrieveUserLevel(nickname, password) == User.Level.ADMIN;
     }
+   
+    
     /**
      * Need a serialization of an array list o fthe user performing the action
      * and an id of a vivino wine
@@ -51,8 +53,12 @@ public class AdminActions {
             Gson gson = new Gson();
             Object[] par = gson.fromJson(input, Object[].class);
             User user = gson.fromJson(gson.toJson(par[0]), User.class);
-            String id = UUID.randomUUID().toString();
+            
             Wine_WineVivino wine = gson.fromJson(gson.toJson(par[1]), Wine_WineVivino.class);
+            String id = Mongo.getWineryIdByName(wine.getWinery_name());
+            if (id == null){
+                id = UUID.randomUUID().toString();
+            }    
             wine.setId(id);
             if (isAdmin(user)) {
                 if (Mongo.addWine(wine)) {
@@ -87,8 +93,11 @@ public class AdminActions {
             Gson gson = new Gson();
             Object[] par = gson.fromJson(input, Object[].class);
             User user = gson.fromJson(gson.toJson(par[0]), User.class);
-            String id = UUID.randomUUID().toString();
             Wine_WineMag wine = gson.fromJson(gson.toJson(par[1]), Wine_WineMag.class);
+            String id = Mongo.getWineryIdByName(wine.getWinery_name());
+            if (id == null){
+                id = UUID.randomUUID().toString();
+            }   
             wine.setId(id);
             if (isAdmin(user)) {
                 if (Mongo.addWine(wine)) {
@@ -110,23 +119,35 @@ public class AdminActions {
         }
     }
 
-    @PostMapping(path = "/delete-wine-vivino")
+    /**
+     * Need a serialization of an array list of the user performing the action
+     * and an id of a WineMag wine
+     * @param input
+     * @return 
+     */
+    @PostMapping(path = "/delete-wine")
     public @ResponseBody
-    String deleteWineVivino(@RequestBody String input) {
+    String deleteWine(@RequestBody String input) {
         try {
             Gson gson = new Gson();
             Object[] par = gson.fromJson(input, Object[].class);
             User user = gson.fromJson(gson.toJson(par[0]), User.class);
-            String id = gson.fromJson(gson.toJson(par[1]), String.class);
-            Wine_WineVivino wine = (Wine_WineVivino) Mongo.getWineById(id);
+            String name = gson.fromJson(gson.toJson(par[1]), String.class);
+            AbstractWine wine;
+            if(Mongo.getWineByName(name).get(0).getProvenance().equals("W")){
+                wine = (Wine_WineMag) Mongo.getWineByName(name).get(0);
+            } else {
+                wine = (Wine_WineVivino) Mongo.getWineByName(name).get(0);
+            }
             if (isAdmin(user)) {
-                if (Mongo.deleteWine(id)) {
+                if (Mongo.deleteWine(wine.getId())) {
                     try {
                         Neo4jGraphInteractions.deleteWine(wine.getName());
+                        return "200";
                     } catch (Exception e) {
                         Mongo.addWine(wine);
                         e.printStackTrace();
-                        return "200";
+                        return "500";
                     }
                 } else {
                     return "500";
@@ -137,38 +158,8 @@ public class AdminActions {
         } catch (Exception e) {
             return "500";
         }
-        return "500";
     }
     
-    @PostMapping(path = "/delete-wine-mag")
-    public @ResponseBody
-    String deleteWineWineMag(@RequestBody String input) {
-        try {
-            Gson gson = new Gson();
-            Object[] par = gson.fromJson(input, Object[].class);
-            User user = gson.fromJson(gson.toJson(par[0]), User.class);
-            String id = gson.fromJson(gson.toJson(par[1]), String.class);
-            Wine_WineMag wine = (Wine_WineMag) Mongo.getWineById(id);
-            if (isAdmin(user)) {
-                if (Mongo.deleteWine(id)) {
-                    try {
-                        Neo4jGraphInteractions.deleteWine(wine.getName());
-                    } catch (Exception e) {
-                        Mongo.addWine(wine);
-                        e.printStackTrace();
-                        return "200";
-                    }
-                } else {
-                    return "500";
-                }
-            } else {
-                return "503";
-            }
-        } catch (Exception e) {
-            return "500";
-        }
-        return "500";
-    }
 
     /**
      * Input should be a serialized list of two users; the first one should be
@@ -322,5 +313,6 @@ public class AdminActions {
             return "500";
         }
     }
+    
 
 }
