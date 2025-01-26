@@ -47,8 +47,15 @@ public class Access {
         User registering_user = gson.fromJson(register_data, User.class);
         System.out.println(registering_user.toString());
         try {
-            Neo4jGraphInteractions.addUserNode(registering_user);
-            Mongo.addUser(registering_user);
+            if (Mongo.addUser(registering_user)) {
+                try {
+                Neo4jGraphInteractions.addUserNode(registering_user);
+                } catch (Exception e) {
+                    Mongo.deleteUser(registering_user.getNickname());
+                    e.printStackTrace();
+                }
+            }
+
             return "200";
         } catch (Exception e) {
             e.printStackTrace();

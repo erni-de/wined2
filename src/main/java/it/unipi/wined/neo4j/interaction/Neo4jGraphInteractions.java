@@ -22,6 +22,29 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4jGraphInteractions {
 
+    public static void addWine(String winename) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        driver.executableQuery("""
+                               MERGE (w:wine {name: $wineName})
+                               """).
+                withParameters(Map.of("wineName", winename)).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
+        driver.close();
+    }
+
+    public static void deleteWine(String winename) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        driver.executableQuery("""
+                               MATCH(w:winw {username: $userName})
+                               DETACH DELETE w
+                               """).
+                withParameters(Map.of("wineName", winename)).
+                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                execute();
+        driver.close();
+    }
+
     public static void recomputeRating(String wine) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         EagerResult result = driver.executableQuery("""
@@ -88,7 +111,7 @@ public class Neo4jGraphInteractions {
         driver.executableQuery("""
                                MATCH (w:wine {name: $wineName})
                                MATCH (u:user {username: $userName})
-                               CREATE (u)-[:LIKES]->(w)
+                               MERGE (u)-[:LIKES]->(w)
                                """).
                 withParameters(Map.of("wineName", wine, "userName", username)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -103,7 +126,7 @@ public class Neo4jGraphInteractions {
     public static void addUserNode(User userToAdd) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               CREATE(u:user {id: $userId, username: $userName}) 
+                               MERGE(u:user {id: $userId, username: $userName}) 
                                """).
                 withParameters(Map.of("userId", userToAdd.id, "userName", userToAdd.getNickname())).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -132,7 +155,7 @@ public class Neo4jGraphInteractions {
         driver.executableQuery("""
                                MATCH (a:user {username: $selfUser})
                                MATCH (b:user {username: $targetUser})
-                               CREATE (a)-[:FOLLOWS]->(b)
+                               MERGE (a)-[:FOLLOWS]->(b)
                                """).
                 withParameters(Map.of("selfUser", selfUsername, "targetUser", targetUserName)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -212,8 +235,8 @@ public class Neo4jGraphInteractions {
         ArrayList<String> ret = new ArrayList<>();
         while (!done) {
             var liked = driver.executableQuery("""
-                                         MATCH (u:user {username : $userName})-[f:FOLLOWS * """ + distance + "]->(b:user)-[l:LIKES]->(w:wine) " + 
-                                         """
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS * """ + distance + "]->(b:user)-[l:LIKES]->(w:wine) "
+                    + """
                                          WHERE NOT (w)<-[:LIKES]-(u)                                    
                                          RETURN DISTINCT w.name, w.rating, w.likes
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
@@ -221,19 +244,19 @@ public class Neo4jGraphInteractions {
                     withParameters(Map.of("userName", username)).
                     withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                     execute();
-        for (org.neo4j.driver.Record r : liked.records()) {
+            for (org.neo4j.driver.Record r : liked.records()) {
                 ret.add(r.get("w.name") + "");
                 if (ret.size() == size) {
                     done = true;
                     break;
                 }
             }
-        distance ++;
+            distance++;
         }
-            driver.close();
-            return ret;
+        driver.close();
+        return ret;
     }
-    
+
     public static ArrayList<String> getSuggestedWinesByFilter(String username, ArrayList<String> filteredWines, int size) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         boolean done = false;
@@ -244,8 +267,8 @@ public class Neo4jGraphInteractions {
                                          MATCH (w:wine)
                                          WHERE w.name IN $wineNames
                                          WITH w
-                                         MATCH (u:user {username : $userName})-[f:FOLLOWS * """ + distance + "]->(b:user)-[l:LIKES]->(w:wine) " + 
-                                         """
+                                         MATCH (u:user {username : $userName})-[f:FOLLOWS * """ + distance + "]->(b:user)-[l:LIKES]->(w:wine) "
+                    + """
                                          WHERE NOT (w)<-[:LIKES]-(u)                                    
                                          RETURN DISTINCT w.name, w.rating, w.likes
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
@@ -253,7 +276,7 @@ public class Neo4jGraphInteractions {
                     withParameters(Map.of("userName", username, "wineNames", filteredWines)).
                     withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                     execute();
-        for (org.neo4j.driver.Record r : liked.records()) {
+            for (org.neo4j.driver.Record r : liked.records()) {
                 ret.add(r.get("w.name") + "");
                 System.out.println(filteredWines.size());
                 if (ret.size() == size) {
@@ -261,11 +284,11 @@ public class Neo4jGraphInteractions {
                     break;
                 }
             }
-            distance ++;
+            distance++;
         }
-            driver.close();
-            return ret;
-        }
+        driver.close();
+        return ret;
+    }
 
     public static ArrayList<String> getSuggestedUsers(String username, int size) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
