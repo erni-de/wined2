@@ -187,52 +187,47 @@ public class Mongo {
         }
     }
 
-    public static boolean updateUser(String nickname, String field, String value){
-        openConnection("Users");
-
-        if (field.equals("phone")) {
-            long phoneValue = Long.parseLong(value);
-            try {
-                Bson update = Updates.set(field, phoneValue);
-                collection.updateOne(eq("nickname", nickname), update);
-                System.out.println("User aggiornato correttamente (phone)!");
-                closeConnection();
-                return true;
-            } catch (Exception e) {
-                System.out.println("Errore nell'aggiornamento dell'user (phone)");
-                e.printStackTrace();
-                closeConnection();
-                return false;
-            }
+    public static boolean updateUser(String nickname, String field, String value) {
+    openConnection("Users");
+    
+    try {
+        Bson update;
+        switch (field) {
+            case "phone":
+                long phoneValue = Long.parseLong(value);
+                update = Updates.set("phone", phoneValue);
+                break;
+            case "user_level":
+                User.Level levelValue = User.Level.valueOf(value.toUpperCase());
+                update = Updates.set("user_level", levelValue.toString());
+                break;
+            case "payment.card_number":
+                update = Updates.set("payment.card_number", value);
+                break;
+            case "payment.CVV":
+                int cvvValue = Integer.parseInt(value);
+                update = Updates.set("payment.CVV", cvvValue);
+                break;
+            case "payment.expire_date":
+                update = Updates.set("payment.expire_date", value);
+                break;
+            default:
+                update = Updates.set(field, value);
+                break;
         }
-        if (field.equals("user_level")) {
-            User.Level levelValue = User.Level.valueOf(value.toUpperCase());
-            try {
-                Bson update = Updates.set(field, levelValue.toString());
-                collection.updateOne(eq("nickname", nickname), update);
-                System.out.println("User aggiornato correttamente (user_level)!");
-                closeConnection();
-                return true;
-            } catch (Exception e) {
-                System.out.println("Errore nell'aggiornamento dell'user (user_level)");
-                e.printStackTrace();
-                closeConnection();
-                return false;
-            }
-        }
-        try {
-            Bson update = Updates.set(field, value);
-            collection.updateOne(eq("nickname", nickname), update);
-            System.out.println("User aggiornato correttamente (string)!");
-            closeConnection();
-            return true;
-        } catch (Exception e) {
-            System.out.println("Errore nell'aggiornamento dell'user (string)");
-            e.printStackTrace();
-            closeConnection();
-            return false;
-        }
+        collection.updateOne(eq("nickname", nickname), update);
+        System.out.println("Aggiornamento utente completato per campo: " + field);
+        closeConnection();
+        return true;
+        
+    } catch (Exception e) {
+        
+        System.out.println("Errore nell'aggiornamento dell'utente");
+        e.printStackTrace();
+        closeConnection();
+        return false;
     }
+}
 
     public static PaymentInfo getPaymentFromUsername(String nickname){
         openConnection("Users");
@@ -520,6 +515,100 @@ public class Mongo {
         }
     }
 
+    public static boolean updateWine(String wineId, String field, String value) {
+    openConnection("Wines");
+    
+    try {
+        Document doc = collection.find(eq("_id", wineId)).first();
+        
+        if (doc == null) {
+            System.out.println("Nessun vino presente con _id=" + wineId);
+            closeConnection();
+            return false;
+        }
+        
+        String prov = doc.getString("provenance");
+        
+        if (prov == null) {
+            System.out.println("Impossibile aggiornare: campo 'provenance' mancante");
+            closeConnection();
+            return false;
+        }
+        
+        Bson update;
+        switch (field) {
+            case "name":
+                update = Updates.set("name", value);
+                break;
+            case "price":
+                update = Updates.set("price", Integer.parseInt(value));
+                break;
+            case "alcohol_percentage":
+                update = Updates.set("alcohol_percentage", Integer.parseInt(value));
+                break;
+            case "description":
+                update = Updates.set("description", value);
+                break;
+            case "country":
+                update = Updates.set("country", value);
+                break;
+            case "region":
+                update = Updates.set("region", value);
+                break;
+            case "variety":
+                update = Updates.set("variety", value);
+                break;
+            case "winery.id":
+                if (prov.equals("W")) {
+                    update = Updates.set("Winery.id", value);
+                } else {
+                    update = Updates.set("winery.id", value);
+                }
+                break;
+            case "winery.name":
+                if (prov.equals("W")) {
+                    update = Updates.set("Winery.name", value);
+                } else {
+                    update = Updates.set("winery.name", value);
+                }
+                break;
+            case "taste.structure.acidity":
+                update = Updates.set("taste.structure.acidity", Double.parseDouble(value));
+                break;
+            case "taste.structure.fizziness":
+                update = Updates.set("taste.structure.fizziness", Double.parseDouble(value));
+                break;
+            case "taste.structure.intensity":
+                update = Updates.set("taste.structure.intensity", Double.parseDouble(value));
+                break;
+            case "taste.structure.sweetness":
+                update = Updates.set("taste.structure.sweetness", Double.parseDouble(value));
+                break;
+            case "taste.structure.tannin":
+                update = Updates.set("taste.structure.tannin", Double.parseDouble(value));
+                break;
+            case "style.body":
+                update = Updates.set("style.body", Integer.parseInt(value));
+                break;
+            case "style.body_description":
+                update = Updates.set("style.body_description", value);
+                break;
+            default:
+                update = Updates.set(field, value);
+                break;
+        }
+        collection.updateOne(eq("_id", wineId), update);
+        System.out.println("Aggiornamento vino completato per campo: " + field);
+        closeConnection();
+        return true;
+    } catch (Exception e) {
+        System.out.println("Errore nell'aggiornamento del vino");
+        e.printStackTrace();
+        closeConnection();
+        return false;
+    }
+}
+
     public static AbstractWine getWineById(String id){
         openConnection("Wines");
         ObjectMapper deserialize = new ObjectMapper();
@@ -707,6 +796,40 @@ public class Mongo {
             return null;
         }
     }
+    
+  public static String getWineryIdByName(String wineryName) {
+      
+    openConnection("Wines");
+    
+    try {
+        Bson filter = Filters.eq("winery.name", wineryName);
+        Document doc = collection.find(filter).first();
+        
+        if (doc == null) {
+            System.out.println("Nessuna cantina trovata con il nome di " + wineryName);
+            closeConnection();
+            return null;
+        }
+        
+        Document wineryDoc = doc.get("winery", Document.class);
+        
+        if (wineryDoc == null) {
+            System.out.println("Dettagli della cantina mancanti per la cantina " + wineryName);
+            closeConnection();
+            return null;
+        }
+        
+        String wineryId = wineryDoc.getString("id");
+        closeConnection();
+        return wineryId;
+        
+    } catch (Exception e) {
+        System.out.println("Errore nel recuperare l'ID della cantina " + wineryName);
+        e.printStackTrace();
+        closeConnection();
+        return null;
+    }
+}
     
     //+-----------------------------STATISTICHE ADMIN------------------------------+
 
@@ -948,6 +1071,5 @@ public class Mongo {
         closeConnection();
     }
 }
-
-
+ 
 }

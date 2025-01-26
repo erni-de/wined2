@@ -23,6 +23,4 @@ public class Driver_Config {
         return MONGO_DBNAME;
     }
     
-    //POI QUA LA PARTE DI NEO4J, SE SERVE USERNAME E PASSWORD
-    //SI METTONO QUA O ALTRA ROBA
 }

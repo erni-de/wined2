@@ -8,6 +8,7 @@ package it.unipi.wined.bean;
  *
  * @author nicol
  */
+
 public class UserAggregationOrder {
     
     private String nickname;
