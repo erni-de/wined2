@@ -830,6 +830,63 @@ public class Mongo {
         return null;
     }
 }
+  
+public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_Name){
+    openConnection("Wines");
+    
+    ArrayList<AbstractWine> cheapestWines = new ArrayList<>();
+    
+    ObjectMapper deserialize = new ObjectMapper();
+    deserialize.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+        List<Bson> pipeline = Arrays.asList(
+                
+            //1)Filtra sul nome della cantina
+            Aggregates.match(Filters.eq("winery.name", winery_Name)),
+
+            // 2)Raggruppo usando prezzo e ID del vino come chiave di gruppo
+            Aggregates.group(
+                new Document("price", "$price").append("wine_id", "$_id"),
+                Accumulators.first("wine_name", "$name")
+            ),
+
+            // 3)Ordino per prezzo crescente
+            Aggregates.sort(Sorts.ascending("_id.price")),
+
+            // 4) Limita i risultati ai primi 15
+            Aggregates.limit(15),
+
+            // 5) Proietta i campi richiesti
+            Aggregates.project(Projections.fields(
+                Projections.excludeId(),
+                Projections.computed("price", "$_id.price"),
+                Projections.computed("wine_id", "$_id.wine_id"),
+                Projections.computed("wine_name", "$wine_name")
+            ))
+        );
+
+        for (Document doc : collection.aggregate(pipeline)) {
+            
+            String wineId = doc.getString("wine_id");
+            
+            AbstractWine wine = getWineById(wineId);
+            
+            if (wine != null) {
+                cheapestWines.add(wine);
+            }
+        }
+
+    } catch (Exception e) {
+        System.out.println("Errore durante la pipeline per la cantina: " + winery_Name);
+        e.printStackTrace();
+    } finally {
+        closeConnection();
+    }
+
+    return cheapestWines;
+}
+
     
     //+-----------------------------STATISTICHE ADMIN------------------------------+
 
@@ -1071,5 +1128,5 @@ public class Mongo {
         closeConnection();
     }
 }
- 
+
 }
