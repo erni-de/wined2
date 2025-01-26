@@ -36,8 +36,8 @@ public class Neo4jGraphInteractions {
     public static void deleteWine(String winename) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               MATCH(w:winw {username: $userName})
-                               DETACH DELETE w
+                               MATCH(w:wine {username: $userName})-[:REVIEWED]->(r:review)
+                               DETACH DELETE w DETACH DELETE r 
                                """).
                 withParameters(Map.of("wineName", winename)).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -137,8 +137,8 @@ public class Neo4jGraphInteractions {
     public static void deleteUserNode(User userToDelete) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               MATCH(u:user {username: $userName})
-                               DETACH DELETE u
+                               MATCH (u:user {username :"ernak"})<-[:WRITTEN_BY]-(r:review)
+                               DETACH DELETE u DETACH DELETE r;
                                """).
                 withParameters(Map.of("userName", userToDelete.getNickname())).
                 withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
@@ -299,16 +299,18 @@ public class Neo4jGraphInteractions {
             var users = driver.executableQuery(
                     "MATCH (u:user {username: $userName})-[r:FOLLOWS * " + distance + " ]->(w:user) "
                     + """
+                                        WHERE NOT (u)-[:FOLLOWS]->(w)
                                         MATCH (u:user {username: $userName})-[:LIKES]->(s:wine)<-[:LIKES]-(w:user)
+                                        WHERE NOT w.username IN $dupl
                                         ORDER BY s.rating IS NULL, s.rating DESC
                                         RETURN DISTINCT w.username 
                                         """
             ).
-                    withParameters(Map.of("userName", username)).
+                    withParameters(Map.of("userName", username, "dupl", ret)).
                     withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
                     execute();
             for (org.neo4j.driver.Record r : users.records()) {
-                ret.add(r.get("w.username") + "");
+                ret.add(r.get("w.username").asString());
                 if (ret.size() == size) {
                     done = true;
                     break;
@@ -316,6 +318,40 @@ public class Neo4jGraphInteractions {
             }
             distance++;
         }
+        driver.close();
+        return ret;
+    }
+    
+   public static ArrayList<String> getFollowers(String username) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        ArrayList<String> ret = new ArrayList<>();
+            var users = driver.executableQuery("""
+                            MATCH (w:user {username : $userName})<-[:FOLLOWS]-(u:user)
+                            RETURN u.username                   
+                                               """).
+                    withParameters(Map.of("userName", username)).
+                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                    execute();
+            for (org.neo4j.driver.Record r : users.records()) {
+                ret.add(r.get("u.username") + "");
+            }
+        driver.close();
+        return ret;
+    }
+   
+   public static ArrayList<String> getFollowed(String username) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        ArrayList<String> ret = new ArrayList<>();
+            var users = driver.executableQuery("""
+                            MATCH (w:user {username : $userName})-[:FOLLOWS]->(u:user)
+                            RETURN u.username                   
+                                               """).
+                    withParameters(Map.of("userName", username)).
+                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                    execute();
+            for (org.neo4j.driver.Record r : users.records()) {
+                ret.add(r.get("u.username") + "");
+            }
         driver.close();
         return ret;
     }

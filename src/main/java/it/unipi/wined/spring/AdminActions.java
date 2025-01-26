@@ -38,7 +38,12 @@ public class AdminActions {
     public static boolean isAdmin(String nickname, String password) {
         return Mongo.RetrieveUserLevel(nickname, password) == User.Level.ADMIN;
     }
-
+    /**
+     * Need a serialization of an array list o fthe user performing the action
+     * and an id of a vivino wine
+     * @param input
+     * @return 
+     */
     @PostMapping(path = "/add-wine-vivino")
     public @ResponseBody
     String addWineVivino(@RequestBody String input) {
@@ -69,6 +74,12 @@ public class AdminActions {
         }
     }
 
+    /**
+     * Need a serialization of an array list of the user performing the action
+     * and an id of a WineMag wine
+     * @param input
+     * @return 
+     */
     @PostMapping(path = "/add-wine-mag")
     public @ResponseBody
     String addWineWineMag(@RequestBody String input) {

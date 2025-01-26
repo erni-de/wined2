@@ -267,6 +267,32 @@ public class Actions {
         }
     }
     
+    @PostMapping(path = "/get-followers")
+    public @ResponseBody
+    String getFollowers(@RequestBody String input) {
+        try {
+            Gson gson = new Gson();
+            User user = gson.fromJson(input, User.class);
+            return gson.toJson(Neo4jGraphInteractions.getFollowers(user.getNickname()));
+        } catch (Exception e){
+            e.printStackTrace();
+            return "500";
+        }
+    }
+    
+    @PostMapping(path = "/get-followed")
+    public @ResponseBody
+    String getFollowed(@RequestBody String input) {
+        try {
+            Gson gson = new Gson();
+            User user = gson.fromJson(input, User.class);
+            return gson.toJson(Neo4jGraphInteractions.getFollowed(user.getNickname()));
+        } catch (Exception e){
+            e.printStackTrace();
+            return "500";
+        }
+    }
+    
     
 
 }
