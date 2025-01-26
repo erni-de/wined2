@@ -40,5 +40,9 @@ public class WinedTests {
     @Test
     public void getWineryIdByName(){
         System.out.println(Mongo.getWineryIdByName("M. Chapoutier"));
+        System.out.println(Mongo.countUniqueWineNames());
+        System.out.println(Mongo.getCheapestWineByWineryName("M. Chapoutier"));
     }
+    
+  
 }
