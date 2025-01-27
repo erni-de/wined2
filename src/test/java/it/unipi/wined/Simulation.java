@@ -36,7 +36,7 @@ public class Simulation {
     public void populateDB() {
         //Add Users and Wines node to graph 
         System.out.println("Carico i vini");
-        Neo4JUtils.loadWine("/home/erni/Downloads/wines.json");
+        Neo4JUtils.loadWine("/home/erni/Downloads/wines_final_V2.json");
         System.out.println("Carico gli user");
         Neo4JUtils.loadUsers("/home/erni/Downloads/user.json");
     }
@@ -50,15 +50,15 @@ public class Simulation {
         //PARAMETERS -- change manually
         //Path to data
         String usersPath = "/home/erni/Downloads/user.json";
-        String winesPath = "/home/erni/Downloads/wines.json";
+        String winesPath = "/home/erni/Downloads/wines_final_V2.json";
         String reviewsPath = "/home/erni/Downloads/reviews/reviews.json";
         
         //Number of drivers for neo4j
-        int n_drivers = 50;
+        int n_drivers = 100;
             //no of iterations for each action
         
         int ORDER_ITER = 1000;
-        int FOLLOW_ITER = 10;
+        int FOLLOW_ITER = 100;
         int LIKE_ITER = 300;
         int REVIEW_ITER = 70;
         
@@ -101,7 +101,7 @@ public class Simulation {
                     System.out.println("[" + i + "] " + "User " + users[r_user].getNickname() + " has made an order : " + order.toString());
                     System.out.println("Threads : " + Thread.activeCount());
                 }
-                /*
+                
                 for (int i = 0; i < FOLLOW_ITER; i++) { //following sim
                     for (Driver driver : drivers) {
                         r_users = random.ints(2, 0, users.length).toArray();
@@ -182,7 +182,7 @@ public class Simulation {
                                 execute();
                         System.out.println("[" + i + "] " + "User " + users[r_users[3]].getNickname() + " reviewes " + wines[r_wines[1]].getName());
                     }
-                }*/
+                }
             }
 
         } catch (Exception e) {

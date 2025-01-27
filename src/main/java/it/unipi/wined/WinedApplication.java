@@ -32,8 +32,62 @@ import org.neo4j.driver.QueryConfig;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class WinedApplication {
-    
+
     public static void main(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--n4j-conn":
+                    if (i + 1 < args.length) {
+                        Neo4JUtils.connectionString = args[++i]; // Capture the next argument as the value
+                    } else {
+                        System.err.println("Error: --n4j-conn flag requires a value");
+                        return;
+                    }
+                    break;
+                case "--n4j-user":
+                    if (i + 1 < args.length) {
+                        Neo4JUtils.neo4j_user = args[++i]; // Capture the next argument as the value
+                    } else {
+                        System.err.println("Error: --n4j-user flag requires a value");
+                        return;
+                    }
+                    break;
+                case "--n4j-password":
+                    if (i + 1 < args.length) {
+                        Neo4JUtils.neo4j_user = args[++i]; // Capture the next argument as the value
+                    } else {
+                        System.err.println("Error: --n4j-password flag requires a value");
+                        return;
+                    }
+                    break;
+                case "--neo4j-db":
+                    if (i + 1 < args.length) {
+                        Neo4JUtils.db = args[++i]; // Capture the next argument as the value
+                    } else {
+                        System.err.println("Error: --n4j-db flag requires a value");
+                        return;
+                    }
+                    break;
+                case "--mongo-db":
+                    if (i + 1 < args.length) {
+                        Driver_Config.setMONGO_DBNAME(args[++i]); // Capture the next argument as the value
+                    } else {
+                        System.err.println("Error: --mongo-db flag requires a value");
+                        return;
+                    }
+                    break;
+                case "--mongo-conn":
+                    if (i + 1 < args.length) {
+                        Driver_Config.setMONGO_CONNECTION_STRING(args[++i]); // Capture the next argument as the value
+                    } else {
+                        System.err.println("Error: --mongo-conn flag requires a value");
+                        return;
+                    }
+                    break;
+                default:
+                    System.err.println("Invalid flag: " + args[i]);
+            }
+        }
         System.out.println("Ciao");
         SpringApplication.run(WinedApplication.class, args);
 

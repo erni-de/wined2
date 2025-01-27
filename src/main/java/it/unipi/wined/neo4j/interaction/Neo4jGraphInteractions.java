@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import it.unipi.wined.bean.Neo4jListWrapper;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
+import it.unipi.wined.neo4j.Neo4JUtils;
 import static it.unipi.wined.neo4j.Neo4JUtils.establishConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Neo4jGraphInteractions {
                                MERGE (w:wine {name: $wineName})
                                """).
                 withParameters(Map.of("wineName", winename)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -41,7 +42,7 @@ public class Neo4jGraphInteractions {
                                DETACH DELETE u DETACH DELETE w DETACH DELETE r 
                                """).
                 withParameters(Map.of("wineName", winename)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -53,7 +54,7 @@ public class Neo4jGraphInteractions {
                                RETURN r.rating
                                """).
                 withParameters(Map.of("wineName", wine)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         String res = result.records().toString().replace("Record<", "").replace(">", "").replace("r.", "");
         Gson gson = new Gson();
@@ -71,7 +72,7 @@ public class Neo4jGraphInteractions {
                                SET w.rating = $wineRating
                                """).
                 withParameters(Map.of("wineName", wine, "wineRating", wineRating)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -89,7 +90,7 @@ public class Neo4jGraphInteractions {
                                CREATE (b)-[:WRITTEN_BY]->(c)
                                """).
                 withParameters(Map.of("wineName", wine, "reviewTitle", review.title, "reviewCorpus", review.body, "reviewRating", review.rating, "userName", username)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         recomputeRating(wine); //to update the qine rating
@@ -102,7 +103,7 @@ public class Neo4jGraphInteractions {
                                WITH w, COUNT(l) as likes SET w.likes = likes
                                """).
                 withParameters(Map.of("wine", wine)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -115,7 +116,7 @@ public class Neo4jGraphInteractions {
                                MERGE (u)-[:LIKES]->(w)
                                """).
                 withParameters(Map.of("wineName", wine, "userName", username)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         updateLikeCount(wine);
@@ -130,7 +131,7 @@ public class Neo4jGraphInteractions {
                                MERGE(u:user {id: $userId, username: $userName}) 
                                """).
                 withParameters(Map.of("userId", userToAdd.id, "userName", userToAdd.getNickname())).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -143,7 +144,7 @@ public class Neo4jGraphInteractions {
                                DETACH DELETE a DETACH DELETE u DETACH DELETE r;
                                """).
                 withParameters(Map.of("userName", userToDelete.getNickname())).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -160,7 +161,7 @@ public class Neo4jGraphInteractions {
                                MERGE (a)-[:FOLLOWS]->(b)
                                """).
                 withParameters(Map.of("selfUser", selfUsername, "targetUser", targetUserName)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
     }
@@ -172,7 +173,7 @@ public class Neo4jGraphInteractions {
                                 RETURN CASE WHEN n IS NOT NULL THEN 1 ELSE 0 END AS exists
                                """).
                 withParameters(Map.of("username", username)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         return result.records().toString().equals("[Record<{exists: 1}>]");
@@ -185,7 +186,7 @@ public class Neo4jGraphInteractions {
                                 RETURN CASE WHEN n IS NOT NULL THEN 1 ELSE 0 END AS exists
                                """).
                 withParameters(Map.of("winename", wine)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         return !result.records().toString().equals("[]");
@@ -198,7 +199,7 @@ public class Neo4jGraphInteractions {
                                 RETURN w.name
                                """).
                 withParameters(Map.of("username", user)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         return result.records().toString();
@@ -211,7 +212,7 @@ public class Neo4jGraphInteractions {
                                 RETURN w.name, b.rating, b.text, b.title
                                """).
                 withParameters(Map.of("username", user)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         return result.records();
@@ -224,7 +225,7 @@ public class Neo4jGraphInteractions {
                                 RETURN b.rating, b.text, b.title, u.username
                                """).
                 withParameters(Map.of("wineName", wine)).
-                withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                 execute();
         driver.close();
         return result.records();
@@ -244,7 +245,7 @@ public class Neo4jGraphInteractions {
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
                     withParameters(Map.of("userName", username)).
-                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : liked.records()) {
                 ret.add(r.get("w.name") + "");
@@ -276,7 +277,7 @@ public class Neo4jGraphInteractions {
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
                     withParameters(Map.of("userName", username, "wineNames", filteredWines)).
-                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : liked.records()) {
                 ret.add(r.get("w.name") + "");
@@ -309,7 +310,7 @@ public class Neo4jGraphInteractions {
                                         """
             ).
                     withParameters(Map.of("userName", username, "dupl", ret)).
-                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : users.records()) {
                 ret.add(r.get("w.username").asString());
@@ -332,7 +333,7 @@ public class Neo4jGraphInteractions {
                             RETURN u.username                   
                                                """).
                     withParameters(Map.of("userName", username)).
-                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : users.records()) {
                 ret.add(r.get("u.username") + "");
@@ -349,7 +350,7 @@ public class Neo4jGraphInteractions {
                             RETURN u.username                   
                                                """).
                     withParameters(Map.of("userName", username)).
-                    withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : users.records()) {
                 ret.add(r.get("u.username") + "");

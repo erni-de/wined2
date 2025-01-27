@@ -5,7 +5,6 @@
 package it.unipi.wined.bean;
 
 import it.unipi.wined.bean.User;
-import it.unipi.wined.json.objects.VivinoReview;
 
 /**
  *

@@ -67,6 +67,7 @@ public class AdminActions {
                     } catch (Exception e) {
                         Mongo.deleteWine(id);
                         e.printStackTrace();
+                        return "401";
                     }
                     return "200";
                 } else {
@@ -106,6 +107,7 @@ public class AdminActions {
                     } catch (Exception e) {
                         Mongo.deleteWine(id);
                         e.printStackTrace();
+                        return "401";
                     }
                     return "200";
                 } else {
@@ -147,10 +149,10 @@ public class AdminActions {
                     } catch (Exception e) {
                         Mongo.addWine(wine);
                         e.printStackTrace();
-                        return "500";
+                        return "401";
                     }
                 } else {
-                    return "500";
+                    return "400";
                 }
             } else {
                 return "503";
@@ -184,6 +186,7 @@ public class AdminActions {
                     } catch (Exception e) {
                         Mongo.addUser(user);
                         e.printStackTrace();
+                        return "400";
                     }
                     return "200";
                 } else {

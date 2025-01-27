@@ -4,7 +4,6 @@
  */
 package it.unipi.wined.neo4j;
 
-import it.unipi.wined.json.objects.VivinoWine;
 import it.unipi.wined.bean.Neo4jListWrapper;
 
 import com.google.gson.Gson;
@@ -40,6 +39,7 @@ public class Neo4JUtils {
     public static String connectionString = "neo4j://192.168.1.12:7687";
     public static String neo4j_user = "neo4j";
     public static String neo4j_password = "cinematto123";
+    public static String db = "neo4j";
 
     public static Driver establishConnection() {
         return GraphDatabase.driver(connectionString, AuthTokens.basic(neo4j_user, neo4j_password));
@@ -63,7 +63,7 @@ public class Neo4JUtils {
                                MERGE (u:user { username: $userName}) 
                                """).
                         withParameters(Map.of("userName", u.getNickname())).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                        withConfig(QueryConfig.builder().withDatabase(db).build()).
                         execute();
             System.out.println("Caricato il " + i + "utente");
             i++;
@@ -90,7 +90,7 @@ public class Neo4JUtils {
                                MERGE (w:wine {name: $wineName}) 
                                """).
                         withParameters(Map.of("wineName", wines[i].getName())).
-                        withConfig(QueryConfig.builder().withDatabase("neo4j").build()).
+                        withConfig(QueryConfig.builder().withDatabase(db).build()).
                         execute();
                 
                 System.out.println("Caricato il " + i + " vino");

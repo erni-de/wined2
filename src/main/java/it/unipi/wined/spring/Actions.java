@@ -93,11 +93,16 @@ public class Actions {
     String checkWine(@RequestBody String jsonWinename) {
         Gson gson = new Gson();
         String winename = gson.fromJson(jsonWinename, String.class);
-        if (Neo4jGraphInteractions.checkIfWineExists(winename)) {
-            return "1";//if wine already exists
+        if (Mongo.getWineByName(winename) != null) {
+            if (Neo4jGraphInteractions.checkIfWineExists(winename)) {
+                return "1";//if wine already exists
+            } else {
+                return "0";//if wine doesn't exist
+            }
         } else {
-            return "0";//if wine doesn't exist
+            return "0";
         }
+
     }
 
     @PostMapping(path = "/review")
@@ -150,7 +155,7 @@ public class Actions {
             return "500";
         }
     }
-    
+
     @PostMapping(path = "/get-by-price")
     public @ResponseBody
     String getSuggestedByPrice(@RequestBody String input) {
@@ -160,7 +165,7 @@ public class Actions {
             User user = gson.fromJson(gson.toJson(par[0]), User.class);
             int min = gson.fromJson(gson.toJson(par[1]), Integer.class);
             int max = gson.fromJson(gson.toJson(par[2]), Integer.class);
-            
+
             ArrayList<String> wines = Mongo.getWinesByPrice(min, max);
 
             ArrayList<String> retList = Neo4jGraphInteractions.getSuggestedWinesByFilter(user.getNickname(), wines, 10);
@@ -184,7 +189,7 @@ public class Actions {
             ArrayList<Document> ret2 = Mongo.getWinesByWineryName(winery, "W");
             ret.addAll(ret2);
             return mapper.readTree(ret.get(0).toJson()).get("wines") + "";
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return "500";
@@ -192,10 +197,10 @@ public class Actions {
 
     }
 
-    
     /**
-     *Input should be a serialization of a user object a string containing 
-     * the name of the wine to be returned.
+     * Input should be a serialization of a user object a string containing the
+     * name of the wine to be returned.
+     *
      * @param input
      * @return
      */
@@ -220,11 +225,12 @@ public class Actions {
         }
 
     }
-    
+
     /**
      * Input should be serialization of a user and a current order
+     *
      * @param input
-     * @return 
+     * @return
      */
     @PostMapping(path = "/add-order")
     public @ResponseBody
@@ -248,11 +254,12 @@ public class Actions {
         }
 
     }
-    
+
     /**
      * Input should be a serialization of the current user
+     *
      * @param input
-     * @return 
+     * @return
      */
     @PostMapping(path = "/suggested-follows")
     public @ResponseBody
@@ -261,12 +268,12 @@ public class Actions {
             Gson gson = new Gson();
             User user = gson.fromJson(input, User.class);
             return gson.toJson(Neo4jGraphInteractions.getSuggestedUsers(user.getNickname(), 20));
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return "500";
         }
     }
-    
+
     @PostMapping(path = "/get-followers")
     public @ResponseBody
     String getFollowers(@RequestBody String input) {
@@ -274,12 +281,12 @@ public class Actions {
             Gson gson = new Gson();
             User user = gson.fromJson(input, User.class);
             return gson.toJson(Neo4jGraphInteractions.getFollowers(user.getNickname()));
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return "500";
         }
     }
-    
+
     @PostMapping(path = "/get-followed")
     public @ResponseBody
     String getFollowed(@RequestBody String input) {
@@ -287,14 +294,10 @@ public class Actions {
             Gson gson = new Gson();
             User user = gson.fromJson(input, User.class);
             return gson.toJson(Neo4jGraphInteractions.getFollowed(user.getNickname()));
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return "500";
         }
     }
-    
-    
-    
-    
 
 }

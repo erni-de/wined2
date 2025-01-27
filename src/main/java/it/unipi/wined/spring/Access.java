@@ -31,10 +31,14 @@ public class Access {
     String checkUsername(@RequestBody String jsonUsername) {
         Gson gson = new Gson();
         String username = gson.fromJson(jsonUsername, String.class);
-        if (Neo4jGraphInteractions.checkIfUserExists(username)) {
-            return "1";//if user already exists
+        if (Mongo.RetrieveUser(username) != null) {
+            if (Neo4jGraphInteractions.checkIfUserExists(username)) {
+                return "1";//if user already exists
+            } else {
+                return "0";//if user doesn't exist
+            }
         } else {
-            return "0";//if user doesn't exist
+            return "0";
         }
     }
 
@@ -49,7 +53,7 @@ public class Access {
         try {
             if (Mongo.addUser(registering_user)) {
                 try {
-                Neo4jGraphInteractions.addUserNode(registering_user);
+                    Neo4jGraphInteractions.addUserNode(registering_user);
                 } catch (Exception e) {
                     Mongo.deleteUser(registering_user.getNickname());
                     e.printStackTrace();
