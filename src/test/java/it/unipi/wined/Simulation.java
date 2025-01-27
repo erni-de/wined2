@@ -35,6 +35,7 @@ public class Simulation {
      @Test
     public void populateDB() {
         //Add Users and Wines node to graph 
+        Neo4JUtils.checks("/home/erni/Downloads/wines_final_V2.json");
         System.out.println("Carico gli user");
         Neo4JUtils.loadUsers("/home/erni/Downloads/user.json");
         System.out.println("Carico i vini");

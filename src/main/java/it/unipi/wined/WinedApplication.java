@@ -89,7 +89,7 @@ public class WinedApplication {
             }
         }
         System.out.println("Ciao");
-        System.out.println("Connection Parameters");
+        System.out.println("Connection Parameters : ");
         System.out.println("# Neo4j driver : " + Neo4JUtils.connectionString + " | db: " + Neo4JUtils.db + " | user: " + Neo4JUtils.neo4j_user + " | pw: " + Neo4JUtils.neo4j_password);
         System.out.println("# MongoDB driver : " + Driver_Config.getMongoConnectionString() + " | db: " + Driver_Config.getMongoDbName());
 

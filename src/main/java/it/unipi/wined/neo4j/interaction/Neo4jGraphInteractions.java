@@ -139,8 +139,8 @@ public class Neo4jGraphInteractions {
     public static void deleteUserNode(User userToDelete) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         driver.executableQuery("""
-                               MATCH (a:user {username :"ernak"})
-                               MATCH (u:user {username :"ernak"})<-[:WRITTEN_BY]-(r:review)
+                               MATCH (a:user {username : $userName})
+                               MATCH (u:user {username : $userName})<-[:WRITTEN_BY]-(r:review)
                                DETACH DELETE a DETACH DELETE u DETACH DELETE r;
                                """).
                 withParameters(Map.of("userName", userToDelete.getNickname())).

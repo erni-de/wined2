@@ -5,15 +5,11 @@
 package it.unipi.wined.neo4j;
 
 import it.unipi.wined.bean.Neo4jListWrapper;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.unipi.wined.bean.Review;
 import it.unipi.wined.bean.User;
 import it.unipi.wined.bean.Wine_WineMag;
-import it.unipi.wined.json.objects.FakeUser;
-import it.unipi.wined.json.objects.FakeUserWrapper;
-import it.unipi.wined.json.objects.WinemagWine;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -22,6 +18,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.stream.Stream;
@@ -36,6 +33,7 @@ import org.neo4j.driver.QueryConfig;
  */
 public class Neo4JUtils {
 //192.168.1.12
+
     public static String connectionString = "bolt://10.1.1.19:7687";
     public static String neo4j_user = "neo4j";
     public static String neo4j_password = "cinematto123";
@@ -54,7 +52,7 @@ public class Neo4JUtils {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         Gson gson = new Gson();
         int i = 1;
-        
+
         try (FileReader reader = new FileReader(path)) {
             // Map JSON to a Java object
             User[] users = gson.fromJson(reader, User[].class);
@@ -65,19 +63,19 @@ public class Neo4JUtils {
                         withParameters(Map.of("userName", u.getNickname())).
                         withConfig(QueryConfig.builder().withDatabase(db).build()).
                         execute();
-            System.out.println("Caricato il " + i + "utente");
-            i++;
+                System.out.println("Caricato il " + i + "utente");
+                i++;
             }
-           
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    
     /**
      * Specify path of wines documents
-     * @param path 
+     *
+     * @param path
      */
     public static void loadWine(String path) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
@@ -85,20 +83,47 @@ public class Neo4JUtils {
         try (FileReader reader = new FileReader(path)) {
             // Map JSON to a Java object
             Wine_WineMag[] wines = gson.fromJson(reader, Wine_WineMag[].class);
-            for (int i = 0; i< wines.length; i++) {
+            for (int i = 0; i < wines.length; i++) {
                 driver.executableQuery("""
                                MERGE (w:wine {name: $wineName}) 
                                """).
                         withParameters(Map.of("wineName", wines[i].getName())).
                         withConfig(QueryConfig.builder().withDatabase(db).build()).
                         execute();
-                
+
                 System.out.println("Caricato il " + i + " vino");
-                
-                
+
             }
 
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void checks(String path) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(path)) {
+            // Map JSON to a Java object
+            Wine_WineMag[] wines = gson.fromJson(reader, Wine_WineMag[].class);
+            ArrayList<String> arr = new ArrayList<>();
+            for (Wine_WineMag wine : wines){
+                arr.add(wine.getName());
+            }
+            var result = driver.executableQuery("""
+                               WITH $names AS names
+                               UNWIND names AS name
+                               OPTIONAL MATCH (w:wine {name: name})
+                               WHERE w IS NULL
+                               RETURN name AS notFoundNames;
+                               """).
+                        withParameters(Map.of("names", arr)).
+                        withConfig(QueryConfig.builder().withDatabase(db).build()).
+                        execute();
+            for (org.neo4j.driver.Record r : result.records()){
+                System.out.println(r.get("notFoundNames").asString());
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

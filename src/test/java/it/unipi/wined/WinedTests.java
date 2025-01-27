@@ -36,4 +36,5 @@ import org.neo4j.driver.QueryConfig;
  * @author erni
  */
 public class WinedTests {
+    
 }
