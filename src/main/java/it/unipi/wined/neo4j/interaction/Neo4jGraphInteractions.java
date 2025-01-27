@@ -310,10 +310,13 @@ public class Neo4jGraphInteractions {
         if (!done) {
             var liked = driver.executableQuery("""
                                         MATCH (w:wine)
+                                        WHERE w.name IN $wineNames
+                                        WITH w     
                                         RETURN w.name
                                         ORDER BY rand()
                                         LIMIT""" + " " + (size - ret.size())
             ).
+                    withParameters(Map.of("wineNames", filteredWines)).
                     withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : liked.records()) {
