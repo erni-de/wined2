@@ -60,7 +60,7 @@ public class WinedApplication {
                         return;
                     }
                     break;
-                case "--neo4j-db":
+                case "--n4j-db":
                     if (i + 1 < args.length) {
                         Neo4JUtils.db = args[++i]; // Capture the next argument as the value
                     } else {
@@ -89,6 +89,10 @@ public class WinedApplication {
             }
         }
         System.out.println("Ciao");
+        System.out.println("Connection Parameters");
+        System.out.println("# Neo4j driver : " + Neo4JUtils.connectionString + " | db: " + Neo4JUtils.db + " | user: " + Neo4JUtils.neo4j_user + " | pw: " + Neo4JUtils.neo4j_password);
+        System.out.println("# MongoDB driver : " + Driver_Config.getMongoConnectionString() + " | db: " + Driver_Config.getMongoDbName());
+
         SpringApplication.run(WinedApplication.class, args);
 
     }

@@ -14,7 +14,6 @@
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/driver/Mongo.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/Neo4JUtils.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/Statistics.java
-/home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/interaction/GraphActions.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/neo4j/interaction/Neo4jGraphInteractions.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Access.java
 /home/erni/wined2/wined2/src/main/java/it/unipi/wined/spring/Actions.java

@@ -245,7 +245,7 @@ public class Neo4jGraphInteractions {
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
                     withParameters(Map.of("userName", username)).
-                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                    withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : liked.records()) {
                 ret.add(r.get("w.name") + "");
@@ -255,6 +255,22 @@ public class Neo4jGraphInteractions {
                 }
             }
             distance++;
+            if (distance == 5) {
+                break;
+        }
+        }
+        if (!done) {
+            var liked = driver.executableQuery("""
+                                        MATCH (w:wine)
+                                        RETURN w
+                                        ORDER BY rand()
+                                        LIMIT """ + (size - ret.size())
+                                              ).
+                    withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                    execute();
+            for (org.neo4j.driver.Record r : liked.records()) {
+                ret.add(r.get("w.name") + "");
+            }
         }
         driver.close();
         return ret;
@@ -276,21 +292,36 @@ public class Neo4jGraphInteractions {
                                          RETURN DISTINCT w.name, w.rating, w.likes
                                          ORDER BY w.rating IS NULL , w.rating DESC, w.likes DESC
                                         """).
-                    withParameters(Map.of("userName", username, "wineNames", filteredWines)).
-                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                    withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : liked.records()) {
                 ret.add(r.get("w.name") + "");
-                System.out.println(filteredWines.size());
                 if (ret.size() == size) {
                     done = true;
                     break;
                 }
             }
             distance++;
+            if (distance == 5) {
+                break;
+            }
         }
-        driver.close();
-        return ret;
+        if (!done) {
+            var liked = driver.executableQuery("""
+                                        MATCH (w:wine)
+                                        RETURN w
+                                        ORDER BY rand()
+                                        LIMIT """ + (size - ret.size())
+            ).
+                    withParameters(Map.of("userName", username, "wineNames", filteredWines)).
+                    withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                    execute();
+            for (org.neo4j.driver.Record r : liked.records()) {
+                ret.add(r.get("w.name") + "");
+            }
+        }
+            driver.close();
+            return ret;
     }
 
     public static ArrayList<String> getSuggestedUsers(String username, int size) {
@@ -310,7 +341,7 @@ public class Neo4jGraphInteractions {
                                         """
             ).
                     withParameters(Map.of("userName", username, "dupl", ret)).
-                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                    withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
                     execute();
             for (org.neo4j.driver.Record r : users.records()) {
                 ret.add(r.get("w.username").asString());
@@ -320,41 +351,57 @@ public class Neo4jGraphInteractions {
                 }
             }
             distance++;
+            if (distance == 5) {
+                break;
+            }
+        }
+        if (!done) {
+            var liked = driver.executableQuery("""
+                                        MATCH (u:user)
+                                        RETURN u
+                                        ORDER BY rand()
+                                        LIMIT """ + (size - ret.size())
+            ).
+                    withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                    execute();
+            for (org.neo4j.driver.Record r : liked.records()) {
+                ret.add(r.get("w.name") + "");
+            }
+        }
+            driver.close();
+            return ret;
+    }
+
+    public static ArrayList<String> getFollowers(String username) {
+        Driver driver = establishConnection(); //use ifconfig to retrive private ip
+        ArrayList<String> ret = new ArrayList<>();
+        var users = driver.executableQuery("""
+                            MATCH (w:user {username : $userName})<-[:FOLLOWS]-(u:user)
+                            RETURN u.username                   
+                                               """).
+                withParameters(Map.of("userName", username)).
+                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
+                execute();
+        for (org.neo4j.driver.Record r : users.records()) {
+            ret.add(r.get("u.username") + "");
         }
         driver.close();
         return ret;
     }
-    
-   public static ArrayList<String> getFollowers(String username) {
+
+    public static ArrayList<String> getFollowed(String username) {
         Driver driver = establishConnection(); //use ifconfig to retrive private ip
         ArrayList<String> ret = new ArrayList<>();
-            var users = driver.executableQuery("""
-                            MATCH (w:user {username : $userName})<-[:FOLLOWS]-(u:user)
-                            RETURN u.username                   
-                                               """).
-                    withParameters(Map.of("userName", username)).
-                withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
-                    execute();
-            for (org.neo4j.driver.Record r : users.records()) {
-                ret.add(r.get("u.username") + "");
-            }
-        driver.close();
-        return ret;
-    }
-   
-   public static ArrayList<String> getFollowed(String username) {
-        Driver driver = establishConnection(); //use ifconfig to retrive private ip
-        ArrayList<String> ret = new ArrayList<>();
-            var users = driver.executableQuery("""
+        var users = driver.executableQuery("""
                             MATCH (w:user {username : $userName})-[:FOLLOWS]->(u:user)
                             RETURN u.username                   
                                                """).
-                    withParameters(Map.of("userName", username)).
+                withParameters(Map.of("userName", username)).
                 withConfig(QueryConfig.builder().withDatabase(Neo4JUtils.db).build()).
-                    execute();
-            for (org.neo4j.driver.Record r : users.records()) {
-                ret.add(r.get("u.username") + "");
-            }
+                execute();
+        for (org.neo4j.driver.Record r : users.records()) {
+            ret.add(r.get("u.username") + "");
+        }
         driver.close();
         return ret;
     }
