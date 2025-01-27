@@ -7,16 +7,12 @@ import requests
 from bs4 import BeautifulSoup
 
 def get_arguments():
-    """Ottiene gli argomenti dalla linea di comando."""
-    parser = argparse.ArgumentParser(description='Esegue lo scraping di tutti i dati sui vini da Vivino e salva i risultati in una cartella come file JSON.')
-    parser.add_argument('output_file', help='La cartella in cui verranno salvati i file .json di output', type=str)
-    parser.add_argument('-start_page', help='Identificatore pagina di partenza', type=int, default=1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output_file', type=str)
+    parser.add_argument('-start_page', type=int, default=1)
     return parser.parse_args()
 
-# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
-# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
-# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
-# Funzione per fare scraping del prezzo, dell'alcol e della descrizione HTML
+#Scraping del prezzo dell'alcol e della descrizione HTML
 def get_html_data(wine_url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -71,7 +67,6 @@ if __name__ == '__main__':
     output_dir = args.output_file
     start_page = args.start_page
 
-    # Assicuriamoci che la cartella esista
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -82,12 +77,10 @@ if __name__ == '__main__':
         "min_rating": 1.0
     }
 
-    # Ottenere il numero totale di vini
     res = r.get('explore/explore?', params=payload)
     n_matches = res.json()['explore_vintage']['records_matched']
     print(f'Numero totale di vini ottenuti: {n_matches}')
 
-    # Iterare su tutte le pagine
     for i in range(start_page, max(1, int(n_matches / c.RECORDS_PER_PAGE)) + 1):
         data = {'wines': []}
         payload['page'] = i
@@ -99,10 +92,8 @@ if __name__ == '__main__':
             wine = match['vintage']['wine']
 
             try:
-                # Provo a cercare il prezzo nella risposta dell'API
                 price_info = match['vintage'].get('price', None)
 
-                # Scraping HTML per ulteriori dettagli
                 wine_html_url = f"https://www.vivino.com/w/{wine['id']}"
                 html_data = get_html_data(wine_html_url)
 
@@ -119,12 +110,10 @@ if __name__ == '__main__':
 
                 data['wines'].append(wine)
 
-                # Richiesta delle caratteristiche organolettiche
                 res_taste = r.get(f'wines/{wine["id"]}/tastes')
                 tastes = res_taste.json()
                 data['wines'][-1]['taste'] = tastes.get('tastes', [])
 
-                # Paginazione delle recensioni
                 all_reviews = []
                 page_reviews = 1
                 while True:
@@ -142,7 +131,6 @@ if __name__ == '__main__':
             except KeyError as e:
                 print(f'Errore: {e}. Saltando il vino {wine["name"]}.')
 
-        # Salvataggio dei dati della pagina
         filename = os.path.join(output_dir, f"data_{i}.json")
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False)

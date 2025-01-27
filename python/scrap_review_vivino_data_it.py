@@ -5,10 +5,9 @@ import utils.constants as c
 from utils.requester import Requester
 
 def get_arguments():
-    """Ottiene gli argomenti dalla linea di comando."""
-    parser = argparse.ArgumentParser(description='Esegue lo scraping delle recensioni dei vini da Vivino e salva i risultati in una cartella come file JSON.')
-    parser.add_argument('output_file', help='La cartella in cui verranno salvati i file .json di output', type=str)
-    parser.add_argument('-start_page', help='Identificatore pagina di partenza', type=int, default=1)
+    parser = argparse.ArgumentParser(description='Esegue lo scraping delle recensioni dei vini da Vivino')
+    parser.add_argument('output_file', type=str)
+    parser.add_argument('-start_page', type=int, default=1)
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -16,7 +15,6 @@ if __name__ == '__main__':
     output_dir = args.output_file
     start_page = args.start_page
 
-    # Assicuriamoci che la cartella esista
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -28,7 +26,6 @@ if __name__ == '__main__':
     }
 
     try:
-        # Ottenere il numero totale di vini
         res = r.get('explore/explore?', params=payload)
         n_matches = res.json().get('explore_vintage', {}).get('records_matched', 0)
         print(f'Numero totale di vini ottenuti: {n_matches}')
@@ -36,7 +33,6 @@ if __name__ == '__main__':
         print(f'Errore durante l\'ottenimento del numero totale di vini: {e}')
         n_matches = 0
 
-    # Iterare dalla pagina più alta alla più bassa
     for i in range(max(1, int(n_matches / c.RECORDS_PER_PAGE)), start_page - 1, -1):
         try:
             data = {'wines': []}
@@ -53,7 +49,6 @@ if __name__ == '__main__':
                     continue
 
                 try:
-                    # Paginazione delle recensioni
                     all_reviews = []
                     page_reviews = 1
                     while True:
@@ -81,7 +76,6 @@ if __name__ == '__main__':
                 except Exception as e:
                     print(f'Errore durante l\'elaborazione del vino {wine.get("name", "sconosciuto")}: {e}')
 
-            # Salvataggio dei dati della pagina
             filename = os.path.join(output_dir, f"data_{i}.json")
             try:
                 with open(filename, 'w', encoding='utf-8') as f:
