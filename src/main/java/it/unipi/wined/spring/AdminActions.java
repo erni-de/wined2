@@ -58,8 +58,9 @@ public class AdminActions {
             String id = Mongo.getWineryIdByName(wine.getWinery_name());
             if (id == null){
                 id = UUID.randomUUID().toString();
-            }    
-            wine.setId(id);
+            }   
+            wine.setWinery_id(id);
+            wine.setId(UUID.randomUUID().toString());
             if (isAdmin(user)) {
                 if (Mongo.addWine(wine)) {
                     try {

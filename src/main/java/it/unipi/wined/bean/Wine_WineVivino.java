@@ -235,4 +235,86 @@ public class Wine_WineVivino extends AbstractWine {
             return "Food{" + "name='" + name + '\'' + '}';
         }
     }
+
+    public void setWinery_id(String winery_id) {
+        this.winery_id = winery_id;
+    }
+
+    public void setWinery_name(String winery_name) {
+        this.winery_name = winery_name;
+    }
+
+    public void setAcidity(Double acidity) {
+        this.acidity = acidity;
+    }
+
+    public void setFizziness(Double fizziness) {
+        this.fizziness = fizziness;
+    }
+
+    public void setIntensity(Double intensity) {
+        this.intensity = intensity;
+    }
+
+    public void setSweetness(Double sweetness) {
+        this.sweetness = sweetness;
+    }
+
+    public void setTannin(Double tannin) {
+        this.tannin = tannin;
+    }
+
+    public void setFlavorList(List<Flavor> flavorList) {
+        this.flavorList = flavorList;
+    }
+
+    public void setBody(Integer body) {
+        this.body = body;
+    }
+
+    public void setBody_description(String body_description) {
+        this.body_description = body_description;
+    }
+
+    public void setFoodList(List<Food> foodList) {
+        this.foodList = foodList;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setProvenance(String provenance) {
+        this.provenance = provenance;
+    }
+
+    public void setVariety(String variety) {
+        this.variety = variety;
+    }
+
+    public void setAlcohol_percentage(int alcohol_percentage) {
+        this.alcohol_percentage = alcohol_percentage;
+    }
+    
+    
 }
