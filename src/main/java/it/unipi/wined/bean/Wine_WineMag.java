@@ -38,6 +38,52 @@ public class Wine_WineMag extends AbstractWine {
         return winery_name;
     }
 
+    public void setWinery_id(String winery_id) {
+        this.winery_id = winery_id;
+    }
+
+    public void setWinery_name(String winery_name) {
+        this.winery_name = winery_name;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setProvenance(String provenance) {
+        this.provenance = provenance;
+    }
+
+    public void setVariety(String variety) {
+        this.variety = variety;
+    }
+
+    public void setAlcohol_percentage(int alcohol_percentage) {
+        this.alcohol_percentage = alcohol_percentage;
+    }
+    
+    
+
     @SuppressWarnings("unchecked")
     @JsonProperty("winery")
     private void unpackNestedWinery(Map<String, Object> winery) {

@@ -94,12 +94,17 @@ public class AdminActions {
             Gson gson = new Gson();
             Object[] par = gson.fromJson(input, Object[].class);
             User user = gson.fromJson(gson.toJson(par[0]), User.class);
+            
             Wine_WineMag wine = gson.fromJson(gson.toJson(par[1]), Wine_WineMag.class);
+            System.out.println(input);
+            System.out.println(wine.toString());
+
             String id = Mongo.getWineryIdByName(wine.getWinery_name());
             if (id == null){
                 id = UUID.randomUUID().toString();
             }   
-            wine.setId(id);
+            wine.setWinery_id(id);
+            wine.setId(UUID.randomUUID().toString());
             if (isAdmin(user)) {
                 if (Mongo.addWine(wine)) {
                     try {
