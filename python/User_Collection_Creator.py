@@ -11,12 +11,12 @@ def generate_payment():
         number = random.randint(0,9)
         card_number = str(card_number) + str(number)
     
-    #CVV generation
+    #CVV
     CVV = random.randint(100,999)
     
     expire_date = ''
 
-    #EXPIRE_DATE
+    #SCADENZA
     result = random.randint(1,12)
     
     if result < 10:
@@ -26,7 +26,6 @@ def generate_payment():
     
     expire_date= expire_date + '/' + str(random.randint(2027, 2038))
 
-    #Generating the document to append
     random_payment = {
         "card_number": card_number,
         "CVV": CVV,
@@ -36,16 +35,14 @@ def generate_payment():
     return random_payment
 
 def main():
-    "Apertura del file dai dati"
     with open('users_generated.json', 'r') as file:
         data = json.load(file)
 
     count = 0
 
-    "Scorro i document per verificare l'unicità"
     for document in data:
 
-        #Campi da eliminare gestisco l'eccezione sotto
+        #Campi da eliminare
         try:
             document.pop("id")
             document.pop("website")
@@ -68,7 +65,7 @@ def main():
             document["user_level"] = "ADMIN"
             count += 1
 
-        #Generating random payment for the user with the function
+        #Genero i pagamenti
         document["payment"] = generate_payment()
 
     #Salvo il file e lo riapro con PANDAS per togliere i duplicati
@@ -96,7 +93,6 @@ def main():
 
     json_str_no_ascii = json.dumps(data, indent=4, ensure_ascii=False)
 
-    # Salva il risultato finale in un file JSON
     with open('users_final.json', 'w', encoding='utf-8') as f:
         f.write(json_str_no_ascii)
 

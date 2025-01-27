@@ -6,7 +6,7 @@ def generate_users_in_batches(total_users, gender, batch_size=1000):
     api_url = "https://fakerapi.it/api/v2/persons"
     users = []
 
-    # Calcola il numero totale di batch necessari
+    #Calcola il numero totale di batch necessari
     num_batches = (total_users // batch_size) + (1 if total_users % batch_size > 0 else 0)
 
     for batch in range(num_batches):
@@ -14,14 +14,14 @@ def generate_users_in_batches(total_users, gender, batch_size=1000):
         current_batch_size = min(batch_size, total_users - len(users))
         print(f"Generazione batch {batch + 1}/{num_batches} per il genere {gender} ({current_batch_size} utenti)...")
 
-        # Richiesta all'API
+        #Richiesta all'API
         response = requests.get(api_url, params={
             "_quantity": current_batch_size,
             "_gender": gender,
             "_birthday_start": "1960-01-01",
         })
 
-        # Verifica della risposta
+        #Verifica della risposta
         if response.status_code == 200:
             data = response.json()
             users.extend(data["data"])
@@ -31,7 +31,6 @@ def generate_users_in_batches(total_users, gender, batch_size=1000):
 
     return users
 
-#Funzione principale per generare utenti
 def main():
     #Numero totale di utenti da generare per genere
     total_users_per_gender = 25000

@@ -1,15 +1,13 @@
 import json
 import uuid
 
+#Troppi dati nel documento vivino questa è la trasformazione finale
 def transform_vivino_document(doc):
-    """
-    Trasforma un documento Vivino (provenance="V") nello schema semplificato desiderato.
-    Ritorna un nuovo dizionario con i campi richiesti, con eventuali campi 'vuoti' a null.
-    """
-    new_id = str(uuid.uuid4())       # _id
-    winery_uuid = str(uuid.uuid4())  # winery.id
+   
+    new_id = str(uuid.uuid4())       
+    winery_uuid = str(uuid.uuid4())  
 
-    # costruiamo il dizionario finale (con default None per i campi che ci interessano)
+    #Questo è il documento che voglio ottenere
     new_doc = {
         "_id": new_id,
         "name": doc.get("name", None),
@@ -86,30 +84,21 @@ def transform_vivino_document(doc):
 
 
 def filter_and_transform_vivino_docs_keep_winemag(input_file, output_file):
-    """
-    Legge 'input_file' (JSON con doc di WineMag e Vivino),
-    - Se doc.provenance='V': trasforma la struttura
-    - Altrimenti lascia invariato (WineMag).
-    E salva TUTTI i documenti in 'output_file'.
-    """
+   
     with open(input_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)  # Supponendo che il file sia una lista di documenti JSON
-
+        data = json.load(f)  
     new_dataset = []
+
     for doc in data:
+
         if doc.get("provenance") == "V":
-            # Trasforma
             new_doc = transform_vivino_document(doc)
             new_dataset.append(new_doc)
         else:
-            # Non toccarlo
             new_dataset.append(doc)
 
-    # Salviamo su file
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(new_dataset, f, indent=4, ensure_ascii=False)
 
-
 if __name__ == "__main__":
     filter_and_transform_vivino_docs_keep_winemag("wines_id.json", "wines_final.json")
-    print("Trasformazione completata. File generato: wines_final.json")
