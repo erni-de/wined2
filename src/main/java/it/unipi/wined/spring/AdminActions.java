@@ -338,7 +338,7 @@ public class AdminActions {
             String value = gson.fromJson(gson.toJson(params[3]), String.class);
 
             if (isAdmin(user)) {
-                if (Mongo.updateWine(winename, field, value)){
+                if (Mongo.updateWine(Mongo.getWineByName(winename).get(0).getId(), field, value)){
                     return "200";
                 } else {
                     return "400";
