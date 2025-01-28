@@ -12,11 +12,6 @@ package it.unipi.wined.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-//Decided to implement the orders into the collection of users with an emebedded method.
-//The reason is for avoiding join with other documents and for make a fast retrieve of all the orders
-//Made by a users. The main problem in this case is the limit of dimension made by MongoDB for a single document
-//So we suppose that an order can be composed maximum by 20 wines; we make this assumption for avoiding
-//The split of a document and in this case for loosing the performance with the read and write operations
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderList {
 
@@ -25,11 +20,10 @@ public class OrderList {
     private double price;
     private int wine_number;
 
-    //Costruttore vuoto per Jackson
+    //Costruttore vuoto per Jackson (senza si bugga)
     public OrderList() {
     }
 
-    //Costruttore
     public OrderList(String wine_id, String wine_name, double price, int wine_number) {
         this.wine_id = wine_id;
         this.wine_name = wine_name;

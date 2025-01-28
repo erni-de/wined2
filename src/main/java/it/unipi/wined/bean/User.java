@@ -41,16 +41,11 @@ public class User {
     // COSTRUTTORI
     // =====================
     
-    //Il costruttore vuoto lo richiede il down di Jackson se non c'è fa casino
+    //Costruttore vuoto jackson
     public User() {
-        //Inizializzo a vuoto (sennò da Null Pointer)
         this.orders = new ArrayList<>();
     }
 
-    //Costruttore senza order e payment
-    //E' la versione iniziale degli utenti che ho messo nel dataset
-    //Potrebbe esserci un user bo che vuole registrarsi, essere PREMIUM
-    //Ma solo per vedere gli abbinamenti dei vini e non voler fare acquisti
     public User(String firstname,
                 String lastname,
                 String email,
@@ -75,7 +70,6 @@ public class User {
         this.user_level = user_level;
     }
     
-    //Costruttore completo previsto sia di payments che di ArrayOrders
     public User(String firstname,
                 String lastname,
                 String email,
@@ -89,7 +83,6 @@ public class User {
                 PaymentInfo payment,
                 List<Order> orders){
 
-        //Riuso il costruttore sopra
         this(firstname, lastname, email, phone, birthday, gender, address,
                 nickname, password, user_level);
         

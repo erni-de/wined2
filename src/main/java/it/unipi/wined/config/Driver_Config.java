@@ -10,10 +10,10 @@ package it.unipi.wined.config;
  */
 public class Driver_Config {
 
-    //LOCAL REPLICA CONFIGURATION
+    //Replica config
     private static String MONGO_DBNAME = "lsmdb";
     private static String MONGO_CONNECTION_STRING = "mongodb://10.1.1.19:27020,10.1.1.18:27020,10.1.1.17:27020/?retryWrites=true&w=majority&wtimeout=10000"; 
-    //GETTER AND SETTER METHOD FOR THE CONFIG CLASS
+    
     public static String getMongoConnectionString(){
         return MONGO_CONNECTION_STRING;
     }

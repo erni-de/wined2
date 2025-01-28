@@ -8,6 +8,7 @@ package it.unipi.wined.bean;
  *
  * @author nicol
  */
+
 public class Order_Insert {
     private String wineId;
     private int price;

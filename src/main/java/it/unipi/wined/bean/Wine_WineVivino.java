@@ -92,7 +92,9 @@ public class Wine_WineVivino extends AbstractWine {
     @JsonProperty("taste")
     private void unpackTaste(Map<String, Object> taste) {
         if (taste == null) return;
+        
         Map<String, Object> structure = (Map<String, Object>) taste.get("structure");
+        
         if (structure != null) {
             this.acidity   = toDouble(structure.get("acidity"));
             this.fizziness = toDouble(structure.get("fizziness"));
@@ -100,15 +102,19 @@ public class Wine_WineVivino extends AbstractWine {
             this.sweetness = toDouble(structure.get("sweetness"));
             this.tannin    = toDouble(structure.get("tannin"));
         }
+        
         List<Map<String, Object>> flavorArray = (List<Map<String, Object>>) taste.get("flavor");
         if (flavorArray == null) return;
+        
         List<Flavor> tempFlavorList = new ArrayList<>();
+        
         for (Map<String, Object> flavorObj : flavorArray) {
             Flavor fl = new Flavor();
             fl.setGroup((String) flavorObj.get("group"));
             fl.setMentions_count(toInteger(flavorObj.get("mentions_count")));
             tempFlavorList.add(fl);
         }
+        
         this.flavorList = tempFlavorList;
     }
 
@@ -128,16 +134,21 @@ public class Wine_WineVivino extends AbstractWine {
     @JsonProperty("style")
     private void unpackStyle(Map<String, Object> style) {
         if (style == null) return;
+        
         this.body = toInteger(style.get("body"));
         this.body_description = (String) style.get("body_description");
+        
         List<Map<String, Object>> foodArray = (List<Map<String, Object>>) style.get("food");
         if (foodArray == null) return;
+        
         List<Food> tempFoodList = new ArrayList<>();
+        
         for (Map<String, Object> foodObj : foodArray) {
             Food f = new Food();
             f.setName((String) foodObj.get("name"));
             tempFoodList.add(f);
         }
+        
         this.foodList = tempFoodList;
     }
 

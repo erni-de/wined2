@@ -13,6 +13,7 @@ import java.util.ArrayList;
  *
  * @author nicol
  */
+
 //An order is implemented as an array of order_list, so in each order we have an
 //Array of order_list that specifies the wine bought, the quantity and the price
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,7 +33,7 @@ public class Order {
     //---------------
     //--COSTRUTTORI--
     //---------------
-    //Basic constructor for inizializing the order
+    
     //I inizialize the array List for avoiding NullPointerException
     public Order() {
         this.order_total_cost = 0;
@@ -42,8 +43,7 @@ public class Order {
     public Order(String id_order, ArrayList<OrderList> orderList, String confirmation_date,
             String delivery_date) {
 
-        //I recall the empty constructor for initializing the variable
-        //I only have one main constructor, an order cannot have empty fields
+        //Recall the empty constructor for initializing
         this();
         this.id_order = id_order;
         this.orderList = orderList;
@@ -56,13 +56,10 @@ public class Order {
 
     }
 
-    //Main constructor. The assumption is 
     public Order(String id_order, ArrayList<OrderList> orderList, String confirmation_date,
             String departure_date, String delivery_date, double feedback,
             double order_total_cost) {
 
-        //I recall the empty constructor for initializing the variable
-        //I only have one main constructor, an order cannot have empty fields
         this();
         this.id_order = id_order;
         this.orderList = orderList;
@@ -72,8 +69,9 @@ public class Order {
     }
 
     //---------------
-    //---GET METHOD--
+    //------GET------
     //---------------
+    
     public String getIdOrder() {
         return id_order;
     }
@@ -95,7 +93,7 @@ public class Order {
     }
 
     //---------------
-    //---SET METHOD--
+    //------SET------
     //---------------
     public void setIdOrder(String id_order) {
         this.id_order = id_order;

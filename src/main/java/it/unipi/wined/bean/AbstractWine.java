@@ -15,8 +15,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 //Classe astratta con i campi comuni a WineMag e Vivino
- 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractWine {
     

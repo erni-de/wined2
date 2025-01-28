@@ -246,14 +246,17 @@ public class Mongo {
             String json = doc.toJson();
             JsonNode rootNode = deserialize.readTree(json);
             JsonNode paymentNode = rootNode.get("payment");
+            
             if(paymentNode == null){
                 System.out.println("L'utente non ha un metodo di pagamento memorizzato");
                 closeConnection();
                 return null;
             }
+            
             PaymentInfo paymentinfo = deserialize.treeToValue(paymentNode, PaymentInfo.class);
             closeConnection();
             return paymentinfo;
+            
         }catch(Exception e){
             System.out.println("Errore nell'ottenere il metodo di pagamento");
             e.printStackTrace();
@@ -374,18 +377,24 @@ public class Mongo {
                     Filters.eq("name", wineName),
                     Filters.eq("winery.name", wineryName)
             );
+            
             Bson projection = Projections.fields(
                     Projections.include("_id", "price")
             );
+            
             Document doc = collection.find(filter).projection(projection).first();
+            
             if (doc == null){
                 System.out.println("Nessun vino con quelle caratteristiche, "
                         + "inserimento ordine impossibile");
                 return null;
             }
+            
             String idString = doc.get("_id").toString();
             int price = doc.getInteger("price");
+            
             closeConnection();
+            
             return new Order_Insert(idString, price);
         }catch(Exception e){
             System.out.println("Errore generale nel retrieve dell'id e price");
@@ -741,6 +750,7 @@ public class Mongo {
 
         for (Document doc : docs) {
             String prov = doc.getString("provenance");
+            
             if (prov.equals("W")) {
                 Wine_WineMag wineMag = deserialize.readValue(doc.toJson(), Wine_WineMag.class);
                 results.add(wineMag.getName());
@@ -773,7 +783,6 @@ public class Mongo {
             ArrayList <AbstractWine> resultsreturn = new ArrayList<>();
             String provenance;
             
-            //Possibile avere più risultati se prendo solo in base al nome
             while(cursor.hasNext()){
                 Document doc = cursor.next();
                 provenance = doc.getString("provenance");
@@ -845,19 +854,19 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
             //1)Filtra sul nome della cantina
             Aggregates.match(Filters.eq("winery.name", winery_Name)),
 
-            // 2)Raggruppo usando prezzo e ID del vino come chiave di gruppo
+            //2)Raggruppo usando prezzo e ID del vino
             Aggregates.group(
                 new Document("price", "$price").append("wine_id", "$_id"),
                 Accumulators.first("wine_name", "$name")
             ),
 
-            // 3)Ordino per prezzo crescente
+            //3)Ordino per prezzo crescente
             Aggregates.sort(Sorts.ascending("_id.price")),
 
-            // 4) Limita i risultati ai primi 15
+            //4) Limita i risultati
             Aggregates.limit(15),
 
-            // 5) Proietta i campi richiesti
+            //5) Proietta i campi richiesti
             Aggregates.project(Projections.fields(
                 Projections.excludeId(),
                 Projections.computed("price", "$_id.price"),
@@ -894,11 +903,13 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
         openConnection("Users");
         ArrayList<Document> results = new ArrayList<>();
         Bson group = group("$gender", sum("total", 1));
+        
         Bson projectFields = project(fields(
                 excludeId(),
                 computed("Gender", "$_id"),
                 computed("Total", "$total")
         ));
+        
         try {
             for (Document doc : collection.aggregate(Arrays.asList(group, projectFields))) {
                 results.add(doc);
@@ -912,13 +923,16 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
 
     public static ArrayList<Document> getRegionDistribution(){
         openConnection("Wines");
+        
         ArrayList<Document> results = new ArrayList<>();
         Bson group = group("$region", sum("total", 1));
+        
         Bson projectFields = project(fields(
                 excludeId(),
                 computed("Region", "$_id"),
                 computed("Total", "$total")
         ));
+        
         try{
             for(Document doc: collection.aggregate(Arrays.asList(group, projectFields))){
                 results.add(doc);
@@ -933,17 +947,19 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
     public static long countUniqueWineNames() {
         openConnection("Wines");
         long count = 0;
+        
         List<Bson> aggregationPipeline = Arrays.asList(
             group("$name"),
             count("uniqueNameCount")
         );
+        
         try {
             AggregateIterable<Document> result = collection.aggregate(aggregationPipeline);
             if (result.first() != null) {
                 count = result.first().getInteger("uniqueNameCount");
             }
         } catch (Exception e) {
-            System.err.println("Errore durante l'aggregazione per contare i nomi unici dei vini: " + e.getMessage());
+            System.err.println("Errore durante l'aggregazione per contare i vini: " + e.getMessage());
             e.printStackTrace();
         } finally {
             closeConnection();
@@ -989,7 +1005,9 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
         try {
             List<Bson> pipeline = Arrays.asList(
                 unwind("$orders"),
+                
                 group(null, Accumulators.avg("avgCost", "$orders.order_total_cost")),
+                
                 project(
                     fields(
                         excludeId(),
@@ -997,6 +1015,7 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
                     )
                 )
             );
+            
             Document resultDoc = collection.aggregate(pipeline).first();
             if (resultDoc != null) {
                 averageCost = resultDoc.getDouble("AverageOrderCost");
@@ -1021,10 +1040,10 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
 
         ArrayList<Bson> pipeline = new ArrayList<>();
         
-        //1) Spacchetta gli ordini
+        //1)Spacchetta gli ordini
         pipeline.add(Aggregates.unwind("$orders"));
         
-        //2) Filtra sulla data dell'ultimo mese
+        //2)Filtra sulla data dell'ultimo mese
         pipeline.add(Aggregates.match(
             Filters.and(
                 Filters.gte("orders.confirmation_date", low_interval.toString()),
@@ -1032,16 +1051,16 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
             )
         ));
         
-        //3) Spacchetta gli order_list
+        //3)Spacchetta gli order_list
         pipeline.add(Aggregates.unwind("$orders.order_list"));
         
-        //4) Group by sull'id (univoco) e somma i vini venduti
+        //4)Group by sull'id (univoco) e somma i vini venduti
         pipeline.add(Aggregates.group(
             "$orders.order_list.wine_id",
             Accumulators.sum("vino_comprato", "$orders.order_list.wine_number")
         ));
         
-        //5) Sorta in base al numero di bottiglie
+        //5)Sorta in base al numero di bottiglie
         pipeline.add(Aggregates.sort(Sorts.descending("vino_comprato")));
         
         //Projecto per pulire
@@ -1063,7 +1082,7 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
             int max = results.get(0).getInteger("Numero bottiglie");
             ArrayList<AbstractWine> bestSelledWines = new ArrayList<>();
 
-            // Gestione del caso di pareggio
+            //Gestione del caso di pareggio
             for (Document doc : results) {
                 if (doc.getInteger("Numero bottiglie") == max) {
                     bestSelledWines.add(getWineById(doc.getString("id_vino")));
@@ -1071,6 +1090,7 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
                     break;
                 }
             }
+            
             closeConnection();
             return bestSelledWines;
         }
@@ -1087,20 +1107,20 @@ public static ArrayList<AbstractWine> getCheapestWineByWineryName(String winery_
     try {
         ArrayList<Bson> pipeline = new ArrayList<>();
 
-        //1) Spacchetta gli ordini
+        //1)Spacchetta gli ordini
         pipeline.add(Aggregates.unwind("$orders"));
 
-        //2) Raggruppa per nickname (univoco)
+        //2)Raggruppa per nickname (univoco)
         pipeline.add(Aggregates.group(
             "$nickname",
             Accumulators.sum("count", 1),
             Accumulators.sum("totalSpent", "$orders.order_total_cost")
         ));
 
-        //3) Filtra per avere almeno n ordini
+        //3)Filtra per avere almeno n ordini
         pipeline.add(Aggregates.match(Filters.gte("count", n)));
 
-        //4) Proietto
+        //4)Proietto
         pipeline.add(Aggregates.project(
             fields(
                 computed("userId", "$_id"),      
