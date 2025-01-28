@@ -323,5 +323,34 @@ public class AdminActions {
         }
     }
     
+    
+    @PostMapping(path = "/update-wine")
+    public @ResponseBody
+    String updateWine(@RequestBody String input) {
+        try {
+            Gson gson = new Gson();
+            ObjectMapper mapper = new ObjectMapper();
+            
+            Object[] params = gson.fromJson(input, Object[].class);
+            User user = gson.fromJson(gson.toJson(params[0]), User.class);
+            String winename = gson.fromJson(gson.toJson(params[1]), String.class);
+            String field = gson.fromJson(gson.toJson(params[2]), String.class);
+            String value = gson.fromJson(gson.toJson(params[3]), String.class);
+
+            if (isAdmin(user)) {
+                if (Mongo.updateWine(winename, field, value)){
+                    return "200";
+                } else {
+                    return "400";
+                }
+            } else {
+                return "503";
+            }
+            }catch (Exception e){
+                e.printStackTrace();
+                return "500";
+            }
+    }
+
 
 }
